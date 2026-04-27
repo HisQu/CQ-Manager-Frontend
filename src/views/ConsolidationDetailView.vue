@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
+import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ref, watch} from "vue";
 import {TrashIcon, ArrowDownOnSquareIcon, XMarkIcon} from "@heroicons/vue/24/solid";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
@@ -114,11 +115,14 @@ async function removeQuestions(consolidationId: string, project_uuid: string, qu
                 @close="messagePopupData.open = false;"/>
   <div v-if="consolidation"
        class="w-full">
-    <h1 class="text-2xl">
-      Consolidation Detail View
-    </h1>
-
-    <h2 class="mt-10 text-xl">Project: {{consolidation.data.project.name}}</h2>
+    <DetailPageHeader :title="consolidation.data.name" :project="consolidation.data.project.name">
+      <template #meta>
+        By <span class="font-medium text-gray-700 dark:text-gray-200">{{ consolidation.data.engineer.name }}</span>
+        <span v-if="consolidation.data.questions.length > 0" class="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+          {{ consolidation.data.questions.length }} question{{ consolidation.data.questions.length !== 1 ? 's' : '' }}
+        </span>
+      </template>
+    </DetailPageHeader>
 
     <div>
       <div class="mt-10">

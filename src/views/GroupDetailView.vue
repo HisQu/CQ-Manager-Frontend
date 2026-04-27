@@ -1,13 +1,14 @@
 <script lang="ts">
 import MessagePopup from "../components/MessagePopup.vue";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
+import DetailPageHeader from "../components/DetailPageHeader.vue";
 import { ArrowDownOnSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import GroupDataService from "../services/GroupDataService.ts";
 
 
 export default {
   name: "GroupDetailView",
-  components: { MessagePopup, ArrowDownOnSquareIcon, SubmitButtonWithCallback, TrashIcon },
+  components: { MessagePopup, ArrowDownOnSquareIcon, SubmitButtonWithCallback, TrashIcon, DetailPageHeader },
   props: {
     id: { type: String, required: true }
   },
@@ -134,7 +135,17 @@ export default {
 <template>
   <MessagePopup :uxresponse="messagePopupData.uxresponse" :open="messagePopupData.open" @close="messagePopupData.open = false;" />
   <div v-if="add.name && !messagePopupData.open" class="w-full">
-    <h1 class="text-2xl">Group Edit View</h1>
+    <DetailPageHeader :title="data.name" :project="data.project?.name">
+      <template #meta>
+        <span class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+          {{ data.noMembers }} member{{ data.noMembers !== 1 ? 's' : '' }}
+        </span>
+        <span class="ml-1.5 inline-flex items-center rounded-md bg-violet-50 px-1.5 py-0.5 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/30">
+          {{ data.noQuestions }} question{{ data.noQuestions !== 1 ? 's' : '' }}
+        </span>
+      </template>
+    </DetailPageHeader>
+    <hr class="my-6 border-gray-200 dark:border-gray-700"/>
     <div>
       <div class="my-5">
         <label for="project" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
