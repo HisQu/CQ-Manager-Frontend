@@ -104,8 +104,16 @@ export default {
       }
     },
     async deleteUser() {
-      await UserDataService.delete(this.email);
-      this.$router.push("/users");
+      const response = await UserDataService.delete(this.email);
+      if ("messageType" in response) {
+        this.messagePopupData.uxresponse = {
+          ...this.messagePopupData.uxresponse,
+          ...response,
+        };
+        this.messagePopupData.open = true;
+      } else {
+        this.$router.push("/users");
+      }
     },
   },
   mounted() {
