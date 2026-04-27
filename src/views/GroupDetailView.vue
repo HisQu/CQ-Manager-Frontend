@@ -17,17 +17,17 @@ export default {
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
         open: false,
       },
-      data: {},
+      data: null as GroupFullT | null,
       add: {
         name: "",
         projectManagerInputField: '',
-        projectManager: [] as string[],
+        projectManager: [] as { email: string; name: string; id: string }[],
       },
     }
   },
@@ -43,10 +43,9 @@ export default {
         };
         this.messagePopupData.open = true;
       } else {
-        const { name, members } = response.data;
         this.data = response.data;
-        this.add.name = name;
-        this.add.projectManager = members;
+        this.add.name = response.data.name as string;
+        this.add.projectManager = response.data.members as { email: string; name: string; id: string }[];
         console.log('Project Title:', this.add.name);
       }
     },
@@ -54,9 +53,9 @@ export default {
       console.log("saveProject method called");
 
       try {
-        const response = await GroupDataService.update(this.id, this.data.project.id, {
+        const response = await GroupDataService.update(this.id, this.data!.project.id as string, {
           name: this.add.name,
-          managers: this.add.projectManager,
+          members: this.add.projectManager.map(m => m.email),
         });
 
         console.log("API Response:", response);
@@ -79,7 +78,7 @@ export default {
     },
     deleteGroup() {
       console.log("delete group")
-      GroupDataService.delete(this.id, this.data.project.id).then(response => {
+      GroupDataService.delete(this.id, this.data!.project.id as string).then(response => {
         console.log("group deleted")
         console.log(response)
         if ("messageType" in response) {
@@ -96,7 +95,7 @@ export default {
     },
     addGroupMember() {
       if (this.add.projectManagerInputField !== '') {
-        GroupDataService.addMembers(this.id, this.data.project.id, [this.add.projectManagerInputField]).then(response => {
+        GroupDataService.addMembers(this.id, this.data!.project.id as string, [this.add.projectManagerInputField]).then(response => {
           if ("messageType" in response) {
             console.log("Error response:", response);
             this.messagePopupData.uxresponse = {
@@ -111,8 +110,8 @@ export default {
       this.add.projectManagerInputField = '';
     },
 
-    removeGroupMember(member) {
-      GroupDataService.removeMembers(this.id, this.data.project.id, [member.id]).then(response => {
+    removeGroupMember(member: { id: string; email: string; name: string }) {
+      GroupDataService.removeMembers(this.id, this.data!.project.id as string, [member.id]).then(response => {
         if ("messageType" in response) {
           console.log("Error response:", response);
           this.messagePopupData.uxresponse = {
@@ -135,13 +134,13 @@ export default {
 <template>
   <MessagePopup :uxresponse="messagePopupData.uxresponse" :open="messagePopupData.open" @close="messagePopupData.open = false;" />
   <div v-if="add.name && !messagePopupData.open" class="w-full">
-    <DetailPageHeader :title="data.name" :project="data.project?.name">
+    <DetailPageHeader :title="data?.name ?? ''" :project="data?.project?.name">
       <template #meta>
         <span class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ data.noMembers }} member{{ data.noMembers !== 1 ? 's' : '' }}
+          {{ data?.noMembers }} member{{ data?.noMembers !== 1 ? 's' : '' }}
         </span>
         <span class="ml-1.5 inline-flex items-center rounded-md bg-violet-50 px-1.5 py-0.5 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/30">
-          {{ data.noQuestions }} question{{ data.noQuestions !== 1 ? 's' : '' }}
+          {{ data?.noQuestions }} question{{ data?.noQuestions !== 1 ? 's' : '' }}
         </span>
       </template>
     </DetailPageHeader>
@@ -198,7 +197,7 @@ export default {
       </div>
     </div>
 
-    <div class="button-container">
+    <div class="button-container mt-6">
       <button
           type="button"
           class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

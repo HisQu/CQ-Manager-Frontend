@@ -1,8 +1,6 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
 
-import {UXResponse} from "../interfaces/UXResponse.ts"
-
 import {Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot} from '@headlessui/vue'
 import {CheckIcon, XMarkIcon, ExclamationTriangleIcon, InformationCircleIcon} from '@heroicons/vue/24/outline'
 
@@ -79,7 +77,7 @@ export default defineComponent({
                     </p>
                     <br>
                     <pre class="text-sm text-gray-500 overflow-auto">
-                      {{ uxresponse?.detail?.response?.data }}
+                      {{ (uxresponse?.detail as any)?.response?.data }}
                     </pre>
                   </div>
                 </div>

@@ -1,11 +1,11 @@
 type CompetencyQuestionT = {
-    id: String,
-    groupId: String,
-    question: String,
-    aggregatedRating: Number,
+    id: string,
+    groupId: string,
+    question: string,
+    aggregatedRating: number,
     ratings?: Array<RatingT>,
     author: UserT,
-    noConsolidations: Number,
+    noConsolidations: number,
     annotations: Array<AnnotationT>,
     versions: {
         editor: {
@@ -13,20 +13,20 @@ type CompetencyQuestionT = {
             id: string,
         },
         questionString: string,
-        versionNumber: Number
+        versionNumber: number
     },
     group: GroupT,
 }
 
 type CompetencyQuestionReducedT = {
-    id: String,
+    id: string,
     group: {
         id: string,
         name: string
     },
-    question: String,
+    question: string,
     author: UserReducedT,
-    aggregatedRating: Number
+    aggregatedRating: number
 }
 
 type CompetencyQuestionReferenceT = {

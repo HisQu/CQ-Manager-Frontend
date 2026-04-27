@@ -6,7 +6,7 @@ import {ref} from "vue";
 const messagePopupData = ref({
   uxresponse: {
     title: "",
-    messageType: "",
+    messageType: "" as UXResponse["messageType"],
     text: "",
     detail: "",
   },

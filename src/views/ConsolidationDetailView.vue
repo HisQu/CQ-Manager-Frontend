@@ -14,7 +14,7 @@ const props = defineProps(['id', 'projectid'])
 const messagePopupData = ref({
   uxresponse: {
     title: "",
-    messageType: "",
+    messageType: "" as UXResponse["messageType"],
     text: "",
     detail: "",
   },
@@ -170,8 +170,8 @@ async function removeQuestions(consolidationId: string, project_uuid: string, qu
 
         <div v-if="canEdit" class="mt-10">
           <span class="text-xl">Add other CQs</span>
-          <p v-if="cqs">Of {{cqs.data.length}} competency questions, there is {{ cqs.data.filter(_cq => !consolidation.data.questions.map(c => c.id).includes(_cq.id)).length }} (also displayed below) that is/are not yet consolidated in this CQ.</p>
-          <QuestionSelectorComponent v-if="cqs && consolidation.data" :cqs="cqs.data.filter(_cq => !consolidation.data.questions.map(c => c.id).includes(_cq.id))" @selection-was-made="(ids) => {addQuestions(consolidation.data.id, consolidation.data.project.id, ids)}">
+          <p v-if="cqs">Of {{cqs.data.length}} competency questions, there is {{ cqs.data.filter((_cq: CompetencyQuestionReducedT) => !consolidation.data.questions.map((c: CompetencyQuestionReducedT) => c.id).includes(_cq.id)).length }} (also displayed below) that is/are not yet consolidated in this CQ.</p>
+          <QuestionSelectorComponent v-if="cqs && consolidation.data" :cqs="cqs.data.filter((_cq: CompetencyQuestionReducedT) => !consolidation.data.questions.map((c: CompetencyQuestionReducedT) => c.id).includes(_cq.id))" @selection-was-made="(ids: string[]) => {addQuestions(consolidation.data.id, consolidation.data.project.id, ids)}">
             Add to existing CQ
           </QuestionSelectorComponent>
           <h3 v-else>

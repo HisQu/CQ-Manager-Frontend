@@ -33,7 +33,7 @@ export default defineComponent({
         <div class="mt-3 dark:bg-gray-600 bg-gray-200 hover:dark:bg-gray-600 p-1 pl-3 rounded hover:bg-gray-300" v-for="cq in consolidation.questions">
           <CompetencyQuestionListItem class="max-w-xl"
                                       :text="cq.question"
-                                      :groupIdentifier="cq?.groupId !== undefined ? cq.groupId : cq.group.id"
+                                      :groupIdentifier="cq.group.id"
                                       :identifier="cq.id"/>
         </div>
         <button v-if="isOntologyEngineer" class="mt-3 w-full flex items-center justify-center dark:bg-gray-600 hover:dark:bg-gray-500 p-1 pl-3 rounded hover:bg-gray-200">

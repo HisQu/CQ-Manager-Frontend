@@ -1,6 +1,5 @@
 import http from "./httpCommon";
 import {AxiosResponse} from "axios";
-import {UXResponse} from "../interfaces/UXResponse.ts";
 
 class LoginDataService {
     async login(email: string, password: string): Promise<AxiosResponse<any, {

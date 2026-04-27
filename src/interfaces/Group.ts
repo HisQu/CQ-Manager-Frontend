@@ -9,37 +9,31 @@ type GroupT = {
 };
 
 type GroupFullT = {
-    
-    name: String,
+    name: string,
     project: {
-    name: String,
-    description: null,
-    id: String,
-    createdAt: String,
-    updatedAt: String
+        name: string,
+        description: string | null,
+        id: string,
+        createdAt: string,
+        updatedAt: string
     },
-    members: [
-        {
-        email: String,
-        name: String,
-        id: String
-        }
-    ],
-    questions: [
-        {
+    members: {
+        email: string,
+        name: string,
+        id: string
+    }[],
+    questions: {
         author: {
-        email: String,
-        name: String,
-        id: String
+            email: string,
+            name: string,
+            id: string
         },
-        aggregatedRating: Number,
-        question: String
-        }
-    ],
-    noMembers: Number,
-    noQuestions: Number,
-    id: String,
-    createdAt: String,
-    updatedAt: String
-      
+        aggregatedRating: number,
+        question: string
+    }[],
+    noMembers: number,
+    noQuestions: number,
+    id: string,
+    createdAt: string,
+    updatedAt: string
 }

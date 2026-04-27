@@ -1,7 +1,6 @@
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
-import { UXResponse } from "../interfaces/UXResponse.ts";
 
 
 class GroupDataService {
@@ -27,7 +26,7 @@ class GroupDataService {
                     title: "Added group member",
                     text: "Successfully added group member",
                     detail: "",
-                    messageType: "success",
+                    messageType: "success" as const,
                 }
             }).catch(reason => {
                 return {
@@ -45,13 +44,15 @@ class GroupDataService {
                 return {
                     title: "Removed group member",
                     text: "Successfully removed group member",
-                    messageType: "success",
+                    detail: "",
+                    messageType: "success" as const,
                 }
             }).catch(() => {
                 return {
-                    title: "Removed group member",
-                    text: "Successfully removed group member",
-                    messageType: "success",
+                    title: "Could not remove group member",
+                    text: "An error occurred while removing the group member.",
+                    detail: "",
+                    messageType: "error" as const,
                 }
             });
     }

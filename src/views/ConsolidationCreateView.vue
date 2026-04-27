@@ -15,7 +15,7 @@ export default defineComponent({
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
@@ -29,9 +29,9 @@ export default defineComponent({
         {name: "Gruppe 2", uuid: "100"}
       ],
 
-      cqs: [],
+      cqs: [] as CompetencyQuestionReducedT[],
       consolidationName: "",
-      selectedQuestions: [],
+      selectedQuestions: [] as string[],
 
       nameError: false,
 

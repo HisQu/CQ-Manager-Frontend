@@ -1,67 +1,57 @@
 type ProjectReducedT = {
-    id: String,
-    "name": String,
-    "description": String,
-    "noManagers": 0,
-    "noEngineers": 0,
-    "noGroups": 0,
-    "noConsolidations": 0,
-    "totalMembers": 0,
+    id: string,
+    "name": string,
+    "description": string,
+    "noManagers": number,
+    "noEngineers": number,
+    "noGroups": number,
+    "noConsolidations": number,
+    "totalMembers": number,
 };
 
 
 type ProjectFullT = {
-    "id": String,
-    "name": String,
-    "description": null,
-    "managers": [
-      {
-        "email": String,
-        "name": String,
-        "id": String
-      }
-    ],
-    "engineers": [
-      {
-        "email": String,
-        "name": String,
-        "id": String
-      }
-    ],
-    "groups": [
-      {
-        "name": String,
-        "members": [
-          {
-            "email": String,
-            "name": String,
-            "id": String
-          }
-        ],
-        "noMembers": 0,
-        "noQuestions": 0,
-        "id": String,
-        "createdAt": String,
-        "updatedAt": String
-      }
-    ],
-    "consolidations": [
-      {
-        "name": String,
+    "id": string,
+    "name": string,
+    "description": string | null,
+    "managers": {
+        "email": string,
+        "name": string,
+        "id": string
+    }[],
+    "engineers": {
+        "email": string,
+        "name": string,
+        "id": string
+    }[],
+    "groups": {
+        "name": string,
+        "members": {
+            "email": string,
+            "name": string,
+            "id": string
+        }[],
+        "noMembers": number,
+        "noQuestions": number,
+        "id": string,
+        "createdAt": string,
+        "updatedAt": string
+    }[],
+    "consolidations": {
+        "name": string,
         "engineer": {
-          "email": String,
-          "name": String,
-          "id": String
+            "email": string,
+            "name": string,
+            "id": string
         },
-        "noQuestions": 0,
-        "id": String
-      }
-    ],
-    "noManagers": 0,
-    "noEngineers": 0,
-    "noGroups": 0,
-    "noConsolidations": 0,
-    "totalMembers": 0,
-    "createdAt": String,
-    "updatedAt": String
+        "noQuestions": number,
+        "id": string
+    }[],
+    "noManagers": number,
+    "noEngineers": number,
+    "noGroups": number,
+    "noConsolidations": number,
+    "totalMembers": number,
+    "createdAt": string,
+    "updatedAt": string
 }

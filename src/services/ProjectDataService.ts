@@ -1,7 +1,6 @@
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
-import { UXResponse } from "../interfaces/UXResponse.ts";
 
 class ProjectDataService {
 

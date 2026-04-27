@@ -5,13 +5,13 @@ export default defineComponent({
   name: "QuestionSelectorComponent",
   props: {
     cqs: {
-      type: Object as PropType<CompetencyQuestionT[]>,
+      type: Object as PropType<CompetencyQuestionReducedT[]>,
       required: true,
     }
   },
   data() {
     return {
-      selectedQuestions: []
+      selectedQuestions: [] as string[]
     }
   },
   computed: {
@@ -42,7 +42,7 @@ export default defineComponent({
             <thead>
             <tr>
               <th scope="col" class="relative px-7 sm:w-12 sm:px-6">
-                <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" :checked="indeterminate || selectedQuestions.length === cqs.length" :indeterminate="indeterminate" @change="selectedQuestions = $event.target.checked ? cqs.map((p) => p.id) : []" />
+                <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" :checked="indeterminate || selectedQuestions.length === cqs.length" :indeterminate="indeterminate" @change="selectedQuestions = ($event.target as HTMLInputElement).checked ? cqs.map((p) => p.id as string) : []" />
               </th>
               <th scope="col" class="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Question</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Group</th>
@@ -53,7 +53,7 @@ export default defineComponent({
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-            <tr v-for="cq in cqs" :key="cq.id" :class="[selectedQuestions.includes(cq.id) && 'bg-gray-100', cq.noConsolidations > 0 && 'bg-blue-200']">
+            <tr v-for="cq in cqs" :key="cq.id" :class="[selectedQuestions.includes(cq.id as string) && 'bg-gray-100', (cq as any).noConsolidations > 0 && 'bg-blue-200']">
               <td class="relative px-7 sm:w-12 sm:px-6">
                 <div v-if="selectedQuestions.includes(cq.id)" class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"></div>
                 <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" :value="cq.id" v-model="selectedQuestions" />

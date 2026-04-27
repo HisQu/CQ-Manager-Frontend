@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import LoginDataService from "./services/LoginDataService.ts";
-import {UXResponse} from "./interfaces/UXResponse.ts";
 
 export const useStore = defineStore('cq-manager', {
     persist: true,

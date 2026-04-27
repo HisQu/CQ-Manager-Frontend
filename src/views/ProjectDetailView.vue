@@ -16,7 +16,7 @@ export default {
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
@@ -25,10 +25,10 @@ export default {
       add: {
         name: "",
         projectManagerInputField: '',
-        projectManager: [] as string[],
+        projectManager: [] as { id: string; email: string; name: string }[],
 
         engineerInputField: '',
-        engineer: [] as string[],
+        engineer: [] as { id: string; email: string; name: string }[],
       },
     }
   },
@@ -53,8 +53,8 @@ export default {
       try {
         const response = await ProjectDataService.update(this.id, {
           name: this.add.name,
-          managers: this.add.projectManager,
-          engineers: this.add.engineer
+          managers: this.add.projectManager.map(m => m.email),
+          engineers: this.add.engineer.map(m => m.email)
         });
 
         if ("messageType" in response) {
@@ -89,7 +89,7 @@ export default {
         });
       }
     },
-    removeEditProjectManager(member) {
+    removeEditProjectManager(member: { id: string; email: string; name: string }) {
       ProjectDataService.removeManagers(this.id, [member.id]).then((response) => {
         if ('messageType' in response) {
           this.messagePopupData.uxresponse = {
@@ -114,7 +114,7 @@ export default {
         });
       }
     },
-    removeEditEngineer(member) {
+    removeEditEngineer(member: { id: string; email: string; name: string }) {
       ProjectDataService.removeEngineers(this.id, [member.id]).then((response) => {
         if ('messageType' in response) {
           this.messagePopupData.uxresponse = {

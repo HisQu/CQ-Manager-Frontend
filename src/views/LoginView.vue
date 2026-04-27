@@ -17,7 +17,7 @@ export default defineComponent({
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
@@ -65,7 +65,7 @@ export default defineComponent({
           <label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Email
             address</label>
           <div class="mt-2">
-            <input id="email" v-model="email" name="email" type="email" autocomplete="email" required=""
+            <input id="email" v-model="email" name="email" type="email" autocomplete="email" :required="true"
                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default defineComponent({
           </div>
           <div class="mt-2">
             <input id="password" v-model="password" name="password" type="password" autocomplete="current-password"
-                   required=""
+                   :required="true"
                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset
                     ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600
                     sm:text-sm sm:leading-6"/>

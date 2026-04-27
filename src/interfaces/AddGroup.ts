@@ -1,5 +1,5 @@
 type AddGroupT = {
-    group_id: String,
-    name: String,
-    members: String[], 
+    group_id: string,
+    name: string,
+    members: string[],
 };

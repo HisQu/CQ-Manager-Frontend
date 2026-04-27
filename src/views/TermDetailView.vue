@@ -12,7 +12,7 @@ import {useStore} from "../store.ts";
 const store = useStore();
 
 const messagePopupData = ref({
-  uxresponse: { title: "", messageType: "", text: "", detail: "" },
+  uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
   open: false
 });
 

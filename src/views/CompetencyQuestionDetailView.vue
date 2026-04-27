@@ -12,7 +12,7 @@ import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQuer
 const props = defineProps(['id', 'groupid'])
 
 const messagePopupData = ref({
-  uxresponse: { title: "", messageType: "", text: "", detail: "" },
+  uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
   open: false
 })
 
@@ -64,6 +64,7 @@ function saveCompetencyQuestion(question: string) {
       <template #actions>
         <StarComponent :rating="cq.data.aggregatedRating"
                        :question_id="cq.data.id"
+                       :version="cq.data.versions?.versionNumber"
                        @afterRating="fetchCompetencyQuestion()"/>
         <Popover class="relative">
           <PopoverButton class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 focus:outline-none">

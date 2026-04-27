@@ -11,7 +11,7 @@ import {
 import Logo from "../components/Logo.vue";
 import AppScreenshot from "../assets/app-screenshot.png";
 
-const navigation = [
+const navigation: { name: string; href: string }[] = [
   // {name: 'Product', href: '#'},
 ]
 

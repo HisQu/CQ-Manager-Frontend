@@ -16,6 +16,11 @@ export default defineComponent({
       type: String,
       required: false
     },
+    version: {
+      type: Number,
+      required: false,
+      default: 1
+    },
     ignore_zero_rating: {
       type: Boolean,
       required: false
@@ -29,7 +34,7 @@ export default defineComponent({
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
@@ -55,7 +60,7 @@ export default defineComponent({
 
       // the undefined is checked with this.isNotClickable above.
       // noinspection TypeScriptValidateTypes
-      const response = await RatingDataService.rate(stars, this.question_id)
+      const response = await RatingDataService.rate(stars, this.question_id!, this.version)
 
       if ("messageType" in response) {
         this.messagePopupData.uxresponse = {

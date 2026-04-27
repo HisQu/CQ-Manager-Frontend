@@ -55,13 +55,12 @@ export default defineComponent({
 
       store: useStore(),
 
-      projects: [
-      ],
+      projects: [] as ProjectReducedT[],
 
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
@@ -79,35 +78,26 @@ export default defineComponent({
   },
 
   methods: {
-    isDeepEqual(obj1: object, obj2: object) {
-      // Check the object types
+    isDeepEqual(obj1: Record<string, unknown>, obj2: Record<string, unknown>): boolean {
       if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
         return obj1 === obj2;
       }
-
-      // Compare if they are the same reference
       if (obj1 === obj2) {
         return true;
       }
-
-      // Compare keys length
       const keys1 = Object.keys(obj1);
       const keys2 = Object.keys(obj2);
-
       if (keys1.length !== keys2.length) {
         return false;
       }
-
-      // Recursively compare each key in the object
       for (let key of keys1) {
         if (!keys2.includes(key)) {
           return false;
         }
-        if (!this.isDeepEqual(obj1[key], obj2[key])) {
+        if (!this.isDeepEqual(obj1[key] as Record<string, unknown>, obj2[key] as Record<string, unknown>)) {
           return false;
         }
       }
-
       return true;
     }
   },

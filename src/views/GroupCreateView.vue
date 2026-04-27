@@ -18,7 +18,7 @@ export default defineComponent({
       messagePopupData: {
         uxresponse: {
           title: '',
-          messageType: '',
+          messageType: '' as UXResponse["messageType"],
           text: '',
           detail: '',
         },
@@ -31,7 +31,7 @@ export default defineComponent({
       membersInputField: '',
       members: [] as string[],
       selectedProject: { name: '', id: '' }, 
-      projects: [], 
+      projects: [] as ProjectReducedT[],
     };
   },
   mounted() {

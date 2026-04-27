@@ -13,7 +13,7 @@ const {getProject} = storeToRefs(useStore1)
 const messagePopupData = ref({
   uxresponse: {
     title: "",
-    messageType: "",
+    messageType: "" as UXResponse["messageType"],
     text: "",
     detail: "",
   },

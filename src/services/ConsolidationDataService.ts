@@ -1,7 +1,6 @@
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
-import {UXResponse} from "../interfaces/UXResponse.ts";
 
 class ConsolidationDataService {
     async getAll(): Promise<AxiosResponse<any, ConsolidationT[]> | UXResponse> {
@@ -43,7 +42,7 @@ class ConsolidationDataService {
         });
     }
 
-    async add(name: string, project_uuid: string, question_uuids: string): Promise<AxiosResponse<any, ConsolidationT> | UXResponse> {
+    async add(name: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationT> | UXResponse> {
         return http.post<ConsolidationT>(`/consolidations/${project_uuid}`,  {
                 name: name,
                 ids: question_uuids,

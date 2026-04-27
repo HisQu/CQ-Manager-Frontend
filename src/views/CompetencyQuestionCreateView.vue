@@ -20,14 +20,14 @@ export default defineComponent({
       messagePopupData: {
         uxresponse: {
           title: "",
-          messageType: "",
+          messageType: "" as UXResponse["messageType"],
           text: "",
           detail: "",
         },
         open: false,
       },
-      groups: [],
-      selectedGroup: {name: "No Group selected", uuid: "42"},
+      groups: [] as GroupT[],
+      selectedGroup: {name: "No Group selected", id: "", project: null as ProjectFullT | null, noMembers: 0, noQuestions: 0, createdAt: "", updatedAt: ""},
       cq: {
         question: "",
       },
@@ -59,8 +59,8 @@ export default defineComponent({
         } else if (response.data.length === 0) {
           this.messagePopupData.uxresponse = {
             title: "Missing group membership",
-            messageType: "warning",
-            term: "Unfortunately, you are not assigned to any groups. Please contact the project manager, if you think this is an error.",
+            messageType: "warning" as const,
+            text: "Unfortunately, you are not assigned to any groups. Please contact the project manager, if you think this is an error.",
             detail: "",
           }
           this.messagePopupData.open = true;
@@ -89,8 +89,6 @@ export default defineComponent({
         this.messagePopupData.open = true;
 
       } else {
-        // successful
-        this.cq = response;
         this.$router.push('/questions/');
       }
     }

@@ -19,7 +19,7 @@ const addPassageInput = ref("");
 const messagePopupData = ref({
   uxresponse: {
     title: "",
-    messageType: "",
+    messageType: "" as UXResponse["messageType"],
     text: "",
     detail: "",
   },
@@ -31,7 +31,7 @@ const {annotations} = toRefs(props)
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 
 const terms = ref<TermT[]>();
-const term = ref<TermT>()
+const term = ref<TermT | null>(null)
 const query = ref('')
 const filteredTerms = computed(() =>
     terms.value === undefined ? [] :
@@ -45,7 +45,7 @@ const filteredTerms = computed(() =>
 function insertTermPassagePair() {
   console.log(addPassageInput.value)
   TermDataService.add(props.id, [{
-    term: term.value?.content,
+    term: term.value?.content ?? '',
     passage: addPassageInput.value
   }]).then(response => {
     if ("messageType" in response) {
@@ -57,7 +57,7 @@ function insertTermPassagePair() {
 
     } else {
       emits('fetchCompetencyQuestion');
-      term.value = '';
+      term.value = null;
       addPassageInput.value = '';
     }
   })
@@ -141,7 +141,7 @@ fetchTerms()
               >
                 <ComboboxInput
                     class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    :displayValue="term?.content"
+                    :displayValue="(t: unknown) => (t as TermT)?.content ?? ''"
                     placeholder="Term"
                     @input="query = $event.target.value;"
                 />
