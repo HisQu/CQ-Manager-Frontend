@@ -145,7 +145,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="add.name && !messagePopupData.open" class="w-1/2 mx-auto">
+  <div v-if="add.name && !messagePopupData.open" class="w-full">
     <MessagePopup :uxresponse="messagePopupData.uxresponse" :open="messagePopupData.open" @close="messagePopupData.open = false;" />
 
     <h1 class="text-2xl">Project Edit View</h1>

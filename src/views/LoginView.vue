@@ -3,6 +3,7 @@ import {defineComponent} from 'vue'
 import Logo from "../components/Logo.vue";
 import {useStore} from "../store.ts";
 import MessagePopup from "../components/MessagePopup.vue";
+import ProjectDataService from "../services/ProjectDataService.ts";
 
 export default defineComponent({
   name: "LoginView",
@@ -26,20 +27,21 @@ export default defineComponent({
   },
 
   methods: {
-    login() {
-      this.store.login(this.email, this.password).then(response => {
-        if (typeof response !== "boolean") {
-          this.messagePopupData.uxresponse = {
-            ...this.messagePopupData.uxresponse,
-            ...response
-          };
-          this.messagePopupData.open = true;
-        } else {
-          // the response is true, by definition
-          // we can navigate to the CQ overview page
-          this.$router.push("/questions");
+    async login() {
+      const response = await this.store.login(this.email, this.password);
+      if (typeof response !== "boolean") {
+        this.messagePopupData.uxresponse = {
+          ...this.messagePopupData.uxresponse,
+          ...response
+        };
+        this.messagePopupData.open = true;
+      } else {
+        const projectsResponse = await ProjectDataService.getAll();
+        if (!("messageType" in projectsResponse) && projectsResponse.data.length > 0) {
+          this.store.project = projectsResponse.data[0];
         }
-      });
+        this.$router.push("/questions");
+      }
     }
   }
 })

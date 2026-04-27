@@ -113,7 +113,7 @@ async function removeQuestions(consolidationId: string, project_uuid: string, qu
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div v-if="consolidation"
-       class="w-1/2 mx-auto">
+       class="w-full">
     <h1 class="text-2xl">
       Consolidation Detail View
     </h1>

@@ -1,4 +1,5 @@
 type StateT = {
     user: UserT,
-    project: ProjectReducedT
+    project: ProjectReducedT,
+    sidebarCollapsed: boolean
 }

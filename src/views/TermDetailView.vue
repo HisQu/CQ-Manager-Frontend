@@ -62,7 +62,7 @@ fetchTermOccurences();
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div v-if="termOccurences"
-       class="w-1/2 mx-auto">
+       class="w-full">
 
     <h1 class="text-2xl">
       Term <span class="font-bold italic">{{ term.content }}</span> occurs in <span class="font-bold italic">{{termOccurences.data.length}}</span> question(s):

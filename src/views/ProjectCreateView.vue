@@ -77,7 +77,7 @@ export default{
 </script>
 
 <template>
-  <div class="w-5/6 mx-auto">
+  <div class="w-full">
     <MessagePopup :uxresponse="messagePopupData.uxresponse"
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;"/>

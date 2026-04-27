@@ -32,7 +32,7 @@ if ("messageType" in response) {
   <MessagePopup :uxresponse="messagePopupData.uxresponse"
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;" />
-  <div class="m-auto w-1/2">
+  <div class="mx-auto max-w-5xl">
     <h1 class="text-2xl">
       User Management
 

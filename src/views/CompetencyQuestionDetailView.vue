@@ -82,7 +82,7 @@ function saveCompetencyQuestion(question: string) {
 
 <template>
   <div v-if="cq && messagePopupData.open===false"
-       class="w-1/2 mx-auto">
+       class="w-full">
     <MessagePopup :uxresponse="messagePopupData.uxresponse"
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;"/>
@@ -187,7 +187,7 @@ function saveCompetencyQuestion(question: string) {
 
 
   </div>
-  <div v-else class="w-1/2 mx-auto animate-pulse">
+  <div v-else class="w-full animate-pulse">
     <div class="grid grid-cols-2 gap-4">
       <div class="h-8 border-1 shadow rounded-md p-4 dark:bg-gray-700
                 dark:text-gray-200 bg-gray-100"></div>

@@ -50,7 +50,7 @@ fetchGroups()
   <MessagePopup :uxresponse="messagePopupData.uxresponse"
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
-  <div class="m-auto w-1/2">
+  <div class="mx-auto max-w-5xl">
     <h1 class="text-2xl">
       Group Overview
       <RouterLink to="/groups/add/"
@@ -70,6 +70,9 @@ fetchGroups()
       </SwitchGroup>
     </div>
     <div v-if="groups">
+      <div v-if="groups.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
+        {{ onlyShowMyGroups ? 'You are not part of any groups.' : 'There are no groups.' }}
+      </div>
       <GroupListItem v-for="group in groups.data"
                      :project="group.project"
                      :key="group.id"

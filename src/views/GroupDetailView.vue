@@ -133,7 +133,7 @@ export default {
 
 <template>
   <MessagePopup :uxresponse="messagePopupData.uxresponse" :open="messagePopupData.open" @close="messagePopupData.open = false;" />
-  <div v-if="add.name && !messagePopupData.open" class="w-1/2 mx-auto">
+  <div v-if="add.name && !messagePopupData.open" class="w-full">
     <h1 class="text-2xl">Group Edit View</h1>
     <div>
       <div class="my-5">

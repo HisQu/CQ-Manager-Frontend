@@ -24,7 +24,8 @@ export const useStore = defineStore('cq-manager', {
             "noGroups": 0,
             "noConsolidations": 0,
             "totalMembers": 0,
-        }
+        },
+        sidebarCollapsed: false,
     }),
 
     getters: {
@@ -37,6 +38,9 @@ export const useStore = defineStore('cq-manager', {
     actions: {
         logout() {
             this.user.loggedInAt = null;
+        },
+        toggleSidebar() {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
         },
         async login(email: string, password: string): Promise<boolean | UXResponse> {
             return LoginDataService.login(email, password).then(response => {

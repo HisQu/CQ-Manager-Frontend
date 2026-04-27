@@ -36,7 +36,7 @@ if ("messageType" in response) {
   <MessagePopup :uxresponse="messagePopupData.uxresponse"
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;" />
-  <div class="m-auto w-1/2">
+  <div class="w-full">
     <h1 class="text-2xl">
       Project Overview
 

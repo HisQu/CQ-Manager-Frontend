@@ -97,7 +97,7 @@ async function fetchCompetencyQuestion() {
   <MessagePopup :uxresponse="messagePopupData.uxresponse"
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
-  <div class="m-auto w-1/2">
+  <div class="w-full">
     <h1 class="text-2xl">
       Competency Question: Overview
       <RouterLink to="/questions/add/" class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">

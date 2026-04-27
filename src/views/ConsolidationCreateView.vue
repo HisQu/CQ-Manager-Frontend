@@ -93,7 +93,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="w-2/3 mx-auto">
+  <div class="w-full">
     <MessagePopup :uxresponse="messagePopupData.uxresponse"
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;"/>

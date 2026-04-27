@@ -89,10 +89,10 @@ fetchTerms()
     <label for="question"
            class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">Question</label>
     <div class="mt-2">
-      <input type="text" name="question" id="question"
+      <textarea name="question" id="question" rows="4"
              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
              v-model="props.question"
-      />
+      ></textarea>
     </div>
     <h3 class="mt-10 mb-5 text-xl">Term Annotations</h3>
     <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 mb-5">
