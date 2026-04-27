@@ -2,6 +2,7 @@
 import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
+import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/20/solid"
 import {ref, watch} from "vue";
 import {useStore} from "../store.ts";
@@ -53,14 +54,14 @@ watch(getProject, (_, __) => {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div class="w-full">
-    <h1 class="text-2xl">
-      Consolidations Overview
-
-      <RouterLink v-if="isOntologyEngineer" to="/consolidations/add/" class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-        Consolidate Questions
-        <ArrowDownOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
-      </RouterLink>
-    </h1>
+    <DetailPageHeader title="Consolidations" :project="getProject.name">
+      <template v-if="isOntologyEngineer" #actions>
+        <RouterLink to="/consolidations/add/" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          Consolidate Questions
+          <ArrowDownOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+        </RouterLink>
+      </template>
+    </DetailPageHeader>
     <div v-if="consolidations">
       <div v-if="consolidations.data.length === 0" class="mt-10">
         There are no consolidations yet!

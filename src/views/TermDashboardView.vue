@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MessagePopup from "../components/MessagePopup.vue";
+import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ref, watch} from "vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
@@ -28,6 +29,7 @@ async function fetchTerms() {
       title: "No project selected",
       messageType: "warning",
       text: "Please select a project in the navigation bar on the left first.",
+      detail: ""
     };
     messagePopupData.value.open = true;
   } else {
@@ -60,12 +62,11 @@ watch(getProject, (_, __) => {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div class="w-full">
-    <h1 class="text-2xl">
-      Term Overview
-    </h1>
-    <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 mb-5">
-      New terms can be added / linked with other questions via a Competency Question detail view.
-    </p>
+    <DetailPageHeader title="Terms" :project="getProject.name">
+      <template #meta>
+        <span class="text-gray-500 dark:text-gray-400">New terms can be added via a Competency Question detail view.</span>
+      </template>
+    </DetailPageHeader>
 
     <div v-if="terms">
       <div v-if="terms.data.length === 0" class="mt-10">
