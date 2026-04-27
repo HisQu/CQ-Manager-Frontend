@@ -2,10 +2,11 @@
 import CompetencyQuestionListItem from "../components/CompetencyQuestionListItem.vue";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
+import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {PlusIcon,ChevronUpDownIcon,CheckIcon} from "@heroicons/vue/20/solid"
 import {ref, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
-import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions} from "@headlessui/vue";
+import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
 const useStore1 = useStore()
@@ -22,10 +23,9 @@ const messagePopupData = ref({
 })
 
 const cqs = ref();
-
 const groups = ref();
-
 const selectedGroup = ref();
+const unifiedView = ref(true);
 
 function fetchGroups() {
   GroupDataService.getAllForOneProject(getProject.value.id).then(response => {
@@ -58,38 +58,33 @@ watch(selectedGroup, () => {
   fetchCompetencyQuestion();
 })
 
+watch(unifiedView, () => {
+  fetchCompetencyQuestion();
+})
+
 async function fetchCompetencyQuestion() {
-  if (selectedGroup.value.id) {
-    CompetencyQuestionDataService.getAllForOneGroup(selectedGroup.value.id).then(response => {
-      if ("messageType" in response) {
-        messagePopupData.value.uxresponse = {
-          ...messagePopupData.value.uxresponse,
-          ...response
-        };
-        messagePopupData.value.open = true;
-
-      } else {
-        cqs.value = response;
-        console.log()
-        console.log(cqs.value.data)
-      }
-    });
+  let serviceCall;
+  if (selectedGroup.value?.id) {
+    serviceCall = unifiedView.value
+      ? CompetencyQuestionDataService.getUnifiedForGroup(selectedGroup.value.id)
+      : CompetencyQuestionDataService.getAllForOneGroup(selectedGroup.value.id);
+  } else if (unifiedView.value) {
+    serviceCall = CompetencyQuestionDataService.getUnifiedForProject(getProject.value.id);
   } else {
-    CompetencyQuestionDataService.getAllForOneProject(getProject.value.id).then(response => {
-      if ("messageType" in response) {
-        messagePopupData.value.uxresponse = {
-          ...messagePopupData.value.uxresponse,
-          ...response
-        };
-        messagePopupData.value.open = true;
-
-      } else {
-        cqs.value = response;
-        console.log()
-        console.log(cqs.value.data)
-      }
-    });
+    serviceCall = CompetencyQuestionDataService.getAllForOneProject(getProject.value.id);
   }
+
+  serviceCall.then(response => {
+    if ("messageType" in response) {
+      messagePopupData.value.uxresponse = {
+        ...messagePopupData.value.uxresponse,
+        ...response
+      };
+      messagePopupData.value.open = true;
+    } else {
+      cqs.value = response;
+    }
+  });
 }
 </script>
 
@@ -109,9 +104,24 @@ async function fetchCompetencyQuestion() {
 
     <div class="mt-5 flex items-end gap-6 flex-wrap" v-if="selectedGroup">
 
-    <div class="mt-5" v-if="selectedGroup">
-      <Listbox as="div" v-model="selectedGroup">
-        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group, Project: <b>{{getProject.name}}</b></ListboxLabel>
+      <!-- Unified view toggle -->
+      <SwitchGroup as="div" class="flex items-center gap-x-3 flex-shrink-0">
+        <Switch v-model="unifiedView"
+                :class="[unifiedView ? 'bg-indigo-600' : 'bg-gray-200',
+                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2']">
+          <span aria-hidden="true"
+                :class="[unifiedView ? 'translate-x-5' : 'translate-x-0',
+                         'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+        </Switch>
+        <SwitchLabel as="span" class="text-sm">
+          <span class="font-medium text-gray-900 dark:text-gray-200">Unified view</span>
+          <span class="ml-1 text-gray-500 dark:text-gray-400">(collapse consolidated sets)</span>
+        </SwitchLabel>
+      </SwitchGroup>
+
+      <!-- Group filter -->
+      <Listbox as="div" v-model="selectedGroup" class="flex-1 min-w-48">
+        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
         <div class="relative mt-2">
           <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
         <span class="inline-flex w-full truncate">
@@ -141,7 +151,7 @@ async function fetchCompetencyQuestion() {
           </transition>
         </div>
       </Listbox>
-    </div>
+    </div> <!-- end controls row -->
 
     <div v-if="cqs">
       <div v-if="cqs.data.length === 0" class="mt-10">
