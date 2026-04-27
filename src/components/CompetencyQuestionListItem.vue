@@ -4,6 +4,7 @@ import {defineComponent} from 'vue'
 import { StarIcon } from '@heroicons/vue/24/solid'
 import StarComponent from "./StarComponent.vue";
 import UserCardSmall from "./UserCardSmall.vue";
+import IdBadge from "./IdBadge.vue";
 
 export default defineComponent({
   name: "CompetencyQuestionListItem",
@@ -37,7 +38,7 @@ export default defineComponent({
     }
   },
 
-  components: {UserCardSmall, StarComponent, StarIcon}
+  components: {UserCardSmall, StarComponent, StarIcon, IdBadge}
 })
 </script>
 
@@ -59,7 +60,7 @@ export default defineComponent({
       </div>
 
 
-      <code>identifier: {{ identifier }}</code>
+      <IdBadge :id="identifier" />
 
       <UserCardSmall v-if="creator" :name="creator" />
 

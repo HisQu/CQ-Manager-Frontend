@@ -1,9 +1,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import IdBadge from "./IdBadge.vue";
 
 export default defineComponent({
   name: "ProjectListItem",
-
+  components: {IdBadge},
   props: {
     name: {
       type: String,
@@ -36,7 +37,7 @@ export default defineComponent({
         </div>
       </div>
 
-      <code>Project ID: {{ project_id }}</code>
+      <IdBadge :id="project_id" />
     </div>
   </RouterLink>
 </template>

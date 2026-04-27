@@ -1,9 +1,10 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue';
+import IdBadge from "./IdBadge.vue";
 
 export default defineComponent({
   name: "GroupListItem",
-
+  components: {IdBadge},
   props: {
     name: {
       type: String,
@@ -33,11 +34,8 @@ export default defineComponent({
           <span>Group Members: {{ members }}</span>
         </div>
       </div>
-      <code class="block">
-        Project: <span class="underline">{{ project.name }}</span>
-      </code>
-
-      <code>Group ID: {{ group_id }}</code>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ project?.name }}</p>
+      <IdBadge :id="group_id" />
 
     </div>
   </RouterLink>
