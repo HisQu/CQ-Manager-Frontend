@@ -107,6 +107,22 @@ const routes =  [
         path: "/about",
         name: "about",
         component: () => import("./views/AboutView.vue")
+    },
+    {
+        path: "/users",
+        name: "users",
+        component: () => import("./views/UsersDashboardView.vue")
+    },
+    {
+        path: "/users/create",
+        name: "users-create",
+        component: () => import("./views/UserCreateView.vue")
+    },
+    {
+        path: "/users/:email",
+        name: "users-detail",
+        component: () => import("./views/UserDetailView.vue"),
+        props: true
     }
 ];
 

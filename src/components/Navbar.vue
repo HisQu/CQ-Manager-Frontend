@@ -129,6 +129,7 @@ export default defineComponent({
 
     if (this.store.getUser.isSystemAdmin) {
       this.navigation.push({ name: 'Projects (SysAdmin)', href: '/projects', icon: FolderIcon })
+      this.navigation.push({ name: 'Users (SysAdmin)', href: '/users', icon: UsersIcon })
     }
 
   },
