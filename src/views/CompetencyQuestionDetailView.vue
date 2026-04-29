@@ -33,8 +33,8 @@ async function fetchCompetencyQuestion() {
   });
 }
 
-function saveCompetencyQuestion(question: string) {
-  CompetencyQuestionDataService.change(question, [], props.groupid, props.id).then(() => {
+function saveCompetencyQuestion(question: string, sparqlQuery: string | null) {
+  CompetencyQuestionDataService.change(question, [], props.groupid, props.id, sparqlQuery).then(() => {
     fetchCompetencyQuestion()
   })
 }
@@ -98,6 +98,7 @@ function saveCompetencyQuestion(question: string) {
     <CompetencyQuestionQueryBuilder @saveCompetencyQuestion="saveCompetencyQuestion"
                                     @fetchCompetencyQuestion="fetchCompetencyQuestion"
                                     :question="cq.data.question"
+                                    :sparql-query="cq.data.sparqlQuery"
                                     :group-id="cq.data.groupId"
                                     :id="cq.data.id"
                                     :project-id="cq.data.group.project.id"

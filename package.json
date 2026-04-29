@@ -13,8 +13,11 @@
     "@heroicons/vue": "^2.0.18",
     "axios": "^1.6.2",
     "moment": "^2.29.1",
+    "monaco-editor": "^0.55.1",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
+    "qlue-ls": "^2.6.5",
+    "vite-plugin-wasm": "^3.6.0",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
