@@ -5,7 +5,7 @@ import { AxiosResponse } from "axios";
 
 class GroupDataService {
 
-    async update(group_id: string, project_id: string, updatedData: { name?: string, members?: string[] }): Promise<AxiosResponse<any, GroupT> | UXResponse> {
+    async update(group_id: string, project_id: string, updatedData: { name?: string, emails?: string[] }): Promise<AxiosResponse<any, GroupT> | UXResponse> {
         return http.put<GroupT>(`/groups/${project_id}/${group_id}`, updatedData, { headers: authHeader() })
             .then(response => {
                 return response;
