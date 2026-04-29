@@ -3,8 +3,8 @@ import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
 
 class ConsolidationDataService {
-    async getAll(): Promise<AxiosResponse<any, ConsolidationT[]> | UXResponse> {
-        return http.get<ConsolidationT[]>(`/consolidations/`, {headers: authHeader()}).then(response => {
+    async getAll(): Promise<AxiosResponse<any, ConsolidationReducedT[]> | UXResponse> {
+        return http.get<ConsolidationReducedT[]>(`/consolidations/`, {headers: authHeader()}).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -16,8 +16,8 @@ class ConsolidationDataService {
         });
     }
 
-    async getAllForOneProject(project_uuid: string): Promise<AxiosResponse<any, ConsolidationT[]> | UXResponse> {
-        return http.get<ConsolidationT[]>(`/consolidations/${project_uuid}`, {headers: authHeader()}).then(response => {
+    async getAllForOneProject(project_uuid: string): Promise<AxiosResponse<any, ConsolidationReducedT[]> | UXResponse> {
+        return http.get<ConsolidationReducedT[]>(`/consolidations/${project_uuid}`, {headers: authHeader()}).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -29,8 +29,8 @@ class ConsolidationDataService {
         });
     }
 
-    async getOne(question_uuid: string, project_uuid: string): Promise<AxiosResponse<any, ConsolidationT> | UXResponse> {
-        return http.get<ConsolidationT>(`/consolidations/${project_uuid}/${question_uuid}`, {headers: authHeader()}).then(response => {
+    async getOne(consolidation_uuid: string, project_uuid: string): Promise<AxiosResponse<ConsolidationT> | UXResponse> {
+        return http.get<ConsolidationT>(`/consolidations/${project_uuid}/${consolidation_uuid}`, {headers: authHeader()}).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -42,9 +42,9 @@ class ConsolidationDataService {
         });
     }
 
-    async add(name: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationT> | UXResponse> {
-        return http.post<ConsolidationT>(`/consolidations/${project_uuid}`,  {
-                name: name,
+    async add(project_uuid: string, resultQuestion: { question: string } | { id: string }, question_uuids: string[] = []): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
+        return http.post<ConsolidationReducedT>(`/consolidations/${project_uuid}`, {
+                resultQuestion,
                 ids: question_uuids,
             }, {headers: authHeader()}).then(response => {
             return response
@@ -52,6 +52,19 @@ class ConsolidationDataService {
             return {
                 title: "Oops! An error occurred...",
                 text: "... while adding a consolidation. Debugging info can be found in the console.",
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
+    async update(consolidation_uuid: string, project_uuid: string, data: { resultQuestionId: string | null }): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
+        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}`, data, {headers: authHeader()}).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: "Oops! An error occurred...",
+                text: "... while updating this consolidation. Debugging info can be found in the console.",
                 detail: reason,
                 messageType: "error"
             }
@@ -71,8 +84,8 @@ class ConsolidationDataService {
         });
     }
 
-    async addQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
-        return http.put<DeleteResponse>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/add`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
+    async addQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
+        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/add`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -84,8 +97,8 @@ class ConsolidationDataService {
         });
     }
 
-    async removeQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
-        return http.put<DeleteResponse>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/remove`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
+    async removeQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
+        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/remove`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {

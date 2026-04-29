@@ -2,6 +2,7 @@ type CompetencyQuestionT = {
     id: string,
     groupId: string,
     question: string,
+    sparqlQuery: string | null,
     aggregatedRating: number,
     ratings?: Array<RatingT>,
     author: UserT,
@@ -20,13 +21,17 @@ type CompetencyQuestionT = {
 
 type CompetencyQuestionReducedT = {
     id: string,
-    group: {
+    groupId: string,
+    group?: {
         id: string,
         name: string
     },
     question: string,
     author: UserReducedT,
-    aggregatedRating: number
+    aggregatedRating: number,
+    unifiedEntryKind?: 'question' | 'consolidation_result',
+    consolidationId?: string,
+    consolidatedQuestionIds?: string[],
 }
 
 type CompetencyQuestionReferenceT = {

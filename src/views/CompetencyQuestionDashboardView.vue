@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CompetencyQuestionListItem from "../components/CompetencyQuestionListItem.vue";
+import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
@@ -157,15 +158,26 @@ async function fetchCompetencyQuestion() {
       <div v-if="cqs.data.length === 0" class="mt-10">
         There are no CQs yet!
       </div>
-      <CompetencyQuestionListItem v-for="cq in cqs.data"
-                                  :card-style="true"
-                                  class="max-w-xl"
-                                  :text="cq.question"
-                                  :numberOfConsolidations="cq.noConsolidations"
-                                  :creator="cq.creator"
-                                  :identifier="cq.id"
-                                  :groupIdentifier="cq.group.id"
-                                  :rating="cq.rating"/>
+      <template v-for="cq in cqs.data" :key="cq.id">
+        <ConsolidationListItem v-if="cq.unifiedEntryKind === 'consolidation_result'"
+                               class="max-w-xl"
+                               :consolidation="{
+                                 id: cq.consolidationId ?? cq.id,
+                                 resultQuestionId: cq.id,
+                                 noQuestions: cq.consolidatedQuestionIds?.length ?? 0,
+                               }"
+                               :project-id="getProject.id"
+                               :result-question="cq"/>
+        <CompetencyQuestionListItem v-else
+                                    :card-style="true"
+                                    class="max-w-xl"
+                                    :text="cq.question"
+                                    :numberOfConsolidations="cq.noConsolidations"
+                                    :creator="cq.creator"
+                                    :identifier="cq.id"
+                                    :groupIdentifier="cq.group?.id ?? cq.groupId"
+                                    :rating="cq.rating"/>
+      </template>
     </div>
     <div v-else>
       <div v-for="_ in 4" :key="_" class="border-1 shadow rounded-md p-4 max-w-xl w-full mx-auto dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-10">

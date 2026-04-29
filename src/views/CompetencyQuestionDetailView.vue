@@ -111,7 +111,14 @@ function saveCompetencyQuestion(question: string, sparqlQuery: string | null) {
         Consolidations
         <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.consolidations.length }}</span>
       </h2>
-      <ConsolidationListItem v-for="cons in cq.data.consolidations" :consolidation="cons"/>
+      <ConsolidationListItem v-for="cons in cq.data.consolidations"
+                             :key="cons.id"
+                             :consolidation="{
+                               id: cons.id,
+                               resultQuestionId: null,
+                               noQuestions: cons.noQuestions,
+                             }"
+                             :project-id="cons.project?.id ?? cq.data.group.project.id"/>
     </template>
 
     <!-- Version history -->
