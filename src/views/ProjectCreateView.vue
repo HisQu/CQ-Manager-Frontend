@@ -2,11 +2,14 @@
 import MessagePopup from "../components/MessagePopup.vue";
 import AddProjectDataService from "../services/ProjectDataService.ts";
 import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
+import EmailChipsInput from "../components/EmailChipsInput.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
+
+type Member = { email: string }
 
 export default{
   name: "ProjectCreateView",
-  components: {MessagePopup, ArrowDownOnSquareIcon, SaveButtonWithCallback},
+  components: {MessagePopup, ArrowDownOnSquareIcon, SaveButtonWithCallback, EmailChipsInput},
   props: {
     index: {type: String}
   },
@@ -26,37 +29,29 @@ export default{
       },
 
       projectTitle: "",
-
-      projectManagerInputField: '',
-      projectManager: [] as string[],
-
-      engineerInputField: '',
-      engineer: [] as string[],
+      projectManagers: [] as Member[],
+      engineers: [] as Member[],
     }
   },
   methods: {
-    addProjectManager() {
-      if (this.projectManagerInputField !== '')
-        this.projectManager.push(this.projectManagerInputField)
-      this.projectManagerInputField = '';
+    addProjectManager(email: string) {
+      this.projectManagers.push({ email });
     },
-    removeProjectManager(index: number) {
-      this.projectManager.splice(index, 1);
+    removeProjectManager(member: Member) {
+      this.projectManagers = this.projectManagers.filter(m => m.email !== member.email);
     },
-    addEngineer() {
-      if (this.engineerInputField !== '')
-        this.engineer.push(this.engineerInputField)
-      this.engineerInputField = '';
+    addEngineer(email: string) {
+      this.engineers.push({ email });
     },
-    removeEngineer(index: number) {
-      this.engineer.splice(index, 1);
+    removeEngineer(member: Member) {
+      this.engineers = this.engineers.filter(m => m.email !== member.email);
     },
 
     async save() {
       const response = await AddProjectDataService.add({
         name: this.projectTitle,
-        managers: this.projectManager,
-        engineers: this.engineer
+        managers: this.projectManagers.map(m => m.email),
+        engineers: this.engineers.map(m => m.email),
       });
 
       if ("messageType" in response) {
@@ -67,7 +62,6 @@ export default{
         this.messagePopupData.open = true;
 
       } else {
-        // successful
         this.add.project = response.data.project;
         this.$router.push('/projects/');
       }
@@ -98,32 +92,25 @@ export default{
   </div>
 
   <div class="content-container">
-    <div class="tags-input-container">
-      <label for="project-add" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-400">Assign
-        project manager:</label>
-      <div class="tag-input text-gray-800" v-for="(tag, index) in projectManager" :key="'tag'+ index">
-        <span>{{ tag }}</span>
-        <button @click="removeProjectManager(index)" class="tag-remove" aria-label="Remove tag">x</button>
-      </div>
-      <div class="mt-2">
-        <textarea v-model="projectManagerInputField" @keydown.enter="addProjectManager"
-                  placeholder="Enter e-mail address" rows="1" name="project_add" id="project"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
-      </div>
+    <div class="mb-4">
+      <EmailChipsInput
+        :members="projectManagers"
+        label="Assign project manager:"
+        input-id="project-managers"
+        placeholder="Enter email and press Enter"
+        @add="addProjectManager"
+        @remove="removeProjectManager"
+      />
     </div>
-    <div class="tags-input-container">
-      <label for="project-add" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Assign engineer:
-      </label>
-      <div class="tag-input text-gray-800" v-for="(tag, index) in engineer" :key="'tag'+ index">
-        <span>{{ tag }}</span>
-        <button @click="removeEngineer(index)" class="tag-remove" aria-label="Remove tag">x</button>
-      </div>
-      <div class="mt-2">
-        <textarea v-model="engineerInputField" @keydown.enter="addEngineer"
-                  placeholder="Enter e-mail address" rows="1" name="project_add" id="project"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
-      </div>
+    <div class="mb-4">
+      <EmailChipsInput
+        :members="engineers"
+        label="Assign engineer:"
+        input-id="engineers"
+        placeholder="Enter email and press Enter"
+        @add="addEngineer"
+        @remove="removeEngineer"
+      />
     </div>
     <div class="button-container">
       <SaveButtonWithCallback class="mt-4"
@@ -139,20 +126,6 @@ export default{
 </template>
 
 <style scoped>
-
-
-.tag-input {
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  padding: 5px;
-  border-radius: 5px;
-  margin-right: 5px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-
 .content-container {
   display: flex;
   flex-direction: column;
@@ -162,12 +135,6 @@ export default{
   display: flex;
   justify-content: flex-end;
 }
-
-.mt-4 {
-  margin-top: 1rem;
-}
-
-
 </style>
 
 

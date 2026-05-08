@@ -5,14 +5,15 @@ import {ChevronUpDownIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon} from "@her
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions} from "@headlessui/vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
+import EmailChipsInput from "../components/EmailChipsInput.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
 import ProjectDataService from "../services/ProjectDataService";
-import {useStore} from "../store.ts";
+type Member = { email: string }
 
 export default defineComponent({
   name: "GroupCreateView",
-  components: {ChevronUpDownIcon, ArrowDownOnSquareIcon, ChevronUpIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon},
-  
+  components: {ChevronUpDownIcon, ArrowDownOnSquareIcon, ChevronUpIcon, SaveButtonWithCallback, EmailChipsInput, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon},
+
   data() {
     return {
       messagePopupData: {
@@ -27,10 +28,8 @@ export default defineComponent({
       add: {
         group: '',
       },
-      store: useStore(),
-      membersInputField: '',
-      members: [] as string[],
-      selectedProject: { name: '', id: '' }, 
+      members: [] as Member[],
+      selectedProject: { name: '', id: '' },
       projects: [] as ProjectReducedT[],
     };
   },
@@ -49,20 +48,17 @@ export default defineComponent({
     });
   },
   methods: {
-    addMembers() {
-      if (this.membersInputField !== '') {
-        this.members.push(this.membersInputField); 
-        this.membersInputField = '';
-      }
+    addMember(email: string) {
+      this.members.push({ email });
     },
-    removeMembers(index: number) {
-      this.members.splice(index, 1);
+    removeMember(member: Member) {
+      this.members = this.members.filter(m => m.email !== member.email);
     },
     async save() {
       const response = await GroupDataService.add({
         name: this.add.group,
-        members: this.members,
-        project_id: this.store.getProject.id,
+        members: this.members.map(m => m.email),
+        project_id: this.selectedProject.id,
       });
 
       if ('messageType' in response) {
@@ -124,17 +120,15 @@ export default defineComponent({
     </div>
    
     <div class="content-container">
-    <div class="tags-input-container">
-        <label for="group-add" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Assign group member:</label>
-        <div class="tag-input dark:text-gray-900" v-for="(tag, index) in members" :key="'tag'+ index">
-            <span>{{ tag }}</span>
-            <button @click="removeMembers(index)" class= "tag-remove" aria-label= "Remove tag">x</button>
-        </div>
-        <div class="mt-2">
-            <textarea v-model="membersInputField" @keydown.enter="addMembers" 
-                      placeholder= "Enter e-mail address and hit Enter" rows="5" name="group" id="group" 
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
-        </div>
+    <div class="mb-4">
+      <EmailChipsInput
+        :members="members"
+        label="Assign group member:"
+        input-id="group-members"
+        placeholder="Enter email and press Enter"
+        @add="addMember"
+        @remove="removeMember"
+      />
     </div>
     <div class="button-container">
         <SaveButtonWithCallback class="mt-4"
@@ -151,20 +145,6 @@ export default defineComponent({
 </template>
 
 <style scoped>
-
-
-.tag-input {
-    border: 1px solid #ccc; 
-    background-color: #f0f0f0; 
-    padding: 5px; 
-    border-radius: 5px; 
-    margin-right: 5px; 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 5px; 
-}
-
-
 .content-container {
     display: flex;
     flex-direction: column;
@@ -172,14 +152,8 @@ export default defineComponent({
 
 .button-container {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
 }
-
-.mt-4 {
-    margin-top: 1rem; 
-}
-
-
 </style>
 
 
