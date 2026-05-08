@@ -5,7 +5,7 @@ import CompetencyQuestionDataService from "../services/CompetencyQuestionDataSer
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {PlusIcon,ChevronUpDownIcon,CheckIcon} from "@heroicons/vue/20/solid"
-import {ref, watch} from "vue";
+import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
 import {useStore} from "../store.ts";
@@ -25,8 +25,16 @@ const messagePopupData = ref({
 
 const cqs = ref();
 const groups = ref();
-const selectedGroup = ref();
-const unifiedView = ref(true);
+
+const selectedGroup = computed({
+  get: () => useStore1.cqSelectedGroup,
+  set: (val) => { useStore1.cqSelectedGroup = val; }
+})
+
+const unifiedView = computed({
+  get: () => useStore1.cqUnifiedView,
+  set: (val) => { useStore1.cqUnifiedView = val; }
+})
 
 function fetchGroups() {
   GroupDataService.getAllForOneProject(getProject.value.id).then(response => {
@@ -40,9 +48,10 @@ function fetchGroups() {
     } else {
       groups.value = response;
       groups.value.data.unshift({name: "No filter", id: ''});
-      selectedGroup.value = {name: "No filter", id: ''};
-      console.log()
-      console.log(groups.value.data)
+      const stored = useStore1.cqSelectedGroup;
+      if (!stored.id || !groups.value.data.find((g: any) => g.id === stored.id)) {
+        useStore1.cqSelectedGroup = {name: "No filter", id: ''};
+      }
       fetchCompetencyQuestion();
     }
   })
@@ -124,10 +133,9 @@ async function fetchCompetencyQuestion() {
       <Listbox as="div" v-model="selectedGroup" class="flex-1 min-w-48">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
         <div class="relative mt-2">
-          <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+          <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
         <span class="inline-flex w-full truncate">
           <span class="truncate">{{ selectedGroup.name }}</span>
-          <span class="ml-2 truncate text-gray-500">{{ selectedGroup.username }}</span>
         </span>
             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -135,9 +143,9 @@ async function fetchCompetencyQuestion() {
           </ListboxButton>
 
           <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+            <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none sm:text-sm">
               <ListboxOption as="template" v-for="g in groups.data" :key="g.id" :value="g" v-slot="{ active, selected }">
-                <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                   <div class="flex">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">{{ g.name }}</span>
                     <span :class="[active ? 'text-indigo-200' : 'text-gray-500', 'ml-2 truncate']">{{ g.project ? "Project: " + g.project?.name : '' }}</span>

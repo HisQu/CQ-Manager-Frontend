@@ -25,13 +25,17 @@ export const useStore = defineStore('cq-manager', {
             "totalMembers": 0,
         },
         sidebarCollapsed: false,
+        cqSelectedGroup: { id: '', name: 'No filter' },
+        cqUnifiedView: true,
     }),
 
     getters: {
         isLoggedIn(state): boolean { return !!state.user.loggedInAt },
         getemail(state): string { return state.user.email },
         getUser(state): UserT { return state.user },
-        getProject(state): ProjectReducedT { return state.project }
+        getProject(state): ProjectReducedT { return state.project },
+        getCqSelectedGroup(state): { id: string, name: string } { return state.cqSelectedGroup },
+        getCqUnifiedView(state): boolean { return state.cqUnifiedView },
     },
 
     actions: {

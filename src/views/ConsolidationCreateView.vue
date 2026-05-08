@@ -4,7 +4,8 @@ import MessagePopup from "../components/MessagePopup.vue";
 import {ExclamationCircleIcon, CheckIcon, ChevronUpDownIcon, ArrowDownOnSquareIcon} from '@heroicons/vue/20/solid'
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
-import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
+import GroupDataService from "../services/GroupDataService.ts";
+import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
 
@@ -12,10 +13,11 @@ export default defineComponent({
   name: "ConsolidationCreateView",
   components: {
     MessagePopup, ExclamationCircleIcon, ArrowDownOnSquareIcon,
-    Listbox, ListboxButton, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon,
+    Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon,
     QuestionSelectorTable,
   },
   data() {
+    const store = useStore();
     return {
       messagePopupData: {
         uxresponse: {
@@ -26,8 +28,10 @@ export default defineComponent({
         },
         open: false,
       },
-      store: useStore(),
+      store,
       cqs: [] as CompetencyQuestionReducedT[],
+      groups: [] as { id: string; name: string }[],
+      selectedFilterGroup: { ...store.cqSelectedGroup } as { id: string; name: string },
       selectedQuestions: [] as string[],
       useExistingCq: false,
       newQuestionText: "",
@@ -37,15 +41,24 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.getCompetencyQuestions()
+    this.getCompetencyQuestions();
+    this.fetchGroups();
   },
   computed: {
     sourceCqs(): CompetencyQuestionReducedT[] {
       const excludedId = this.useExistingCq ? this.selectedResultCq?.id : null;
-      return this.cqs.filter(cq => cq.id !== excludedId);
+      const byResult = this.cqs.filter(cq => cq.id !== excludedId);
+      if (!this.selectedFilterGroup.id) return byResult;
+      return byResult.filter(cq => (cq.group?.id ?? cq.groupId) === this.selectedFilterGroup.id);
     },
   },
   methods: {
+    async fetchGroups() {
+      const response = await GroupDataService.getAllForOneProject(this.store.project.id);
+      if (!("messageType" in response)) {
+        this.groups = [{ id: '', name: 'All groups' }, ...response.data.map((g: any) => ({ id: g.id, name: g.name }))];
+      }
+    },
     async getCompetencyQuestions() {
       const response = await CompetencyQuestionDataService.getAllForOneProject(this.store.project.id);
       if ("messageType" in response) {
@@ -110,11 +123,38 @@ export default defineComponent({
       <!-- Step 1: Source Questions -->
       <QuestionSelectorTable :cqs="sourceCqs" @selectionChanged="selectedQuestions = $event">
         <template #header>
-          <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Source Questions</h2>
-          <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Select the questions to consolidate.
-            <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
-          </p>
+          <div class="flex flex-col gap-1.5">
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Source Questions</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Select the questions to consolidate.
+              <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
+            </p>
+            <div v-if="groups.length > 1" class="mt-1">
+              <Listbox v-model="selectedFilterGroup">
+                <ListboxLabel class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Filter by group</ListboxLabel>
+                <div class="relative">
+                  <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <span class="block truncate">{{ selectedFilterGroup.name }}</span>
+                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
+                    </span>
+                  </ListboxButton>
+                  <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                    <ListboxOptions class="absolute z-10 mt-1 max-h-48 w-56 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+                      <ListboxOption as="template" v-for="g in groups" :key="g.id" :value="g" v-slot="{ active, selected }">
+                        <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-1.5 pl-3 pr-9 text-xs']">
+                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ g.name }}</span>
+                          <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-3']">
+                            <CheckIcon class="h-4 w-4" aria-hidden="true" />
+                          </span>
+                        </li>
+                      </ListboxOption>
+                    </ListboxOptions>
+                  </transition>
+                </div>
+              </Listbox>
+            </div>
+          </div>
         </template>
       </QuestionSelectorTable>
 

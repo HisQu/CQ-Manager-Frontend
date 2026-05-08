@@ -1,5 +1,7 @@
 type StateT = {
     user: UserT,
     project: ProjectReducedT,
-    sidebarCollapsed: boolean
+    sidebarCollapsed: boolean,
+    cqSelectedGroup: { id: string, name: string },
+    cqUnifiedView: boolean,
 }

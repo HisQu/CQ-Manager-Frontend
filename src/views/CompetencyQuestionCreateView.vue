@@ -134,7 +134,7 @@ export default defineComponent({
     <div class="my-5">
       <label for="question" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Question text</label>
       <div class="mt-2">
-        <textarea v-model="cq.question" rows="4" name="comment" id="question" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+        <textarea v-model="cq.question" rows="4" name="comment" id="question" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
       </div>
     </div>
 
