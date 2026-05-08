@@ -39,6 +39,19 @@ const addableCqs = computed(() => {
   return cqs.value.filter(q => !excludedIds.has(q.id));
 });
 
+const cqGroupMap = computed(() => {
+  const map = new Map<string, string>();
+  for (const q of cqs.value) {
+    const gid = q.groupId ?? q.group?.id;
+    if (gid) map.set(q.id, gid);
+  }
+  return map;
+});
+
+function groupIdFor(q: CompetencyQuestionReducedT): string | undefined {
+  return q.groupId ?? q.group?.id ?? cqGroupMap.value.get(q.id);
+}
+
 fetchAll();
 
 function showError(response: UXResponse) {
@@ -159,7 +172,7 @@ async function removeQuestion(questionId: string) {
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-lg font-semibold dark:text-white">Result Question</h2>
         <RouterLink v-if="consolidation.resultQuestion"
-                    :to="`/questions/${consolidation.resultQuestion.group?.id ?? consolidation.resultQuestion.groupId}/${consolidation.resultQuestion.id}`"
+                    :to="`/questions/${groupIdFor(consolidation.resultQuestion)}/${consolidation.resultQuestion.id}`"
                     class="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
           Open CQ
           <ArrowTopRightOnSquareIcon class="h-4 w-4"/>
@@ -240,7 +253,7 @@ async function removeQuestion(questionId: string) {
       <div v-for="cq in consolidation.questions" :key="cq.id" class="flex items-center mt-3">
         <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded w-full mr-3">
           <CompetencyQuestionListItem :text="cq.question"
-                                      :groupIdentifier="cq.groupId ?? cq.group?.id"
+                                      :groupIdentifier="groupIdFor(cq) ?? ''"
                                       :identifier="cq.id"/>
         </div>
         <div v-if="canEdit">
