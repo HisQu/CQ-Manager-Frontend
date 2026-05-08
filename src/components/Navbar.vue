@@ -16,6 +16,7 @@ import {
   QuestionMarkCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ArrowRightStartOnRectangleIcon,
 } from '@heroicons/vue/24/outline'
 import Logo from "./Logo.vue";
 import {ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
@@ -36,6 +37,7 @@ export default defineComponent({
     QueueListIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
+    ArrowRightStartOnRectangleIcon,
   },
 
   computed: {
@@ -173,10 +175,15 @@ export default defineComponent({
                     </ul>
                   </li>
                   <li class="-mx-6 mt-auto">
-                    <button @click="store.logout(); $router.push('/login');" class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-indigo-700 w-full">
-                      <img class="h-8 w-8 rounded-full bg-indigo-700" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-                      <span aria-hidden="true">{{ store.getUser.name }}</span>
-                    </button>
+                    <div class="flex items-center justify-between px-6 py-3">
+                      <RouterLink to="/account/change-password" @click="sidebarOpen = false" class="flex items-center gap-x-4 text-sm font-semibold leading-6 text-white hover:text-indigo-200 min-w-0">
+                        <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                        <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
+                      </RouterLink>
+                      <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0" title="Log out">
+                        <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
+                      </button>
+                    </div>
                   </li>
                 </ul>
               </nav>
@@ -228,11 +235,20 @@ export default defineComponent({
             </ul>
           </li>
           <li class="-mx-6 mt-auto">
-            <button @click="store.logout(); $router.push('/login');"
-              :class="[store.sidebarCollapsed ? 'justify-center px-2' : 'gap-x-4 px-6', 'flex items-center py-3 text-sm font-semibold leading-6 text-white hover:bg-indigo-700 w-full']">
-              <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-              <span v-if="!store.sidebarCollapsed" aria-hidden="true">{{ store.getUser.name }}</span>
-            </button>
+            <div :class="[store.sidebarCollapsed ? 'justify-center px-2' : 'px-6', 'flex items-center py-3 gap-x-2']">
+              <RouterLink to="/account/change-password"
+                :class="[store.sidebarCollapsed ? 'justify-center' : 'gap-x-3', 'flex items-center min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200']"
+                title="Change password">
+                <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                <span v-if="!store.sidebarCollapsed" class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
+              </RouterLink>
+              <button v-if="!store.sidebarCollapsed"
+                @click="store.logout(); $router.push('/login');"
+                class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0"
+                title="Log out">
+                <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
           </li>
         </ul>
       </nav>

@@ -123,6 +123,11 @@ const routes =  [
         name: "users-detail",
         component: () => import("./views/UserDetailView.vue"),
         props: true
+    },
+    {
+        path: "/account/change-password",
+        name: "change-password",
+        component: () => import("./views/ChangePasswordView.vue")
     }
 ];
 
