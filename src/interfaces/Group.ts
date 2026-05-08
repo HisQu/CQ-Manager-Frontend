@@ -35,5 +35,6 @@ type GroupFullT = {
     noQuestions: number,
     id: string,
     createdAt: string,
-    updatedAt: string
+    updatedAt: string,
+    comment: string | null,
 }

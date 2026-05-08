@@ -4,6 +4,7 @@ import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue
 import EmailChipsInput from "../components/EmailChipsInput.vue";
 import { ArrowDownOnSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import ProjectDataService from "../services/ProjectDataService.ts";
+import UserDataService from "../services/UserDataService.ts";
 
 
 export default {
@@ -26,6 +27,7 @@ export default {
       name: "",
       managers: [] as { id: string; email: string; name: string }[],
       engineers: [] as { id: string; email: string; name: string }[],
+      allUsers: [] as { email: string; name: string }[],
     }
   },
   methods: {
@@ -98,6 +100,9 @@ export default {
   },
   mounted() {
     this.fetchProject();
+    UserDataService.getAll().then(response => {
+      if (!('messageType' in response)) this.allUsers = response.data;
+    });
   }
 }
 </script>
@@ -127,6 +132,7 @@ export default {
     <div class="mb-6">
       <EmailChipsInput
           :members="managers"
+          :suggestions="allUsers"
           label="Project managers"
           input-id="project_managers"
           @add="addManager"
@@ -137,6 +143,7 @@ export default {
     <div class="mb-8">
       <EmailChipsInput
           :members="engineers"
+          :suggestions="allUsers"
           label="Ontology engineers"
           input-id="project_engineers"
           @add="addEngineer"

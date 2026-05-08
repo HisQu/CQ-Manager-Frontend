@@ -4,6 +4,7 @@ import AddProjectDataService from "../services/ProjectDataService.ts";
 import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import EmailChipsInput from "../components/EmailChipsInput.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
+import UserDataService from "../services/UserDataService.ts";
 
 type Member = { email: string }
 
@@ -31,7 +32,13 @@ export default{
       projectTitle: "",
       projectManagers: [] as Member[],
       engineers: [] as Member[],
+      allUsers: [] as { email: string; name: string }[],
     }
+  },
+  mounted() {
+    UserDataService.getAll().then(response => {
+      if (!('messageType' in response)) this.allUsers = response.data;
+    });
   },
   methods: {
     addProjectManager(email: string) {
@@ -95,6 +102,7 @@ export default{
     <div class="mb-4">
       <EmailChipsInput
         :members="projectManagers"
+        :suggestions="allUsers"
         label="Assign project manager:"
         input-id="project-managers"
         placeholder="Enter email and press Enter"
@@ -105,6 +113,7 @@ export default{
     <div class="mb-4">
       <EmailChipsInput
         :members="engineers"
+        :suggestions="allUsers"
         label="Assign engineer:"
         input-id="engineers"
         placeholder="Enter email and press Enter"

@@ -4,6 +4,7 @@ import MessagePopup from "../components/MessagePopup.vue";
 import {ChevronUpDownIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon} from "@heroicons/vue/20/solid"
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions} from "@headlessui/vue";
 import GroupDataService from "../services/GroupDataService.ts";
+import UserDataService from "../services/UserDataService.ts";
 import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import EmailChipsInput from "../components/EmailChipsInput.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
@@ -31,9 +32,13 @@ export default defineComponent({
       members: [] as Member[],
       selectedProject: { name: '', id: '' },
       projects: [] as ProjectReducedT[],
+      allUsers: [] as { email: string; name: string }[],
     };
   },
   mounted() {
+    UserDataService.getAll().then(response => {
+      if (!('messageType' in response)) this.allUsers = response.data;
+    });
     ProjectDataService.getAll().then((response) => {
       if ('messageType' in response) {
         this.messagePopupData.uxresponse = {
@@ -123,6 +128,7 @@ export default defineComponent({
     <div class="mb-4">
       <EmailChipsInput
         :members="members"
+        :suggestions="allUsers"
         label="Assign group member:"
         input-id="group-members"
         placeholder="Enter email and press Enter"

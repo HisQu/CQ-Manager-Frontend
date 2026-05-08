@@ -5,6 +5,7 @@ import DetailPageHeader from "../components/DetailPageHeader.vue";
 import EmailChipsInput from "../components/EmailChipsInput.vue";
 import { ArrowDownOnSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import GroupDataService from "../services/GroupDataService.ts";
+import UserDataService from "../services/UserDataService.ts";
 
 
 export default {
@@ -26,7 +27,9 @@ export default {
       },
       data: null as GroupFullT | null,
       name: "",
+      comment: "" as string | null,
       members: [] as { id: string; email: string; name: string }[],
+      allUsers: [] as { email: string; name: string }[],
     }
   },
   methods: {
@@ -38,12 +41,14 @@ export default {
       } else {
         this.data = response.data;
         this.name = response.data.name as string;
+        this.comment = response.data.comment ?? null;
         this.members = response.data.members as { id: string; email: string; name: string }[];
       }
     },
     async saveGroup() {
       const response = await GroupDataService.update(this.id, this.data!.project.id as string, {
         name: this.name,
+        comment: this.comment,
         emails: this.members.map(m => m.email),
       });
       if ("messageType" in response) {
@@ -85,6 +90,9 @@ export default {
   },
   mounted() {
     this.fetchGroup();
+    UserDataService.getAll().then(response => {
+      if (!('messageType' in response)) this.allUsers = response.data;
+    });
   }
 }
 </script>
@@ -118,9 +126,22 @@ export default {
       />
     </div>
 
+    <div class="mb-6">
+      <label for="group_comment" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
+        Comment
+      </label>
+      <textarea
+          id="group_comment"
+          v-model="comment"
+          rows="3"
+          class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      />
+    </div>
+
     <div class="mb-8">
       <EmailChipsInput
           :members="members"
+          :suggestions="allUsers"
           label="Members"
           input-id="group_members"
           @add="addMember"
