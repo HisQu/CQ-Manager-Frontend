@@ -47,7 +47,8 @@ function showError(response: UXResponse) {
 }
 
 async function fetchConsolidation() {
-  const response = await ConsolidationDataService.getOne(props.id, props.projectid);
+  const projectId = consolidation.value?.project?.id ?? props.projectid;
+  const response = await ConsolidationDataService.getOne(props.id, projectId);
   if ("messageType" in response) {
     showError(response);
   } else {
@@ -96,7 +97,7 @@ async function saveResultQuestion() {
 
 async function setResultQuestion() {
   if (!newResultCq.value) return;
-  const response = await ConsolidationDataService.update(props.id, props.projectid, {
+  const response = await ConsolidationDataService.update(props.id, consolidation.value!.project!.id, {
     resultQuestionId: newResultCq.value.id,
   });
   if ("messageType" in response) {
@@ -108,7 +109,7 @@ async function setResultQuestion() {
 }
 
 async function addQuestions(questionIds: string[]) {
-  const response = await ConsolidationDataService.addQuestions(props.id, props.projectid, questionIds);
+  const response = await ConsolidationDataService.addQuestions(props.id, consolidation.value!.project!.id, questionIds);
   if ("messageType" in response) {
     showError(response);
   } else {
@@ -117,7 +118,7 @@ async function addQuestions(questionIds: string[]) {
 }
 
 async function removeQuestion(questionId: string) {
-  const response = await ConsolidationDataService.removeQuestions(props.id, props.projectid, [questionId]);
+  const response = await ConsolidationDataService.removeQuestions(props.id, consolidation.value!.project!.id, [questionId]);
   if ("messageType" in response) {
     showError(response);
   } else {
@@ -146,7 +147,7 @@ async function removeQuestion(questionId: string) {
         <SubmitButtonWithCallback agree-button-text="Delete"
                                   title="Are you sure you want to delete this consolidation?"
                                   detail="This action is permanent. The source questions are not deleted."
-                                  @modalsuccessclose="ConsolidationDataService.delete(consolidation.id, props.projectid); $router.push('/consolidations/');">
+                                  @modalsuccessclose="ConsolidationDataService.delete(consolidation.id, consolidation.project!.id); $router.push('/consolidations/');">
           <TrashIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
           Delete
         </SubmitButtonWithCallback>

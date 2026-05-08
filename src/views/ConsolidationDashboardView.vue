@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
-import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/20/solid"
@@ -23,7 +22,6 @@ const messagePopupData = ref({
 })
 
 const consolidations = ref<ConsolidationReducedT[]>();
-const cqMap = ref<Map<string, CompetencyQuestionReducedT>>(new Map());
 const isOntologyEngineer = ref(false);
 
 function showError(response: UXResponse) {
@@ -33,24 +31,14 @@ function showError(response: UXResponse) {
 
 async function fetchAll() {
   consolidations.value = undefined;
-  cqMap.value = new Map();
 
-  const [consoResponse, cqResponse] = await Promise.all([
-    ConsolidationDataService.getAllForOneProject(getProject.value.id),
-    CompetencyQuestionDataService.getAllForOneProject(getProject.value.id),
-  ]);
+  const response = await ConsolidationDataService.getAllForOneProject(getProject.value.id);
 
-  if ("messageType" in consoResponse) {
-    showError(consoResponse);
+  if ("messageType" in response) {
+    showError(response);
   } else {
-    consolidations.value = consoResponse.data;
-    isOntologyEngineer.value = (consoResponse.data as any).permissionsProjectEngineer ?? false;
-  }
-
-  if ("messageType" in cqResponse) {
-    showError(cqResponse);
-  } else {
-    cqMap.value = new Map(cqResponse.data.map((cq: CompetencyQuestionReducedT) => [cq.id, cq]));
+    consolidations.value = response.data;
+    isOntologyEngineer.value = (response.data as any).permissionsProjectEngineer ?? false;
   }
 }
 
@@ -82,7 +70,7 @@ watch(getProject, () => fetchAll())
                              :key="cons.id"
                              :consolidation="cons"
                              :project-id="getProject.id"
-                             :result-question="cons.resultQuestionId ? cqMap.get(cons.resultQuestionId) : undefined"
+                             :result-question="cons.resultQuestion ?? undefined"
                              :is-ontology-engineer="isOntologyEngineer"
                              @deleted="fetchAll"/>
     </div>

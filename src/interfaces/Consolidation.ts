@@ -1,6 +1,8 @@
 type ConsolidationReducedT = {
     id: string,
     resultQuestionId: string | null,
+    resultQuestion?: CompetencyQuestionReducedT | null,
+    engineer?: UserReducedT | null,
     noQuestions: number,
 }
 
