@@ -110,11 +110,12 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async change(question: string, annotations: AnnotationT[], group_uuid: string, question_uuid: string, sparqlQuery?: string | null): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
+    async change(question: string, annotations: AnnotationT[], group_uuid: string, question_uuid: string, sparqlQuery?: string | null, comment?: string | null): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
         return http.put<DeleteResponse>(`/questions/${group_uuid}/${question_uuid}`, {
             question: question,
             annotations: annotations,
             sparqlQuery: sparqlQuery ?? null,
+            comment: comment ?? null,
         }, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {

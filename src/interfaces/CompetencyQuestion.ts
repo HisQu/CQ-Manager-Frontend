@@ -17,6 +17,7 @@ type CompetencyQuestionT = {
         versionNumber: number
     },
     group: GroupT,
+    comment: string | null,
 }
 
 type CompetencyQuestionReducedT = {

@@ -27,15 +27,17 @@ const messagePopupData = ref({
   open: false
 })
 
-const props = defineProps(['question', 'sparqlQuery', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
+const props = defineProps(['question', 'sparqlQuery', 'comment', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
 const {annotations} = toRefs(props)
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 
 const localQuestion = ref<string>(props.question ?? '')
 const localSparqlQuery = ref<string>(props.sparqlQuery ?? '')
+const localComment = ref<string | null>(props.comment ?? null)
 
 watch(() => props.question, (val) => { localQuestion.value = val ?? '' })
 watch(() => props.sparqlQuery, (val) => { localSparqlQuery.value = val ?? '' })
+watch(() => props.comment, (val) => { localComment.value = val ?? null })
 
 const terms = ref<TermT[]>();
 const term = ref<TermT | null>(null)
@@ -100,6 +102,16 @@ fetchTerms()
              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
              v-model="localQuestion"
       ></textarea>
+    </div>
+    <div class="mt-4">
+      <label for="cq_comment" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">Comment</label>
+      <div class="mt-2">
+        <textarea id="cq_comment" rows="3"
+                  :disabled="!canEdit"
+                  v-model="localComment"
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+        ></textarea>
+      </div>
     </div>
     <div class="mt-6">
       <label for="sparqlQuery"
@@ -250,7 +262,7 @@ fetchTerms()
   </div>
   <div v-if="canEdit" class="mt-5 flex flex-row-reverse">
     <button
-        @click="$emit('saveCompetencyQuestion', localQuestion, localSparqlQuery || null)"
+        @click="$emit('saveCompetencyQuestion', localQuestion, localSparqlQuery || null, localComment)"
         type="button"
         class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
