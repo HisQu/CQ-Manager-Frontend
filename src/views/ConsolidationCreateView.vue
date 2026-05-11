@@ -31,13 +31,18 @@ export default defineComponent({
       store,
       cqs: [] as CompetencyQuestionReducedT[],
       groups: [] as { id: string; name: string }[],
-      selectedFilterGroup: { ...store.cqSelectedGroup } as { id: string; name: string },
+      resultGroup: { ...store.cqSelectedGroup } as { id: string; name: string },
       selectedQuestions: [] as string[],
       useExistingCq: false,
       newQuestionText: "",
+      newQuestionReference: "",
+      newQuestionAnchor: "",
+      newQuestionExampleAnswer: "",
+      newQuestionType: null as CQType | null,
       selectedResultCq: null as CompetencyQuestionReducedT | null,
       resultQuestionError: false,
       saving: false,
+      cqTypes: ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"] as CQType[],
     }
   },
   mounted() {
@@ -47,9 +52,7 @@ export default defineComponent({
   computed: {
     sourceCqs(): CompetencyQuestionReducedT[] {
       const excludedId = this.useExistingCq ? this.selectedResultCq?.id : null;
-      const byResult = this.cqs.filter(cq => cq.id !== excludedId);
-      if (!this.selectedFilterGroup.id) return byResult;
-      return byResult.filter(cq => (cq.group?.id ?? cq.groupId) === this.selectedFilterGroup.id);
+      return this.cqs.filter(cq => cq.id !== excludedId);
     },
   },
   methods: {
@@ -57,6 +60,11 @@ export default defineComponent({
       const response = await GroupDataService.getAllForOneProject(this.store.project.id);
       if (!("messageType" in response)) {
         this.groups = [{ id: '', name: 'All groups' }, ...response.data.map((g: any) => ({ id: g.id, name: g.name }))];
+        // If stored group isn't valid, clear it
+        const stored = this.store.cqSelectedGroup;
+        if (stored.id && !this.groups.find(g => g.id === stored.id)) {
+          this.resultGroup = { id: '', name: 'All groups' };
+        }
       }
     },
     async getCompetencyQuestions() {
@@ -68,11 +76,14 @@ export default defineComponent({
         this.cqs = response.data;
       }
     },
+    onTableGroupChanged(group: { id: string; name: string }) {
+      if (group.id) this.resultGroup = group;
+    },
 
     async save() {
       const isValid = this.useExistingCq
         ? !!this.selectedResultCq
-        : this.newQuestionText.trim().length > 0;
+        : this.newQuestionText.trim().length > 0 && !!this.resultGroup.id;
 
       if (!isValid) {
         this.resultQuestionError = true;
@@ -82,7 +93,14 @@ export default defineComponent({
 
       const resultQuestion = this.useExistingCq
         ? {id: this.selectedResultCq!.id}
-        : {question: this.newQuestionText.trim()};
+        : {
+            question: this.newQuestionText.trim(),
+            groupId: this.resultGroup.id,
+            reference: this.newQuestionReference || null,
+            anchor: this.newQuestionAnchor || null,
+            exampleAnswer: this.newQuestionExampleAnswer || null,
+            type: this.newQuestionType || null,
+          };
 
       this.saving = true;
       const response = await ConsolidationDataService.add(
@@ -121,40 +139,17 @@ export default defineComponent({
     <div class="mt-8 space-y-8">
 
       <!-- Step 1: Source Questions -->
-      <QuestionSelectorTable :cqs="sourceCqs" @selectionChanged="selectedQuestions = $event">
+      <QuestionSelectorTable
+        :cqs="sourceCqs"
+        :groups="groups"
+        @selectionChanged="selectedQuestions = $event"
+        @groupChanged="onTableGroupChanged">
         <template #header>
-          <div class="flex flex-col gap-1.5">
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Source Questions</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              Select the questions to consolidate.
-              <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
-            </p>
-            <div v-if="groups.length > 1" class="mt-1">
-              <Listbox v-model="selectedFilterGroup">
-                <ListboxLabel class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Filter by group</ListboxLabel>
-                <div class="relative">
-                  <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <span class="block truncate">{{ selectedFilterGroup.name }}</span>
-                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
-                    </span>
-                  </ListboxButton>
-                  <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                    <ListboxOptions class="absolute z-10 mt-1 max-h-48 w-56 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
-                      <ListboxOption as="template" v-for="g in groups" :key="g.id" :value="g" v-slot="{ active, selected }">
-                        <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-1.5 pl-3 pr-9 text-xs']">
-                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ g.name }}</span>
-                          <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-3']">
-                            <CheckIcon class="h-4 w-4" aria-hidden="true" />
-                          </span>
-                        </li>
-                      </ListboxOption>
-                    </ListboxOptions>
-                  </transition>
-                </div>
-              </Listbox>
-            </div>
-          </div>
+          <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Source Questions</h2>
+          <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+            Select the questions to consolidate.
+            <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
+          </p>
         </template>
       </QuestionSelectorTable>
 
@@ -186,7 +181,42 @@ export default defineComponent({
           </div>
         </div>
 
-        <div class="px-5 py-4">
+        <div class="px-5 py-4 space-y-4">
+
+          <!-- Group selector for new result question -->
+          <div v-if="!useExistingCq && groups.length > 1">
+            <Listbox v-model="resultGroup">
+              <ListboxLabel class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Target group</ListboxLabel>
+              <div class="relative">
+                <ListboxButton
+                  class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset dark:bg-gray-800"
+                  :class="resultQuestionError && !resultGroup.id
+                    ? 'ring-red-300 focus:ring-red-500 text-gray-900 dark:text-gray-100'
+                    : 'ring-gray-300 dark:ring-gray-600 focus:ring-indigo-600 text-gray-900 dark:text-gray-100'">
+                  <span :class="['block truncate', resultGroup.id ? '' : 'text-gray-400']">
+                    {{ resultGroup.id ? resultGroup.name : 'Select a group…' }}
+                  </span>
+                  <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                    <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
+                  </span>
+                </ListboxButton>
+                <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                  <ListboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+                    <ListboxOption as="template" v-for="g in groups.filter(g => g.id)" :key="g.id" :value="g" v-slot="{ active, selected }">
+                      <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ g.name }}</span>
+                        <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-3']">
+                          <CheckIcon class="h-4 w-4" aria-hidden="true"/>
+                        </span>
+                      </li>
+                    </ListboxOption>
+                  </ListboxOptions>
+                </transition>
+              </div>
+            </Listbox>
+          </div>
+
+          <!-- New question text -->
           <div v-if="!useExistingCq" class="relative">
             <input type="text" v-model="newQuestionText"
                    placeholder="Enter the consolidated question text..."
@@ -199,6 +229,47 @@ export default defineComponent({
             </div>
           </div>
 
+          <!-- New question metadata -->
+          <template v-if="!useExistingCq">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Type <span class="font-normal text-gray-400">(optional)</span>
+                </label>
+                <select v-model="newQuestionType"
+                        class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600">
+                  <option :value="null">—</option>
+                  <option v-for="t in cqTypes" :key="t" :value="t">{{ t }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Reference (Fundstelle) <span class="font-normal text-gray-400">(optional)</span>
+                </label>
+                <input type="text" v-model="newQuestionReference"
+                       placeholder="e.g. S. 138."
+                       class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Anchor (Beleganker) <span class="font-normal text-gray-400">(optional)</span>
+              </label>
+              <textarea v-model="newQuestionAnchor" rows="2"
+                        placeholder="Source text or evidence from which the CQ was extracted..."
+                        class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Example Answer <span class="font-normal text-gray-400">(optional)</span>
+              </label>
+              <textarea v-model="newQuestionExampleAnswer" rows="2"
+                        placeholder="Sample or example answer..."
+                        class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
+            </div>
+          </template>
+
+          <!-- Existing CQ picker -->
           <Listbox v-else v-model="selectedResultCq">
             <div class="relative">
               <ListboxButton
@@ -229,8 +300,8 @@ export default defineComponent({
             </div>
           </Listbox>
 
-          <p v-if="resultQuestionError" class="mt-2 text-xs text-red-600 dark:text-red-400">
-            {{ useExistingCq ? 'Please select a CQ.' : 'Please enter a question.' }}
+          <p v-if="resultQuestionError" class="text-xs text-red-600 dark:text-red-400">
+            {{ useExistingCq ? 'Please select a CQ.' : !resultGroup.id ? 'Please select a group and enter a question.' : 'Please enter a question.' }}
           </p>
         </div>
       </div>

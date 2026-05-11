@@ -47,20 +47,28 @@ export default defineComponent({
         {{ resultQuestion?.question ?? '—' }}
       </p>
 
-      <div class="mt-3 flex items-center justify-between">
+      <div class="mt-2 flex flex-wrap items-center gap-2">
+        <span v-if="resultQuestion?.group?.name"
+              class="inline-flex items-center rounded-md bg-violet-50 dark:bg-violet-400/10 px-2 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-400 ring-1 ring-inset ring-violet-700/10 dark:ring-violet-400/30">
+          {{ resultQuestion.group.name }}
+        </span>
         <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
           {{ consolidation.noQuestions }} source question{{ consolidation.noQuestions !== 1 ? 's' : '' }}
         </span>
+        <span v-if="consolidation.engineer?.name"
+              class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/20">
+          {{ consolidation.engineer.name }}
+        </span>
+      </div>
 
-        <div v-if="isOntologyEngineer" @click.prevent>
-          <SubmitButtonWithCallback agree-button-text="Delete consolidation"
-                                    title="Are you sure you want to delete this consolidation?"
-                                    detail="This action is permanent. The source questions are not deleted."
-                                    @modalsuccessclose="deleteConsolidation">
-            <TrashIcon class="h-4 w-4" aria-hidden="true"/>
-            Delete
-          </SubmitButtonWithCallback>
-        </div>
+      <div v-if="isOntologyEngineer" class="mt-3 flex justify-end" @click.prevent>
+        <SubmitButtonWithCallback agree-button-text="Delete consolidation"
+                                  title="Are you sure you want to delete this consolidation?"
+                                  detail="This action is permanent. The source questions are not deleted."
+                                  @modalsuccessclose="deleteConsolidation">
+          <TrashIcon class="h-4 w-4" aria-hidden="true"/>
+          Delete
+        </SubmitButtonWithCallback>
       </div>
 
     </div>

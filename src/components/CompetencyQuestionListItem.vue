@@ -32,6 +32,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    groupName: {
+      type: String,
+      required: false,
+    },
     numberOfConsolidations: {
       type: Number,
       required: false,
@@ -62,6 +66,10 @@ export default defineComponent({
         <span v-if="numberOfConsolidations"
               class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30">
           In {{ numberOfConsolidations }} consolidation(s)
+        </span>
+        <span v-if="groupName"
+              class="inline-flex items-center rounded-md bg-violet-50 dark:bg-violet-400/10 px-2 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-400 ring-1 ring-inset ring-violet-700/10 dark:ring-violet-400/30">
+          {{ groupName }}
         </span>
         <IdBadge :id="identifier" />
         <UserCardSmall v-if="creator" :name="creator" />

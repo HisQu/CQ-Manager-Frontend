@@ -30,7 +30,13 @@ export default defineComponent({
       selectedGroup: {name: "No Group selected", id: "", project: null as ProjectFullT | null, noMembers: 0, noQuestions: 0, createdAt: "", updatedAt: ""},
       cq: {
         question: "",
+        comment: "",
+        reference: "",
+        anchor: "",
+        exampleAnswer: "",
+        type: null as CQType | null,
       },
+      cqTypes: ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"] as CQType[],
       store: useStore(),
     }
   },
@@ -66,11 +72,10 @@ export default defineComponent({
           this.messagePopupData.open = true;
 
         } else {
-          console.log("hallo")
-          console.log(response.data)
           this.groups = response.data;
-          this.selectedGroup = this.groups[0];
-          console.log(this.groups)
+          const stored = this.store.cqSelectedGroup;
+          const matching = this.groups.find(g => g.id === stored.id);
+          this.selectedGroup = matching ?? this.groups[0];
         }
       })
     },
@@ -78,7 +83,14 @@ export default defineComponent({
     async save() {
       const response = await CompetencyQuestionDataService.add(
         this.cq.question,
-        this.selectedGroup.id
+        this.selectedGroup.id,
+        this.cq.comment || null,
+        {
+          reference: this.cq.reference || null,
+          anchor: this.cq.anchor || null,
+          exampleAnswer: this.cq.exampleAnswer || null,
+          type: this.cq.type || null,
+        },
       );
 
       if ("messageType" in response) {
@@ -134,7 +146,46 @@ export default defineComponent({
     <div class="my-5">
       <label for="question" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Question text</label>
       <div class="mt-2">
-        <textarea v-model="cq.question" rows="4" name="comment" id="question" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+        <textarea v-model="cq.question" rows="4" name="question" id="question" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+      </div>
+    </div>
+
+    <div class="my-5">
+      <label for="cq_comment" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Comment <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span></label>
+      <div class="mt-2">
+        <textarea v-model="cq.comment" rows="3" name="cq_comment" id="cq_comment" placeholder="Additional notes or context..." class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+      </div>
+    </div>
+
+    <div class="my-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <label for="cq_type" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Type <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span></label>
+        <div class="mt-2">
+          <select v-model="cq.type" id="cq_type" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+            <option :value="null">—</option>
+            <option v-for="t in cqTypes" :key="t" :value="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="cq_reference" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Reference (Fundstelle) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span></label>
+        <div class="mt-2">
+          <input type="text" v-model="cq.reference" id="cq_reference" placeholder="e.g. S. 138." class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+        </div>
+      </div>
+    </div>
+
+    <div class="my-5">
+      <label for="cq_anchor" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Anchor (Beleganker) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span></label>
+      <div class="mt-2">
+        <textarea v-model="cq.anchor" rows="2" id="cq_anchor" placeholder="Source text or evidence from which the CQ was extracted..." class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+      </div>
+    </div>
+
+    <div class="my-5">
+      <label for="cq_example_answer" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Example Answer <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span></label>
+      <div class="mt-2">
+        <textarea v-model="cq.exampleAnswer" rows="2" id="cq_example_answer" placeholder="Sample or example answer..." class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
       </div>
     </div>
 

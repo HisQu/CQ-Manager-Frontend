@@ -35,9 +35,9 @@ async function fetchCompetencyQuestion() {
   });
 }
 
-function saveCompetencyQuestion(question: string, sparqlQuery: string | null, newComment: string | null) {
+function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
   comment.value = newComment;
-  CompetencyQuestionDataService.change(question, [], props.groupid, props.id, sparqlQuery, newComment).then(() => {
+  CompetencyQuestionDataService.change(question, [], props.groupid, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(() => {
     fetchCompetencyQuestion()
   })
 }
@@ -103,6 +103,10 @@ function saveCompetencyQuestion(question: string, sparqlQuery: string | null, ne
                                     :question="cq.data.question"
                                     :sparql-query="cq.data.sparqlQuery"
                                     :comment="comment"
+                                    :reference="cq.data.reference"
+                                    :anchor="cq.data.anchor"
+                                    :example-answer="cq.data.exampleAnswer"
+                                    :type="cq.data.type"
                                     :group-id="cq.data.groupId"
                                     :id="cq.data.id"
                                     :project-id="cq.data.group.project.id"

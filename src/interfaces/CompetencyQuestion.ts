@@ -1,3 +1,5 @@
+type CQType = "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
+
 type CompetencyQuestionT = {
     id: string,
     groupId: string,
@@ -18,6 +20,10 @@ type CompetencyQuestionT = {
     },
     group: GroupT,
     comment: string | null,
+    reference: string | null,
+    anchor: string | null,
+    exampleAnswer: string | null,
+    type: CQType | null,
 }
 
 type CompetencyQuestionReducedT = {
@@ -28,8 +34,16 @@ type CompetencyQuestionReducedT = {
         name: string
     },
     question: string,
-    author: UserReducedT,
-    aggregatedRating: number,
+    author?: UserReducedT,
+    creator?: string,
+    aggregatedRating?: number,
+    rating?: number,
+    noConsolidations?: number,
+    comment?: string | null,
+    reference?: string | null,
+    anchor?: string | null,
+    exampleAnswer?: string | null,
+    type?: CQType | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidationId?: string,
     consolidatedQuestionIds?: string[],

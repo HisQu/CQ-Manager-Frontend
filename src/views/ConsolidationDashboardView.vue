@@ -3,8 +3,8 @@ import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {ArrowDownOnSquareIcon} from "@heroicons/vue/20/solid"
-import {ref, watch} from "vue";
+import {ArrowDownOnSquareIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid"
+import {ref, computed, watch} from "vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
 
@@ -23,6 +23,23 @@ const messagePopupData = ref({
 
 const consolidations = ref<ConsolidationReducedT[]>();
 const isOntologyEngineer = ref(false);
+const searchQuery = ref('');
+
+function matchesSearch(query: string, ...fields: (string | null | undefined)[]): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const text = fields.filter(Boolean).join(' ').toLowerCase();
+  return q.split(/\s+/).every(word => text.includes(word));
+}
+
+const displayedConsolidations = computed(() => {
+  if (!consolidations.value) return undefined;
+  const q = searchQuery.value;
+  if (!q.trim()) return consolidations.value;
+  return consolidations.value.filter(c =>
+    matchesSearch(q, c.resultQuestion?.question, c.resultQuestion?.comment)
+  );
+})
 
 function showError(response: UXResponse) {
   messagePopupData.value.uxresponse = {...messagePopupData.value.uxresponse, ...response};
@@ -62,11 +79,25 @@ watch(getProject, () => fetchAll())
       </template>
     </DetailPageHeader>
 
-    <div v-if="consolidations">
-      <div v-if="consolidations.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        There are no consolidations yet.
+    <!-- Search -->
+    <div class="mt-5 max-w-sm">
+      <div class="relative">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
+        </div>
+        <input v-model="searchQuery"
+               type="text"
+               placeholder="Search consolidations..."
+               class="block w-full rounded-md border-0 py-1.5 pl-9 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
       </div>
-      <ConsolidationListItem v-for="cons in consolidations"
+    </div>
+
+    <div v-if="consolidations">
+      <div v-if="displayedConsolidations && displayedConsolidations.length === 0"
+           class="mt-10 text-sm text-gray-500 dark:text-gray-400">
+        {{ searchQuery.trim() ? 'No consolidations match your search.' : 'There are no consolidations yet.' }}
+      </div>
+      <ConsolidationListItem v-for="cons in displayedConsolidations"
                              :key="cons.id"
                              :consolidation="cons"
                              :project-id="getProject.id"

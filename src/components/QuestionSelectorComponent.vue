@@ -65,7 +65,7 @@ export default defineComponent({
                 {{ cq?.group?.name }}
               </td>
               <td class="whitespace-nowrap px-3 py-4 test-sm text-gray-500">
-                {{cq?.author.name}}
+                {{cq?.author?.name}}
               </td>
               <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
                 <RouterLink :to="`/questions/${cq?.group?.id}/${cq.id}`" class="text-indigo-600 hover:text-indigo-900">

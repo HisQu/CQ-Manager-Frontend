@@ -4,12 +4,13 @@ import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {PlusIcon,ChevronUpDownIcon,CheckIcon} from "@heroicons/vue/20/solid"
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
+
 const useStore1 = useStore()
 const {getProject} = storeToRefs(useStore1)
 
@@ -25,6 +26,7 @@ const messagePopupData = ref({
 
 const cqs = ref();
 const groups = ref();
+const searchQuery = ref('');
 
 const selectedGroup = computed({
   get: () => useStore1.cqSelectedGroup,
@@ -36,6 +38,22 @@ const unifiedView = computed({
   set: (val) => { useStore1.cqUnifiedView = val; }
 })
 
+function matchesSearch(query: string, ...fields: (string | null | undefined)[]): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const text = fields.filter(Boolean).join(' ').toLowerCase();
+  return q.split(/\s+/).every(word => text.includes(word));
+}
+
+const displayedCqs = computed(() => {
+  if (!cqs.value) return null;
+  const q = searchQuery.value;
+  if (!q.trim()) return cqs.value.data;
+  return cqs.value.data.filter((cq: CompetencyQuestionReducedT) =>
+    matchesSearch(q, cq.question, cq.comment)
+  );
+})
+
 function fetchGroups() {
   GroupDataService.getAllForOneProject(getProject.value.id).then(response => {
     if ("messageType" in response) {
@@ -44,7 +62,6 @@ function fetchGroups() {
         ...response
       };
       messagePopupData.value.open = true;
-
     } else {
       groups.value = response;
       groups.value.data.unshift({name: "No filter", id: ''});
@@ -59,7 +76,7 @@ function fetchGroups() {
 
 fetchGroups()
 
-watch(getProject, (_, __) => {
+watch(getProject, () => {
   fetchGroups();
   fetchCompetencyQuestion();
 })
@@ -134,12 +151,10 @@ async function fetchCompetencyQuestion() {
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
         <div class="relative mt-2">
           <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
-        <span class="inline-flex w-full truncate">
-          <span class="truncate">{{ selectedGroup.name }}</span>
-        </span>
+            <span class="truncate">{{ selectedGroup.name }}</span>
             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-        </span>
+              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </span>
           </ListboxButton>
 
           <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
@@ -150,23 +165,37 @@ async function fetchCompetencyQuestion() {
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">{{ g.name }}</span>
                     <span :class="[active ? 'text-indigo-200' : 'text-gray-500', 'ml-2 truncate']">{{ g.project ? "Project: " + g.project?.name : '' }}</span>
                   </div>
-
                   <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                <CheckIcon class="h-5 w-5" aria-hidden="true" />
-              </span>
+                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                  </span>
                 </li>
               </ListboxOption>
             </ListboxOptions>
           </transition>
         </div>
       </Listbox>
+
+      <!-- Search -->
+      <div class="flex-1 min-w-52">
+        <label class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Search</label>
+        <div class="relative mt-2">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
+          </div>
+          <input v-model="searchQuery"
+                 type="text"
+                 placeholder="Search questions..."
+                 class="block w-full rounded-md border-0 py-1.5 pl-9 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
+        </div>
+      </div>
+
     </div> <!-- end controls row -->
 
     <div v-if="cqs">
-      <div v-if="cqs.data.length === 0" class="mt-10">
-        There are no CQs yet!
+      <div v-if="displayedCqs && displayedCqs.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
+        {{ searchQuery.trim() ? 'No questions match your search.' : 'There are no CQs yet!' }}
       </div>
-      <template v-for="cq in cqs.data" :key="cq.id">
+      <template v-for="cq in displayedCqs" :key="cq.id">
         <ConsolidationListItem v-if="cq.unifiedEntryKind === 'consolidation_result'"
                                class="max-w-xl"
                                :consolidation="{
@@ -184,11 +213,12 @@ async function fetchCompetencyQuestion() {
                                     :creator="cq.creator"
                                     :identifier="cq.id"
                                     :groupIdentifier="cq.group?.id ?? cq.groupId"
+                                    :groupName="cq.group?.name"
                                     :rating="cq.rating"/>
       </template>
     </div>
     <div v-else>
-      <div v-for="_ in 4" :key="_" class="border-1 shadow rounded-md p-4 max-w-xl w-full mx-auto dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-10">
+      <div v-for="_ in 4" :key="_" class="border-1 shadow rounded-lg p-4 max-w-xl w-full dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4">
         <div class="animate-pulse flex space-x-4">
           <div class="flex-1 space-y-6 py-1">
             <div class="h-2 bg-slate-500 rounded"></div>
@@ -208,5 +238,4 @@ async function fetchCompetencyQuestion() {
 </template>
 
 <style scoped>
-
 </style>

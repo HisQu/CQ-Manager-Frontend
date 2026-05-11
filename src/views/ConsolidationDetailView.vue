@@ -4,10 +4,9 @@ import CompetencyQuestionDataService from "../services/CompetencyQuestionDataSer
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {computed, ref} from "vue";
-import {TrashIcon, ArrowDownOnSquareIcon, XMarkIcon, ArrowTopRightOnSquareIcon, CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/24/solid";
+import {TrashIcon, ArrowDownOnSquareIcon, ArrowTopRightOnSquareIcon, CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/24/solid";
 import {useStore} from "../store.ts";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
-import CompetencyQuestionListItem from "../components/CompetencyQuestionListItem.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
 
@@ -24,20 +23,28 @@ const messagePopupData = ref({
   open: false
 })
 
+const CQ_TYPES: CQType[] = ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"]
+
 const consolidation = ref<ConsolidationT | null>(null);
 const cqs = ref<CompetencyQuestionReducedT[]>([]);
 const canEdit = ref(false);
 const resultQuestionText = ref("");
+const resultQuestionReference = ref<string | null>(null);
+const resultQuestionAnchor = ref<string | null>(null);
+const resultQuestionExampleAnswer = ref<string | null>(null);
+const resultQuestionType = ref<CQType | null>(null);
 const savingResultQuestion = ref(false);
 const newResultCq = ref<CompetencyQuestionReducedT | null>(null);
+const currentSourceSelection = ref<string[]>([]);
 
-const addableCqs = computed(() => {
-  const excludedIds = new Set<string>([
-    ...((consolidation.value?.questions ?? []).map(q => q.id)),
-    ...(consolidation.value?.resultQuestion?.id ? [consolidation.value.resultQuestion.id] : []),
-  ]);
-  return cqs.value.filter(q => !excludedIds.has(q.id));
+const sourceCqs = computed(() => {
+  const resultId = consolidation.value?.resultQuestion?.id;
+  return resultId ? cqs.value.filter(q => q.id !== resultId) : cqs.value;
 });
+
+const sourceSelectedIds = computed(() =>
+  (consolidation.value?.questions ?? []).map(q => q.id)
+);
 
 const cqGroupMap = computed(() => {
   const map = new Map<string, string>();
@@ -50,6 +57,39 @@ const cqGroupMap = computed(() => {
 
 function groupIdFor(q: CompetencyQuestionReducedT): string | undefined {
   return q.groupId ?? q.group?.id ?? cqGroupMap.value.get(q.id);
+}
+
+const sourceGroups = computed(() => {
+  const seen = new Set<string>();
+  const result: { id: string; name: string }[] = [{ id: '', name: 'All groups' }];
+  for (const q of cqs.value) {
+    const id = q.group?.id ?? q.groupId;
+    const name = q.group?.name;
+    if (id && name && !seen.has(id)) { seen.add(id); result.push({ id, name }); }
+  }
+  return result.length > 1 ? result : [];
+});
+
+const savingSourceQuestions = ref(false);
+
+async function saveSourceQuestions(selectedIds: string[]) {
+  const current = new Set(sourceSelectedIds.value);
+  const next = new Set(selectedIds);
+  const toAdd = selectedIds.filter(id => !current.has(id));
+  const toRemove = sourceSelectedIds.value.filter(id => !next.has(id));
+  const projectId = consolidation.value!.project!.id;
+
+  savingSourceQuestions.value = true;
+  const calls: Promise<any>[] = [];
+  if (toAdd.length) calls.push(ConsolidationDataService.addQuestions(props.id, projectId, toAdd));
+  if (toRemove.length) calls.push(ConsolidationDataService.removeQuestions(props.id, projectId, toRemove));
+  const results = await Promise.all(calls);
+  savingSourceQuestions.value = false;
+
+  for (const r of results) {
+    if ("messageType" in r) { showError(r); return; }
+  }
+  await fetchConsolidation();
 }
 
 fetchAll();
@@ -66,7 +106,12 @@ async function fetchConsolidation() {
     showError(response);
   } else {
     consolidation.value = response.data;
-    resultQuestionText.value = response.data.resultQuestion?.question ?? "";
+    const rq = response.data.resultQuestion;
+    resultQuestionText.value = rq?.question ?? "";
+    resultQuestionReference.value = rq?.reference ?? null;
+    resultQuestionAnchor.value = rq?.anchor ?? null;
+    resultQuestionExampleAnswer.value = rq?.exampleAnswer ?? null;
+    resultQuestionType.value = rq?.type ?? null;
   }
 }
 
@@ -82,7 +127,12 @@ async function fetchAll() {
   }
   consolidation.value = consoResp.data;
   canEdit.value = (consoResp.data as any).permissionsProjectEngineer ?? false;
-  resultQuestionText.value = consoResp.data.resultQuestion?.question ?? "";
+  const rq0 = consoResp.data.resultQuestion;
+  resultQuestionText.value = rq0?.question ?? "";
+  resultQuestionReference.value = rq0?.reference ?? null;
+  resultQuestionAnchor.value = rq0?.anchor ?? null;
+  resultQuestionExampleAnswer.value = rq0?.exampleAnswer ?? null;
+  resultQuestionType.value = rq0?.type ?? null;
 
   if ("messageType" in cqsResp) {
     showError(cqsResp);
@@ -99,7 +149,13 @@ async function saveResultQuestion() {
 
   savingResultQuestion.value = true;
   const response = await CompetencyQuestionDataService.change(
-    resultQuestionText.value, [], groupId, rq.id
+    resultQuestionText.value, [], groupId, rq.id, undefined, undefined,
+    {
+      reference: resultQuestionReference.value,
+      anchor: resultQuestionAnchor.value,
+      exampleAnswer: resultQuestionExampleAnswer.value,
+      type: resultQuestionType.value,
+    }
   );
   savingResultQuestion.value = false;
 
@@ -121,23 +177,6 @@ async function setResultQuestion() {
   }
 }
 
-async function addQuestions(questionIds: string[]) {
-  const response = await ConsolidationDataService.addQuestions(props.id, consolidation.value!.project!.id, questionIds);
-  if ("messageType" in response) {
-    showError(response);
-  } else {
-    await fetchConsolidation();
-  }
-}
-
-async function removeQuestion(questionId: string) {
-  const response = await ConsolidationDataService.removeQuestions(props.id, consolidation.value!.project!.id, [questionId]);
-  if ("messageType" in response) {
-    showError(response);
-  } else {
-    await fetchConsolidation();
-  }
-}
 </script>
 
 <template>
@@ -179,7 +218,7 @@ async function removeQuestion(questionId: string) {
         </RouterLink>
       </div>
 
-      <div v-if="consolidation.resultQuestion">
+      <div v-if="consolidation.resultQuestion" class="space-y-3">
         <div class="relative rounded-md shadow-sm">
           <input type="text"
                  :disabled="!canEdit"
@@ -187,7 +226,47 @@ async function removeQuestion(questionId: string) {
                  placeholder="No question text"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
-        <div v-if="canEdit" class="mt-3 flex justify-end">
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Type <span class="font-normal text-gray-400">(optional)</span>
+            </label>
+            <select :disabled="!canEdit" v-model="resultQuestionType"
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+              <option :value="null">—</option>
+              <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ t }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Reference (Fundstelle) <span class="font-normal text-gray-400">(optional)</span>
+            </label>
+            <input type="text" :disabled="!canEdit" v-model="resultQuestionReference"
+                   placeholder="e.g. S. 138."
+                   class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+            Anchor (Beleganker) <span class="font-normal text-gray-400">(optional)</span>
+          </label>
+          <textarea :disabled="!canEdit" v-model="resultQuestionAnchor" rows="2"
+                    placeholder="Source text or evidence..."
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+            Example Answer <span class="font-normal text-gray-400">(optional)</span>
+          </label>
+          <textarea :disabled="!canEdit" v-model="resultQuestionExampleAnswer" rows="2"
+                    placeholder="Sample or example answer..."
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+        </div>
+
+        <div v-if="canEdit" class="flex justify-end">
           <button type="button"
                   @click="saveResultQuestion"
                   :disabled="savingResultQuestion"
@@ -244,33 +323,30 @@ async function removeQuestion(questionId: string) {
 
     <!-- Source Questions -->
     <div class="mt-10">
-      <h2 class="text-lg font-semibold dark:text-white mb-3">Source Questions</h2>
-
-      <div v-if="!consolidation.questions?.length" class="text-sm text-gray-500 dark:text-gray-400">
-        No source questions linked yet.
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold dark:text-white">Source Questions</h2>
+        <button v-if="canEdit"
+                type="button"
+                @click="saveSourceQuestions(currentSourceSelection)"
+                :disabled="savingSourceQuestions"
+                class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+          <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
+          {{ savingSourceQuestions ? 'Saving…' : 'Save source questions' }}
+        </button>
       </div>
 
-      <div v-for="cq in consolidation.questions" :key="cq.id" class="flex items-center mt-3">
-        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded w-full mr-3">
-          <CompetencyQuestionListItem :text="cq.question"
-                                      :groupIdentifier="groupIdFor(cq) ?? ''"
-                                      :identifier="cq.id"/>
-        </div>
-        <div v-if="canEdit">
-          <button @click="removeQuestion(cq.id)"
-                  class="hover:dark:bg-gray-700 hover:bg-gray-100 hover:text-red-400 p-2 rounded transition-colors"
-                  title="Remove from consolidation">
-            <XMarkIcon class="h-7 w-7"/>
-          </button>
-        </div>
-      </div>
-
-      <div v-if="canEdit" class="mt-8">
-        <h3 class="text-base font-medium dark:text-white mb-3">Add Source Questions</h3>
-        <QuestionSelectorTable :cqs="addableCqs" @selectionWasMade="addQuestions">
-          Add to consolidation
-        </QuestionSelectorTable>
-      </div>
+      <QuestionSelectorTable
+        :cqs="sourceCqs"
+        :groups="sourceGroups"
+        :initialSelectedIds="sourceSelectedIds"
+        @selectionChanged="currentSourceSelection = $event">
+        <template #header>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Checked questions are currently included in this consolidation.
+            <span v-if="canEdit">Check or uncheck to add or remove, then save.</span>
+          </p>
+        </template>
+      </QuestionSelectorTable>
     </div>
   </div>
 

@@ -27,17 +27,27 @@ const messagePopupData = ref({
   open: false
 })
 
-const props = defineProps(['question', 'sparqlQuery', 'comment', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
+const CQ_TYPES: CQType[] = ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"]
+
+const props = defineProps(['question', 'sparqlQuery', 'comment', 'reference', 'anchor', 'exampleAnswer', 'type', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
 const {annotations} = toRefs(props)
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 
 const localQuestion = ref<string>(props.question ?? '')
 const localSparqlQuery = ref<string>(props.sparqlQuery ?? '')
 const localComment = ref<string | null>(props.comment ?? null)
+const localReference = ref<string | null>(props.reference ?? null)
+const localAnchor = ref<string | null>(props.anchor ?? null)
+const localExampleAnswer = ref<string | null>(props.exampleAnswer ?? null)
+const localType = ref<CQType | null>(props.type ?? null)
 
 watch(() => props.question, (val) => { localQuestion.value = val ?? '' })
 watch(() => props.sparqlQuery, (val) => { localSparqlQuery.value = val ?? '' })
 watch(() => props.comment, (val) => { localComment.value = val ?? null })
+watch(() => props.reference, (val) => { localReference.value = val ?? null })
+watch(() => props.anchor, (val) => { localAnchor.value = val ?? null })
+watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? null })
+watch(() => props.type, (val) => { localType.value = val ?? null })
 
 const terms = ref<TermT[]>();
 const term = ref<TermT | null>(null)
@@ -113,6 +123,64 @@ fetchTerms()
         ></textarea>
       </div>
     </div>
+
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label for="cq_type" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
+          Type <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        </label>
+        <div class="mt-2">
+          <select id="cq_type"
+                  :disabled="!canEdit"
+                  v-model="localType"
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400">
+            <option :value="null">—</option>
+            <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="cq_reference" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
+          Reference (Fundstelle) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        </label>
+        <div class="mt-2">
+          <input type="text" id="cq_reference"
+                 :disabled="!canEdit"
+                 v-model="localReference"
+                 placeholder="e.g. S. 138."
+                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <label for="cq_anchor" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
+        Anchor (Beleganker) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+      </label>
+      <div class="mt-2">
+        <textarea id="cq_anchor" rows="2"
+                  :disabled="!canEdit"
+                  v-model="localAnchor"
+                  placeholder="Source text or evidence from which the CQ was extracted..."
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <label for="cq_example_answer" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
+        Example Answer <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+      </label>
+      <div class="mt-2">
+        <textarea id="cq_example_answer" rows="2"
+                  :disabled="!canEdit"
+                  v-model="localExampleAnswer"
+                  placeholder="Sample or example answer..."
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+        ></textarea>
+      </div>
+    </div>
+
     <div class="mt-6">
       <label for="sparqlQuery"
              class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">SPARQL Query</label>
@@ -262,7 +330,7 @@ fetchTerms()
   </div>
   <div v-if="canEdit" class="mt-5 flex flex-row-reverse">
     <button
-        @click="$emit('saveCompetencyQuestion', localQuestion, localSparqlQuery || null, localComment)"
+        @click="$emit('saveCompetencyQuestion', { question: localQuestion, sparqlQuery: localSparqlQuery || null, comment: localComment, reference: localReference, anchor: localAnchor, exampleAnswer: localExampleAnswer, type: localType })"
         type="button"
         class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>

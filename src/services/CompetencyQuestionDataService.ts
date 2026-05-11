@@ -82,9 +82,16 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async add(question: string, group_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
+    async add(question: string, group_uuid: string, comment?: string | null, meta?: {
+        reference?: string | null,
+        anchor?: string | null,
+        exampleAnswer?: string | null,
+        type?: CQType | null,
+    }): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
         return http.post<CompetencyQuestionT[]>(`/questions/${group_uuid}`, {
             question: question,
+            ...(comment ? { comment } : {}),
+            ...(meta ?? {}),
         }, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
@@ -110,12 +117,18 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async change(question: string, annotations: AnnotationT[], group_uuid: string, question_uuid: string, sparqlQuery?: string | null, comment?: string | null): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
+    async change(question: string, annotations: AnnotationT[], group_uuid: string, question_uuid: string, sparqlQuery?: string | null, comment?: string | null, meta?: {
+        reference?: string | null,
+        anchor?: string | null,
+        exampleAnswer?: string | null,
+        type?: CQType | null,
+    }): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
         return http.put<DeleteResponse>(`/questions/${group_uuid}/${question_uuid}`, {
             question: question,
             annotations: annotations,
             sparqlQuery: sparqlQuery ?? null,
             comment: comment ?? null,
+            ...(meta ?? {}),
         }, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
