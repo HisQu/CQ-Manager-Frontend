@@ -17,6 +17,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ArrowRightStartOnRectangleIcon,
+  TagIcon,
 } from '@heroicons/vue/24/outline'
 import Logo from "./Logo.vue";
 import {ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
@@ -45,8 +46,6 @@ export default defineComponent({
       return this.$route.path;
     },
     currentProject() {
-      console.log("current project")
-      console.log(this.store.project)
       return this.store.project
     }
   },
@@ -73,6 +72,7 @@ export default defineComponent({
         { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
         { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
         { name: 'Consolidation', href: '/consolidations', icon: ArrowsPointingInIcon },
+        { name: 'Catalogues', href: '/catalogues', icon: TagIcon },
         { name: 'Group', href: '/groups', icon: UsersIcon },
         { name: 'Terms', href: '/terms', icon: QueueListIcon },
       ],
@@ -115,8 +115,6 @@ export default defineComponent({
 
       } else {
         this.projects = response.data;
-        console.log()
-        console.log(this.projects)
       }
     });
 

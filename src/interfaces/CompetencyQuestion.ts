@@ -24,6 +24,9 @@ type CompetencyQuestionT = {
     anchor: string | null,
     exampleAnswer: string | null,
     type: CQType | null,
+    topicId: string | null,
+    topic: TopicReducedT | null,
+    cqCatalogueIdentifier: string | null,
 }
 
 type CompetencyQuestionReducedT = {
@@ -44,6 +47,9 @@ type CompetencyQuestionReducedT = {
     anchor?: string | null,
     exampleAnswer?: string | null,
     type?: CQType | null,
+    topicId?: string | null,
+    topic?: TopicReducedT | null,
+    cqCatalogueIdentifier?: string | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidationId?: string,
     consolidatedQuestionIds?: string[],
