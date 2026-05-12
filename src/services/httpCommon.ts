@@ -10,7 +10,6 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.response.use(response => {
     if (response.headers) {
-        console.log("headers", response.headers)
         const isTrue = (v: string | undefined) => v?.toLowerCase() === 'true';
         try {
             response.data.permissionsGroupMember = isTrue(response.headers['permissions-group-member']);
@@ -19,7 +18,12 @@ axiosInstance.interceptors.response.use(response => {
             response.data.permissionsProjectMember = isTrue(response.headers['permissions-project-member']);
         }
         catch (e) {
-            console.log("Cannot assign permission headers to data.")
+            return Promise.reject({
+                title: "Permission headers error",
+                text: "Could not read permission headers from the server response.",
+                detail: String(e),
+                messageType: "error"
+            } satisfies UXResponse);
         }
     }
     return response;
