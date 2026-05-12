@@ -5,6 +5,7 @@ import { StarIcon } from '@heroicons/vue/24/solid'
 import StarComponent from "./StarComponent.vue";
 import UserCardSmall from "./UserCardSmall.vue";
 import IdBadge from "./IdBadge.vue";
+import CQTypeBadge from "./CQTypeBadge.vue";
 
 export default defineComponent({
   name: "CompetencyQuestionListItem",
@@ -39,10 +40,20 @@ export default defineComponent({
     numberOfConsolidations: {
       type: Number,
       required: false,
-    }
+    },
+    cqType: {
+      type: String as () => CQType | null,
+      required: false,
+      default: null,
+    },
+    catalogueIdentifier: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
 
-  components: {UserCardSmall, StarComponent, StarIcon, IdBadge}
+  components: {UserCardSmall, StarComponent, StarIcon, IdBadge, CQTypeBadge}
 })
 </script>
 
@@ -51,18 +62,25 @@ export default defineComponent({
   <RouterLink :to="'/questions/' + groupIdentifier + '/' + identifier">
     <div class="text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-600/50"
          :class="[
-           cardStyle ? 'bg-gray-100 rounded-lg p-4 dark:bg-gray-700 dark:text-gray-200 mt-4 shadow-sm' : 'py-3',
+           cardStyle ? 'bg-gray-100 rounded-lg p-4 dark:bg-gray-700 dark:text-gray-200 mt-4 shadow-sm' : 'py-4',
            numberOfConsolidations ? 'ring-1 ring-inset ring-blue-400/30' : '',
          ]">
 
       <div class="flex items-start justify-between gap-4">
-        <h3 class="font-semibold text-gray-900 dark:text-white leading-snug flex-1">{{ text }}</h3>
+        <div class="flex items-baseline gap-2 flex-1 min-w-0">
+          <span v-if="catalogueIdentifier"
+                class="flex-shrink-0 inline-flex items-center rounded-md bg-indigo-100 dark:bg-indigo-400/20 px-2 py-0.5 text-sm font-bold text-indigo-700 dark:text-indigo-300 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
+            {{ catalogueIdentifier }}
+          </span>
+          <h3 class="font-semibold text-gray-900 dark:text-white leading-snug">{{ text }}</h3>
+        </div>
         <div v-if="rating" class="flex-shrink-0 pt-0.5">
           <StarComponent :rating="rating" />
         </div>
       </div>
 
       <div class="mt-2 flex flex-wrap items-center gap-2">
+        <CQTypeBadge v-if="cqType" :type="cqType" />
         <span v-if="numberOfConsolidations"
               class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30">
           In {{ numberOfConsolidations }} consolidation(s)

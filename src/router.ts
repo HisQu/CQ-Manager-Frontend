@@ -104,6 +104,22 @@ const routes =  [
         props: true
     },
     {
+        path: "/catalogues",
+        name: "catalogues",
+        component: () => import("./views/TopicsDashboardView.vue")
+    },
+    {
+        path: "/catalogues/add",
+        name: "catalogues-add",
+        component: () => import("./views/TopicCreateView.vue")
+    },
+    {
+        path: "/catalogues/:projectid/:id",
+        name: "catalogues-detail",
+        component: () => import("./views/TopicDetailView.vue"),
+        props: true
+    },
+    {
         path: "/about",
         name: "about",
         component: () => import("./views/AboutView.vue")

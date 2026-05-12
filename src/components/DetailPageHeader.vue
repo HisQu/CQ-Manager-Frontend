@@ -5,6 +5,8 @@ defineProps<{
   title: string;
   project?: string;
   group?: string;
+  catalogueIdentifier?: string;
+  catalogueName?: string;
 }>();
 </script>
 
@@ -23,6 +25,14 @@ defineProps<{
               class="inline-flex items-center rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/30">
           {{ group }}
         </span>
+      </div>
+
+      <!-- Catalogue identifier (prominent) -->
+      <div v-if="catalogueIdentifier" class="flex items-center gap-2.5 mb-2">
+        <span class="inline-flex items-center rounded-md bg-indigo-600 dark:bg-indigo-500 px-3 py-1 text-base font-bold text-white tracking-wide">
+          {{ catalogueIdentifier }}
+        </span>
+        <span v-if="catalogueName" class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ catalogueName }}</span>
       </div>
 
       <!-- Title -->
