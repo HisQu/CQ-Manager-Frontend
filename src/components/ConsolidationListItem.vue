@@ -43,8 +43,11 @@ export default defineComponent({
   <RouterLink :to="'/consolidations/' + projectId + '/' + consolidation.id">
     <div class="dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4 rounded-lg p-4 text-left hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
 
-      <p class="font-medium dark:text-white text-gray-900 leading-snug">
-        {{ resultQuestion?.question ?? '—' }}
+      <p v-if="resultQuestion?.question" class="font-medium dark:text-white text-gray-900 leading-snug">
+        {{ resultQuestion.question }}
+      </p>
+      <p v-else class="font-medium italic text-gray-400 dark:text-gray-500 leading-snug">
+        No result question set
       </p>
 
       <div class="mt-2 flex flex-wrap items-center gap-2">

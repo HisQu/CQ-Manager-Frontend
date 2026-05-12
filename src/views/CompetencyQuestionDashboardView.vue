@@ -56,9 +56,9 @@ const displayedCqs = computed(() => {
   let items = cqs.value.data as CompetencyQuestionReducedT[];
 
   if (selectedTopic.value.id === '__uncategorised__') {
-    items = items.filter(cq => !cq.topicId);
+    items = items.filter(cq => !cq.topic?.id);
   } else if (selectedTopic.value.id) {
-    items = items.filter(cq => cq.topicId === selectedTopic.value.id);
+    items = items.filter(cq => cq.topic?.id === selectedTopic.value.id);
   }
 
   const q = searchQuery.value;
@@ -73,7 +73,7 @@ const groupedByTopic = computed(() => {
 
   const byTopicId = new Map<string | null, CompetencyQuestionReducedT[]>();
   for (const cq of displayedCqs.value) {
-    const key = cq.topicId ?? null;
+    const key = cq.topic?.id ?? null;
     if (!byTopicId.has(key)) byTopicId.set(key, []);
     byTopicId.get(key)!.push(cq);
   }
