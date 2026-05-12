@@ -1,4 +1,4 @@
-type CQType = "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
+type CQType = "LCQ" | "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
 
 type CompetencyQuestionT = {
     id: string,

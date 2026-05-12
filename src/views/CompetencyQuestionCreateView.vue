@@ -8,7 +8,8 @@ import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import GroupDataService from "../services/GroupDataService.ts";
-import {useStore} from "../store.ts";
+import {useStore} from "../store.ts"
+import { CQ_TYPES, CQ_TYPE_LABELS, CQ_TYPE_HINTS } from '../constants/cqTypes.ts';
 
 export default defineComponent({
   name: "CompetencyQuestionCreateView",
@@ -36,7 +37,9 @@ export default defineComponent({
         exampleAnswer: "",
         type: null as CQType | null,
       },
-      cqTypes: ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"] as CQType[],
+      cqTypes: CQ_TYPES,
+      cqTypeLabels: CQ_TYPE_LABELS,
+      cqTypeHints: CQ_TYPE_HINTS,
       store: useStore(),
     }
   },
@@ -163,8 +166,13 @@ export default defineComponent({
         <div class="mt-2">
           <select v-model="cq.type" id="cq_type" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
             <option :value="null">—</option>
-            <option v-for="t in cqTypes" :key="t" :value="t">{{ t }}</option>
+            <option v-for="t in cqTypes" :key="t" :value="t">{{ cqTypeLabels[t] ?? t }}</option>
           </select>
+          <div v-if="cq.type && cqTypeHints[cq.type]" class="mt-1.5 rounded-md bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
+            <p><span class="font-medium">Purpose:</span> {{ cqTypeHints[cq.type]!.purpose }}</p>
+            <p><span class="font-medium">Must include:</span> {{ cqTypeHints[cq.type]!.mustInclude }}</p>
+            <p><span class="font-medium">Expected answer:</span> {{ cqTypeHints[cq.type]!.answer }}</p>
+          </div>
         </div>
       </div>
       <div>

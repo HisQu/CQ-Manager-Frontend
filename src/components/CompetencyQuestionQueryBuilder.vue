@@ -27,7 +27,7 @@ const messagePopupData = ref({
   open: false
 })
 
-const CQ_TYPES: CQType[] = ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"]
+import { CQ_TYPES, CQ_TYPE_LABELS, CQ_TYPE_HINTS } from '../constants/cqTypes.ts'
 
 const props = defineProps(['question', 'sparqlQuery', 'comment', 'reference', 'anchor', 'exampleAnswer', 'type', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
 const {annotations} = toRefs(props)
@@ -135,8 +135,13 @@ fetchTerms()
                   v-model="localType"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400">
             <option :value="null">—</option>
-            <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ t }}</option>
+            <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ CQ_TYPE_LABELS[t] ?? t }}</option>
           </select>
+          <div v-if="localType && CQ_TYPE_HINTS[localType]" class="mt-1.5 rounded-md bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
+            <p><span class="font-medium">Purpose:</span> {{ CQ_TYPE_HINTS[localType]!.purpose }}</p>
+            <p><span class="font-medium">Must include:</span> {{ CQ_TYPE_HINTS[localType]!.mustInclude }}</p>
+            <p><span class="font-medium">Expected answer:</span> {{ CQ_TYPE_HINTS[localType]!.answer }}</p>
+          </div>
         </div>
       </div>
       <div>
