@@ -20,7 +20,6 @@ import {
   TagIcon,
 } from '@heroicons/vue/24/outline'
 import Logo from "./Logo.vue";
-import {ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
 import ProjectDataService from "../services/ProjectDataService.ts";
 
 export default defineComponent({
@@ -71,8 +70,7 @@ export default defineComponent({
       navigation: [
         { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
         { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
-        { name: 'Consolidation', href: '/consolidations', icon: ArrowsPointingInIcon },
-        { name: 'Catalogues', href: '/catalogues', icon: TagIcon },
+{ name: 'Catalogues', href: '/catalogues', icon: TagIcon },
         { name: 'Group', href: '/groups', icon: UsersIcon },
         { name: 'Terms', href: '/terms', icon: QueueListIcon },
       ],

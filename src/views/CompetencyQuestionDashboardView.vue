@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import CompetencyQuestionListItem from "../components/CompetencyQuestionListItem.vue";
-import ConsolidationListItem from "../components/ConsolidationListItem.vue";
+import CQListItem from "../components/CQListItem.vue";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import TopicDataService from "../services/TopicDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
@@ -29,6 +28,7 @@ const cqs = ref();
 const groups = ref();
 const topics = ref<TopicT[]>([]);
 const searchQuery = ref('');
+const consolidatedOnly = ref(false);
 
 const ALL_TOPICS = { id: '', identifier: '', name: 'All catalogues' };
 const UNCATEGORISED = { id: '__uncategorised__', identifier: '', name: 'Uncategorised' };
@@ -59,6 +59,10 @@ const displayedCqs = computed(() => {
     items = items.filter(cq => !cq.topic?.id);
   } else if (selectedTopic.value.id) {
     items = items.filter(cq => cq.topic?.id === selectedTopic.value.id);
+  }
+
+  if (consolidatedOnly.value) {
+    items = items.filter(cq => cq.unifiedEntryKind === 'consolidation_result');
   }
 
   const q = searchQuery.value;
@@ -206,6 +210,20 @@ async function fetchCompetencyQuestion() {
         </SwitchLabel>
       </SwitchGroup>
 
+      <!-- Consolidated only toggle -->
+      <SwitchGroup as="div" class="flex items-center gap-x-3 flex-shrink-0">
+        <Switch v-model="consolidatedOnly"
+                :class="[consolidatedOnly ? 'bg-indigo-600' : 'bg-gray-200',
+                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2']">
+          <span aria-hidden="true"
+                :class="[consolidatedOnly ? 'translate-x-5' : 'translate-x-0',
+                         'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+        </Switch>
+        <SwitchLabel as="span" class="text-sm">
+          <span class="font-medium text-gray-900 dark:text-gray-200">Consolidated only</span>
+        </SwitchLabel>
+      </SwitchGroup>
+
       <!-- Group filter -->
       <Listbox as="div" v-model="selectedGroup" class="flex-1 min-w-48">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
@@ -308,27 +326,9 @@ async function fetchCompetencyQuestion() {
 
           <!-- CQ cards in this catalogue -->
           <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
-            <template v-for="cq in group.cqs" :key="cq.id">
-              <ConsolidationListItem v-if="cq.unifiedEntryKind === 'consolidation_result'"
-                                     :consolidation="{
-                                       id: cq.consolidationId ?? cq.id,
-                                       resultQuestionId: cq.id,
-                                       noQuestions: cq.consolidatedQuestionIds?.length ?? 0,
-                                     }"
-                                     :project-id="getProject.id"
-                                     :result-question="cq"/>
-              <CompetencyQuestionListItem v-else
-                                          :card-style="false"
-                                          :text="cq.question"
-                                          :numberOfConsolidations="cq.noConsolidations"
-                                          :creator="cq.author?.name ?? cq.creator"
-                                          :identifier="cq.id"
-                                          :groupIdentifier="cq.group?.id ?? cq.groupId"
-                                          :groupName="cq.group?.name"
-                                          :rating="cq.rating"
-                                          :cq-type="cq.type ?? null"
-                                          :catalogue-identifier="cq.cqCatalogueIdentifier ?? undefined"/>
-            </template>
+            <CQListItem v-for="cq in group.cqs" :key="cq.id"
+                        :cq="cq"
+                        :project-id="getProject.id" />
           </div>
         </div>
       </template>

@@ -38,12 +38,12 @@ const newResultCq = ref<CompetencyQuestionReducedT | null>(null);
 const currentSourceSelection = ref<string[]>([]);
 
 const sourceCqs = computed(() => {
-  const resultId = consolidation.value?.resultQuestion?.id;
+  const resultId = consolidation.value?.targetQuestion?.id;
   return resultId ? cqs.value.filter(q => q.id !== resultId) : cqs.value;
 });
 
 const sourceSelectedIds = computed(() =>
-  (consolidation.value?.questions ?? []).map(q => q.id)
+  (consolidation.value?.sourceQuestions ?? []).map(q => q.id)
 );
 
 const cqGroupMap = computed(() => {
@@ -55,7 +55,7 @@ const cqGroupMap = computed(() => {
   return map;
 });
 
-function groupIdFor(q: CompetencyQuestionReducedT): string | undefined {
+function groupIdFor(q: { id: string; groupId?: string; group?: { id: string } }): string | undefined {
   return q.groupId ?? q.group?.id ?? cqGroupMap.value.get(q.id);
 }
 
@@ -106,7 +106,7 @@ async function fetchConsolidation() {
     showError(response);
   } else {
     consolidation.value = response.data;
-    const rq = response.data.resultQuestion;
+    const rq = response.data.targetQuestion;
     resultQuestionText.value = rq?.question ?? "";
     resultQuestionReference.value = rq?.reference ?? null;
     resultQuestionAnchor.value = rq?.anchor ?? null;
@@ -127,7 +127,7 @@ async function fetchAll() {
   }
   consolidation.value = consoResp.data;
   canEdit.value = (consoResp.data as any).permissionsProjectEngineer ?? false;
-  const rq0 = consoResp.data.resultQuestion;
+  const rq0 = consoResp.data.targetQuestion;
   resultQuestionText.value = rq0?.question ?? "";
   resultQuestionReference.value = rq0?.reference ?? null;
   resultQuestionAnchor.value = rq0?.anchor ?? null;
@@ -142,9 +142,9 @@ async function fetchAll() {
 }
 
 async function saveResultQuestion() {
-  const rq = consolidation.value?.resultQuestion;
+  const rq = consolidation.value?.targetQuestion;
   if (!rq) return;
-  const groupId = rq.groupId ?? rq.group?.id;
+  const groupId = groupIdFor(rq);
   if (!groupId) return;
 
   savingResultQuestion.value = true;
@@ -167,7 +167,7 @@ async function saveResultQuestion() {
 async function setResultQuestion() {
   if (!newResultCq.value) return;
   const response = await ConsolidationDataService.update(props.id, consolidation.value!.project!.id, {
-    resultQuestionId: newResultCq.value.id,
+    targetQuestion: { id: newResultCq.value.id },
   });
   if ("messageType" in response) {
     showError(response);
@@ -190,9 +190,9 @@ async function setResultQuestion() {
         <span v-if="consolidation.engineer">
           By <span class="font-medium text-gray-700 dark:text-gray-200">{{ consolidation.engineer.name }}</span>
         </span>
-        <span v-if="(consolidation.questions?.length ?? 0) > 0"
+        <span v-if="(consolidation.sourceQuestions?.length ?? 0) > 0"
               class="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ consolidation.questions!.length }} source question{{ consolidation.questions!.length !== 1 ? 's' : '' }}
+          {{ consolidation.sourceQuestions!.length }} source question{{ consolidation.sourceQuestions!.length !== 1 ? 's' : '' }}
         </span>
       </template>
       <template v-if="canEdit" #actions>
@@ -206,19 +206,19 @@ async function setResultQuestion() {
       </template>
     </DetailPageHeader>
 
-    <!-- Result Question -->
+    <!-- Target Question -->
     <div class="mt-8">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-semibold dark:text-white">Result Question</h2>
-        <RouterLink v-if="consolidation.resultQuestion"
-                    :to="`/questions/${groupIdFor(consolidation.resultQuestion)}/${consolidation.resultQuestion.id}`"
+        <h2 class="text-lg font-semibold dark:text-white">Target Question</h2>
+        <RouterLink v-if="consolidation.targetQuestion"
+                    :to="`/questions/${groupIdFor(consolidation.targetQuestion)}/${consolidation.targetQuestion.id}`"
                     class="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
           Open CQ
           <ArrowTopRightOnSquareIcon class="h-4 w-4"/>
         </RouterLink>
       </div>
 
-      <div v-if="consolidation.resultQuestion" class="space-y-3">
+      <div v-if="consolidation.targetQuestion" class="space-y-3">
         <div class="relative rounded-md shadow-sm">
           <input type="text"
                  :disabled="!canEdit"
@@ -278,7 +278,7 @@ async function setResultQuestion() {
       </div>
 
       <div v-else-if="canEdit" class="space-y-3">
-        <p class="text-sm text-gray-500 dark:text-gray-400">No result question set. Pick an existing CQ to use as the result question.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">No target question set. Pick an existing CQ to use as the target question.</p>
         <Listbox v-model="newResultCq">
           <div class="relative">
             <ListboxButton
@@ -311,13 +311,13 @@ async function setResultQuestion() {
                   @click="setResultQuestion"
                   class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             <CheckIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-            Set Result Question
+            Set Target Question
           </button>
         </div>
       </div>
 
       <div v-else>
-        <p class="text-sm text-gray-500 dark:text-gray-400">No result question set.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">No target question set.</p>
       </div>
     </div>
 

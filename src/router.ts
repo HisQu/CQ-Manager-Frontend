@@ -30,11 +30,6 @@ const routes =  [
         component: () => import("./views/CompetencyQuestionCreateView.vue")
     },
     {
-        path: "/consolidations/",
-        name: "consolidations",
-        component: () => import("./views/ConsolidationDashboardView.vue")
-    },
-    {
         path: "/consolidations/:projectid/:id",
         name: "consolidation",
         component: () => import("./views/ConsolidationDetailView.vue"),

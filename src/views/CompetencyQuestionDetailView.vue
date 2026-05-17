@@ -8,7 +8,6 @@ import {Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverB
 import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
 import StarComponent from "../components/StarComponent.vue";
 import CommentComponent from "../components/CommentComponent.vue";
-import ConsolidationListItem from "../components/ConsolidationListItem.vue";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 
 const props = defineProps(['id', 'groupid'])
@@ -226,11 +225,29 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
         Consolidations
         <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.consolidations.length }}</span>
       </h2>
-      <ConsolidationListItem v-for="cons in cq.data.consolidations"
-                             :key="cons.id"
-                             :consolidation="cons"
-                             :result-question="cons.resultQuestion"
-                             :project-id="cons.project?.id ?? cq.data.group.project.id"/>
+      <div class="space-y-2">
+        <RouterLink v-for="cons in cq.data.consolidations" :key="cons.id"
+          :to="`/consolidations/${cq.data.group.project.id}/${cons.id}`"
+          class="block rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/30">
+              {{ cons.noSourceQuestions }} source question{{ cons.noSourceQuestions !== 1 ? 's' : '' }}
+            </span>
+            <span v-if="cons.targetQuestion?.id === cq.data.id"
+                  class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-400/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/30">
+              Target
+            </span>
+            <span v-else
+                  class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/20">
+              Source
+            </span>
+          </div>
+          <p v-if="cons.targetQuestion && cons.targetQuestion.id !== cq.data.id"
+             class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            <span class="text-xs text-gray-400 dark:text-gray-500 mr-1">Target:</span>{{ cons.targetQuestion.question }}
+          </p>
+        </RouterLink>
+      </div>
     </template>
 
     <!-- Version history -->

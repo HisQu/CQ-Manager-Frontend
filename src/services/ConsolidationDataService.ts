@@ -58,7 +58,7 @@ class ConsolidationDataService {
         });
     }
 
-    async update(consolidation_uuid: string, project_uuid: string, data: { resultQuestionId: string | null }): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
+    async update(consolidation_uuid: string, project_uuid: string, data: { targetQuestion: { id: string } | null }): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
         return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}`, data, {headers: authHeader()}).then(response => {
             return response
         }).catch(reason => {

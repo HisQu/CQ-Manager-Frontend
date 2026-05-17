@@ -1,5 +1,12 @@
 type CQType = "LCQ" | "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
 
+type CQConsolidationEntryT = {
+    id: string,
+    role: 'source' | 'target',
+    sourceQuestionIds: string[],
+    targetQuestionId: string,
+}
+
 type CompetencyQuestionT = {
     id: string,
     groupId: string,
@@ -9,6 +16,7 @@ type CompetencyQuestionT = {
     ratings?: Array<RatingT>,
     author: UserT,
     noConsolidations: number,
+    consolidations: ConsolidationT[],
     annotations: Array<AnnotationT>,
     versions: {
         editor: {
@@ -41,6 +49,7 @@ type CompetencyQuestionReducedT = {
     aggregatedRating?: number,
     rating?: number,
     noConsolidations?: number,
+    consolidations?: CQConsolidationEntryT[],
     comment?: string | null,
     reference?: string | null,
     anchor?: string | null,
@@ -49,8 +58,7 @@ type CompetencyQuestionReducedT = {
     topic?: TopicReducedT | null,
     cqCatalogueIdentifier?: string | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
-    consolidationId?: string,
-    consolidatedQuestionIds?: string[],
+    consolidation?: CQConsolidationEntryT | null,
 }
 
 type CompetencyQuestionReferenceT = {

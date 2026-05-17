@@ -56,7 +56,7 @@ export default defineComponent({
           {{ resultQuestion.group.name }}
         </span>
         <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ consolidation.noQuestions }} source question{{ consolidation.noQuestions !== 1 ? 's' : '' }}
+          {{ consolidation.noSourceQuestions }} source question{{ consolidation.noSourceQuestions !== 1 ? 's' : '' }}
         </span>
         <span v-if="consolidation.engineer?.name"
               class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/20">

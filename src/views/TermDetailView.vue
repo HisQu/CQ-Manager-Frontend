@@ -4,7 +4,7 @@ import MessagePopup from "../components/MessagePopup.vue";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import TermDataService from "../services/TermDataService.ts";
 import ProjectDataService from "../services/ProjectDataService.ts";
-import CompetencyQuestionListItem from "../components/CompetencyQuestionListItem.vue";
+import CQListItem from "../components/CQListItem.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ArrowDownOnSquareIcon, TrashIcon} from "@heroicons/vue/24/solid";
 import {useStore} from "../store.ts";
@@ -149,12 +149,7 @@ fetchPermissions();
       <h3 class="text-lg font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-300 mb-2">
         {{ group.groupName }}
       </h3>
-      <div v-for="cq in group.questions" :key="cq.id"
-           class="bg-gray-100 dark:bg-gray-700 rounded-md p-4 mt-2">
-        <CompetencyQuestionListItem :text="cq.question"
-                                    :groupIdentifier="cq.group.id"
-                                    :identifier="cq.id"/>
-      </div>
+      <CQListItem v-for="cq in group.questions" :key="cq.id" :cq="cq" />
     </div>
 
     <!-- Edit section — ontology engineers only -->
