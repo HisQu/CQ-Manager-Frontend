@@ -15,7 +15,7 @@ const isConsolidationResult = computed(() => props.cq.unifiedEntryKind === 'cons
 
 const linkTo = computed(() => isConsolidationResult.value
   ? `/consolidations/${props.projectId}/${props.cq.consolidation?.id}`
-  : `/questions/${props.cq.group?.id ?? props.cq.groupId}/${props.cq.id}`);
+  : `/questions/${props.cq.id}`);
 
 const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.length ?? 0);
 </script>

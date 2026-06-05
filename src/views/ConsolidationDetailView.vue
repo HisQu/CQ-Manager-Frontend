@@ -46,19 +46,6 @@ const sourceSelectedIds = computed(() =>
   (consolidation.value?.sourceQuestions ?? []).map(q => q.id)
 );
 
-const cqGroupMap = computed(() => {
-  const map = new Map<string, string>();
-  for (const q of cqs.value) {
-    const gid = q.groupId ?? q.group?.id;
-    if (gid) map.set(q.id, gid);
-  }
-  return map;
-});
-
-function groupIdFor(q: { id: string; groupId?: string; group?: { id: string } }): string | undefined {
-  return q.groupId ?? q.group?.id ?? cqGroupMap.value.get(q.id);
-}
-
 const sourceGroups = computed(() => {
   const seen = new Set<string>();
   const result: { id: string; name: string }[] = [{ id: '', name: 'All groups' }];
@@ -151,12 +138,10 @@ async function fetchAll() {
 async function saveResultQuestion() {
   const rq = consolidation.value?.targetQuestion;
   if (!rq) return;
-  const groupId = groupIdFor(rq);
-  if (!groupId) return;
 
   savingResultQuestion.value = true;
   const response = await CompetencyQuestionDataService.change(
-    resultQuestionText.value, [], groupId, rq.id, undefined, undefined,
+    resultQuestionText.value, [], rq.id, undefined, undefined,
     {
       reference: resultQuestionReference.value,
       anchor: resultQuestionAnchor.value,
@@ -218,7 +203,7 @@ async function setResultQuestion() {
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-lg font-semibold dark:text-white">Target Question</h2>
         <RouterLink v-if="consolidation.targetQuestion"
-                    :to="`/questions/${groupIdFor(consolidation.targetQuestion)}/${consolidation.targetQuestion.id}`"
+                    :to="`/questions/${consolidation.targetQuestion.id}`"
                     class="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
           Open CQ
           <ArrowTopRightOnSquareIcon class="h-4 w-4"/>

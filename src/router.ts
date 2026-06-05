@@ -61,7 +61,7 @@ const routes =  [
         component: () => import("./views/ReportsDashboardView.vue")
     },
     {
-        path: "/questions/:groupid/:id",
+        path: "/questions/:id",
         name: "question-detail",
         component: () => import("./views/CompetencyQuestionDetailView.vue"),
         props: true

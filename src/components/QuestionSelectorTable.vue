@@ -210,7 +210,7 @@ export default defineComponent({
               <span v-else class="text-gray-300 dark:text-gray-600">—</span>
             </td>
             <td class="py-3.5 pl-3 pr-5 text-right text-sm">
-              <RouterLink :to="`/questions/${cq.group?.id ?? cq.groupId}/${cq.id}`"
+              <RouterLink :to="`/questions/${cq.id}`"
                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                 View
               </RouterLink>

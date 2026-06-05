@@ -10,7 +10,7 @@ import StarComponent from "../components/StarComponent.vue";
 import CommentComponent from "../components/CommentComponent.vue";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 
-const props = defineProps(['id', 'groupid'])
+const props = defineProps(['id'])
 
 const messagePopupData = ref({
   uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
@@ -28,7 +28,7 @@ const selectedTopic = ref<TopicReducedT | null>(null);
 fetchCompetencyQuestion();
 
 async function fetchCompetencyQuestion() {
-  CompetencyQuestionDataService.getOne(props.id, props.groupid).then(async response => {
+  CompetencyQuestionDataService.getOne(props.id).then(async response => {
     if ("messageType" in response) {
       messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
       messagePopupData.value.open = true;
@@ -74,7 +74,7 @@ async function saveCatalogueAssignment() {
 
 function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
   comment.value = newComment;
-  CompetencyQuestionDataService.change(question, [], props.groupid, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(() => {
+  CompetencyQuestionDataService.change(question, [], props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(() => {
     fetchCompetencyQuestion()
   })
 }
