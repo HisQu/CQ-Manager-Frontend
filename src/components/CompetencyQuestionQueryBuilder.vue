@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineProps, ref, toRefs, watch} from "vue";
+import {computed, defineProps, nextTick, reactive, ref, toRefs, watch} from "vue";
 import {ArrowDownOnSquareIcon, CheckCircleIcon, TrashIcon, ChevronUpDownIcon, CheckIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
@@ -49,9 +49,20 @@ watch(() => props.anchor, (val) => { localAnchor.value = val ?? null })
 watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? null })
 watch(() => props.type, (val) => { localType.value = val ?? null })
 
+const passage = ref<HTMLInputElement | null>(null);
+
 const terms = ref<TermT[]>();
-const term = ref<TermT | null>(null)
+const term = ref<TermT | { content: string } | null>(null)
 const query = ref('')
+const newTermOption = reactive({ content: '' })
+let termIsSelected = false;
+watch(query, (q) => { if (!termIsSelected) newTermOption.content = q; }, { immediate: true })
+watch(term, (newTerm) => {
+  if (newTerm) {
+    termIsSelected = true;
+    nextTick(() => passage.value?.focus());
+  }
+})
 const filteredTerms = computed(() =>
     terms.value === undefined ? [] :
         query.value === ''
@@ -61,10 +72,15 @@ const filteredTerms = computed(() =>
             })
 )
 
+function onComboboxInput(event: Event) {
+  query.value = (event.target as HTMLInputElement).value;
+  termIsSelected = false;
+}
+
 function insertTermPassagePair() {
-  console.log(addPassageInput.value)
+  if (!term.value?.content) return;
   TermDataService.add(props.id, [{
-    term: term.value?.content ?? '',
+    term: term.value.content,
     passage: addPassageInput.value
   }]).then(response => {
     if ("messageType" in response) {
@@ -78,6 +94,8 @@ function insertTermPassagePair() {
       emits('fetchCompetencyQuestion');
       term.value = null;
       addPassageInput.value = '';
+      termIsSelected = false;
+      query.value = '';
     }
   })
 }
@@ -235,7 +253,7 @@ fetchTerms()
                     class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     :displayValue="(t: unknown) => (t as TermT)?.content ?? ''"
                     placeholder="Term"
-                    @input="query = $event.target.value;"
+                    @input="onComboboxInput($event)"
                 />
                 <ComboboxButton
                     class="absolute inset-y-0 right-0 flex items-center pr-2"
@@ -261,7 +279,6 @@ fetchTerms()
                       :key="term.id"
                       :value="term"
                       v-slot="{ selected, active }"
-                      @click="insertTermPassagePair()"
                   >
                     <li
                         class="relative cursor-default select-none py-2 pl-10 pr-4"
@@ -285,11 +302,8 @@ fetchTerms()
                 </span>
                     </li>
                   </ComboboxOption>
-                  <ComboboxOption :value="{content: query}">
-                    <li
-                        class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900"
-                        @click="insertTermPassagePair()"
-                    >
+                  <ComboboxOption v-if="query" :value="newTermOption">
+                    <li class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900">
                       Create term "{{ query }}"
                     </li>
                   </ComboboxOption>
@@ -341,11 +355,11 @@ fetchTerms()
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
       Save
     </button>
-    <div class="mr-5" v-if="$props.id && $props.groupId">
+    <div class="mr-5" v-if="$props.id">
       <SubmitButtonWithCallback agree-button-text="Delete the question"
                                 title="Are you sure you want to delete the question?"
                                 detail="This action is permanent. All comments, ratings and consolidations will be deleted."
-                                @modalsuccessclose="CompetencyQuestionDataService.delete(props.id, props.groupId); $router.push('/questions/');">
+                                @modalsuccessclose="CompetencyQuestionDataService.delete(props.id); $router.push('/questions/');">
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
         Delete
       </SubmitButtonWithCallback>
