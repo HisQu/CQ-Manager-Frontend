@@ -26,12 +26,20 @@ export default defineComponent({
     return {
       selectedIds: [...this.initialSelectedIds] as string[],
       selectedFilterGroup: { id: '', name: 'All groups' } as GroupOption,
+      filterText: '',
     }
   },
   computed: {
     filteredCqs(): CompetencyQuestionReducedT[] {
-      if (!this.selectedFilterGroup.id) return this.cqs;
-      return this.cqs.filter(cq => (cq.group?.id ?? cq.groupId) === this.selectedFilterGroup.id);
+      let result = this.cqs;
+      if (this.selectedFilterGroup.id) {
+        result = result.filter(cq => (cq.group?.id ?? cq.groupId) === this.selectedFilterGroup.id);
+      }
+      if (this.filterText.trim()) {
+        const needle = this.filterText.trim().toLowerCase();
+        result = result.filter(cq => cq.question?.toLowerCase().includes(needle));
+      }
+      return result;
     },
     indeterminate(): boolean {
       const visibleSelected = this.filteredCqs.filter(cq => this.selectedIds.includes(cq.id)).length;
@@ -113,8 +121,18 @@ export default defineComponent({
         </div>
       </div>
 
+      <!-- Text filter -->
+      <div class="mt-3">
+        <input
+          v-model="filterText"
+          type="text"
+          placeholder="Filter by question text…"
+          class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+        />
+      </div>
+
       <!-- Group filter -->
-      <div v-if="groups.length > 1" class="mt-3">
+      <div v-if="groups.length > 1" class="mt-2">
         <Listbox v-model="selectedFilterGroup">
           <div class="relative">
             <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -154,20 +172,22 @@ export default defineComponent({
             <th scope="col" class="py-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Question</th>
             <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Group</th>
             <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Author</th>
+            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Consolidations</th>
             <th scope="col" class="relative py-3 pl-3 pr-5"><span class="sr-only">View</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
           <tr v-if="filteredCqs.length === 0">
-            <td colspan="5" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
+            <td colspan="6" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
               No questions available.
             </td>
           </tr>
           <tr v-for="cq in filteredCqs" :key="cq.id"
-              :class="[
-                selectedIds.includes(cq.id) ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'bg-white dark:bg-gray-900',
-                (cq as any).noConsolidations > 0 && !selectedIds.includes(cq.id) ? 'bg-blue-50 dark:bg-blue-900/20' : '',
-              ]">
+              :class="selectedIds.includes(cq.id)
+                ? 'bg-indigo-50 dark:bg-indigo-900/20'
+                : cq.noConsolidations && cq.noConsolidations > 0
+                  ? 'bg-blue-50 dark:bg-blue-900/20'
+                  : 'bg-white dark:bg-gray-900'">
             <td class="relative w-12 px-5">
               <div v-if="selectedIds.includes(cq.id)"
                    class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"></div>
@@ -182,6 +202,13 @@ export default defineComponent({
             </td>
             <td class="px-3 py-3.5 text-sm text-gray-500 dark:text-gray-400">{{ cq.group?.name }}</td>
             <td class="px-3 py-3.5 text-sm text-gray-500 dark:text-gray-400">{{ cq.author?.name }}</td>
+            <td class="px-3 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+              <span v-if="cq.noConsolidations && cq.noConsolidations > 0"
+                    class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/30">
+                {{ cq.noConsolidations }}
+              </span>
+              <span v-else class="text-gray-300 dark:text-gray-600">—</span>
+            </td>
             <td class="py-3.5 pl-3 pr-5 text-right text-sm">
               <RouterLink :to="`/questions/${cq.group?.id ?? cq.groupId}/${cq.id}`"
                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">

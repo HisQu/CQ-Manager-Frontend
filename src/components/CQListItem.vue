@@ -21,7 +21,7 @@ const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.le
 </script>
 
 <template>
-  <RouterLink :to="linkTo">
+  <RouterLink :to="linkTo" class="block">
     <div class="text-left transition-colors rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600/50"
          :class="[
            cardStyle ? 'bg-gray-100 dark:bg-gray-700 dark:text-gray-200 shadow-sm' : '',
@@ -34,7 +34,7 @@ const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.le
                 class="flex-shrink-0 inline-flex items-center rounded-md bg-indigo-600 dark:bg-indigo-500 px-2.5 py-0.5 text-sm font-bold text-white tracking-wide">
             {{ cq.cqCatalogueIdentifier }}
           </span>
-          <h3 class="font-semibold text-gray-900 dark:text-white leading-snug">{{ cq.question }}</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white leading-snug min-w-0">{{ cq.question }}</h3>
         </div>
         <div v-if="cq.rating" class="flex-shrink-0 pt-0.5">
           <StarComponent :rating="cq.rating" />

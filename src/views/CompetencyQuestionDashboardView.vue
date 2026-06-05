@@ -4,7 +4,7 @@ import CompetencyQuestionDataService from "../services/CompetencyQuestionDataSer
 import TopicDataService from "../services/TopicDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid"
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
@@ -186,10 +186,16 @@ async function fetchCompetencyQuestion() {
   <div class="w-full">
     <DetailPageHeader title="Competency Questions" :project="getProject.name">
       <template #actions>
-        <RouterLink to="/questions/add/" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Add
-          <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
-        </RouterLink>
+        <div class="flex items-center gap-2">
+          <RouterLink to="/consolidations/add" class="inline-flex items-center gap-x-2 rounded-md bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            Consolidate
+            <ArrowDownOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+          </RouterLink>
+          <RouterLink to="/questions/add/" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            Add
+            <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+          </RouterLink>
+        </div>
       </template>
     </DetailPageHeader>
 

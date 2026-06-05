@@ -5,7 +5,7 @@ import {ExclamationCircleIcon, CheckIcon, ChevronUpDownIcon, ArrowDownOnSquareIc
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import GroupDataService from "../services/GroupDataService.ts";
-import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions} from "@headlessui/vue";
+import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
 
@@ -13,7 +13,9 @@ export default defineComponent({
   name: "ConsolidationCreateView",
   components: {
     MessagePopup, ExclamationCircleIcon, ArrowDownOnSquareIcon,
-    Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon,
+    Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions,
+    Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions,
+    CheckIcon, ChevronUpDownIcon,
     QuestionSelectorTable,
   },
   data() {
@@ -40,6 +42,7 @@ export default defineComponent({
       newQuestionExampleAnswer: "",
       newQuestionType: null as CQType | null,
       selectedResultCq: null as CompetencyQuestionReducedT | null,
+      resultCqQuery: '',
       resultQuestionError: false,
       saving: false,
       cqTypes: ["SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ"] as CQType[],
@@ -53,6 +56,11 @@ export default defineComponent({
     sourceCqs(): CompetencyQuestionReducedT[] {
       const excludedId = this.useExistingCq ? this.selectedResultCq?.id : null;
       return this.cqs.filter(cq => cq.id !== excludedId);
+    },
+    filteredCqsForResult(): CompetencyQuestionReducedT[] {
+      const needle = this.resultCqQuery.trim().toLowerCase();
+      if (!needle) return this.cqs;
+      return this.cqs.filter(cq => cq.question?.toLowerCase().includes(needle));
     },
   },
   methods: {
@@ -270,23 +278,23 @@ export default defineComponent({
           </template>
 
           <!-- Existing CQ picker -->
-          <Listbox v-else v-model="selectedResultCq">
+          <Combobox v-else v-model="selectedResultCq">
             <div class="relative">
-              <ListboxButton
-                class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset dark:bg-gray-800"
+              <ComboboxInput
+                :displayValue="(cq: any) => cq?.question ?? ''"
+                @change="resultCqQuery = $event.target.value"
+                placeholder="Search for an existing CQ…"
+                class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset"
                 :class="resultQuestionError
-                  ? 'ring-red-300 focus:ring-red-500 text-gray-900 dark:text-gray-100'
-                  : 'ring-gray-300 dark:ring-gray-600 focus:ring-indigo-600 text-gray-900 dark:text-gray-100'">
-                <span :class="['block truncate', selectedResultCq ? '' : 'text-gray-400']">
-                  {{ selectedResultCq ? selectedResultCq.question : 'Select an existing CQ...' }}
-                </span>
-                <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
-                </span>
-              </ListboxButton>
+                  ? 'ring-red-300 focus:ring-red-500'
+                  : 'ring-gray-300 dark:ring-gray-600 focus:ring-indigo-600'"
+              />
+              <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
+              </ComboboxButton>
               <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                <ListboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
-                  <ListboxOption as="template" v-for="cq in cqs" :key="cq.id" :value="cq" v-slot="{ active, selected }">
+                <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+                  <ComboboxOption as="template" v-for="cq in filteredCqsForResult" :key="cq.id" :value="cq" v-slot="{ active, selected }">
                     <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                       <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ cq.question }}</span>
                       <span :class="[active ? 'text-indigo-200' : 'text-gray-400', 'block text-xs truncate']">{{ cq.group?.name }}</span>
@@ -294,11 +302,11 @@ export default defineComponent({
                         <CheckIcon class="h-4 w-4" aria-hidden="true"/>
                       </span>
                     </li>
-                  </ListboxOption>
-                </ListboxOptions>
+                  </ComboboxOption>
+                </ComboboxOptions>
               </transition>
             </div>
-          </Listbox>
+          </Combobox>
 
           <p v-if="resultQuestionError" class="text-xs text-red-600 dark:text-red-400">
             {{ useExistingCq ? 'Please select a CQ.' : !resultGroup.id ? 'Please select a group and enter a question.' : 'Please enter a question.' }}

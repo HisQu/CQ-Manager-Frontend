@@ -8,7 +8,7 @@ import {TrashIcon, ArrowDownOnSquareIcon, ArrowTopRightOnSquareIcon, CheckIcon, 
 import {useStore} from "../store.ts";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
-import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
+import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
 const store = useStore()
@@ -68,6 +68,13 @@ const sourceGroups = computed(() => {
     if (id && name && !seen.has(id)) { seen.add(id); result.push({ id, name }); }
   }
   return result.length > 1 ? result : [];
+});
+
+const targetQuery = ref('');
+const filteredCqsForTarget = computed(() => {
+  const needle = targetQuery.value.trim().toLowerCase();
+  if (!needle) return cqs.value;
+  return cqs.value.filter(cq => cq.question?.toLowerCase().includes(needle));
 });
 
 const savingSourceQuestions = ref(false);
@@ -279,20 +286,20 @@ async function setResultQuestion() {
 
       <div v-else-if="canEdit" class="space-y-3">
         <p class="text-sm text-gray-500 dark:text-gray-400">No target question set. Pick an existing CQ to use as the target question.</p>
-        <Listbox v-model="newResultCq">
+        <Combobox v-model="newResultCq">
           <div class="relative">
-            <ListboxButton
-              class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-              <span :class="['block truncate', newResultCq ? '' : 'text-gray-400']">
-                {{ newResultCq ? newResultCq.question : 'Select a CQ...' }}
-              </span>
-              <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
-              </span>
-            </ListboxButton>
+            <ComboboxInput
+              :displayValue="(cq: any) => cq?.question ?? ''"
+              @change="targetQuery = $event.target.value"
+              placeholder="Search for a CQ…"
+              class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+            />
+            <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
+              <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
+            </ComboboxButton>
             <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-              <ListboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
-                <ListboxOption as="template" v-for="cq in cqs" :key="cq.id" :value="cq" v-slot="{ active, selected }">
+              <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+                <ComboboxOption as="template" v-for="cq in filteredCqsForTarget" :key="cq.id" :value="cq" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ cq.question }}</span>
                     <span :class="[active ? 'text-indigo-200' : 'text-gray-400', 'block text-xs truncate']">{{ cq.group?.name }}</span>
@@ -300,11 +307,11 @@ async function setResultQuestion() {
                       <CheckIcon class="h-4 w-4" aria-hidden="true"/>
                     </span>
                   </li>
-                </ListboxOption>
-              </ListboxOptions>
+                </ComboboxOption>
+              </ComboboxOptions>
             </transition>
           </div>
-        </Listbox>
+        </Combobox>
         <div class="flex justify-end">
           <button type="button"
                   :disabled="!newResultCq"

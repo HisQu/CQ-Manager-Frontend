@@ -44,8 +44,8 @@ class ConsolidationDataService {
 
     async add(project_uuid: string, resultQuestion: { question: string; groupId: string; reference?: string | null; anchor?: string | null; exampleAnswer?: string | null; type?: CQType | null } | { id: string }, question_uuids: string[] = []): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
         return http.post<ConsolidationReducedT>(`/consolidations/${project_uuid}`, {
-                resultQuestion,
-                ids: question_uuids,
+                targetQuestion: resultQuestion,
+                sourceQuestionIds: question_uuids,
             }, {headers: authHeader()}).then(response => {
             return response
         }).catch(reason => {
