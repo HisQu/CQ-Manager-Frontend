@@ -1,13 +1,13 @@
 <script lang="ts">
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import CQTypeBadge from "../components/CQTypeBadge.vue";
+import CQListItem from "../components/CQListItem.vue";
 import { ArrowDownOnSquareIcon } from "@heroicons/vue/24/solid";
 import TopicDataService from "../services/TopicDataService.ts";
 
 export default {
   name: 'TopicDetailView',
-  components: { MessagePopup, DetailPageHeader, CQTypeBadge, ArrowDownOnSquareIcon },
+  components: { MessagePopup, DetailPageHeader, CQListItem, ArrowDownOnSquareIcon },
 
   props: {
     projectid: { type: String, required: true },
@@ -114,16 +114,8 @@ export default {
 
     <div v-if="topic.questions && topic.questions.length > 0">
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Linked Competency Questions</h2>
-      <div class="space-y-2 max-w-xl">
-        <RouterLink
-          v-for="q in topic.questions"
-          :key="q.id"
-          :to="'/questions/' + q.id"
-          class="flex items-start gap-3 rounded-lg bg-gray-50 dark:bg-gray-700 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-        >
-          <CQTypeBadge v-if="q.type" :type="q.type" class="flex-shrink-0 mt-0.5" />
-          <span class="flex-1">{{ q.question }}</span>
-        </RouterLink>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1 max-w-xl">
+        <CQListItem v-for="q in topic.questions" :key="q.id" :cq="q" :project-id="projectid" />
       </div>
     </div>
     <div v-else-if="topic.questions" class="text-sm text-gray-500 dark:text-gray-400">

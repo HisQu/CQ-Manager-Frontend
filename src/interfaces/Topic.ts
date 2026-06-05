@@ -9,9 +9,5 @@ type TopicT = {
     identifier: string,
     name: string,
     projectId: string,
-    questions?: {
-        id: string,
-        question: string,
-        type: CQType | null,
-    }[],
+    questions?: CompetencyQuestionReducedT[],
 }
