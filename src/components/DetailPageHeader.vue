@@ -11,8 +11,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-start justify-between gap-4 flex-wrap">
-    <div class="min-w-0">
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0 flex-1">
 
       <!-- Breadcrumb badges -->
       <div v-if="project || group" class="flex items-center gap-1.5 flex-wrap mb-2">
