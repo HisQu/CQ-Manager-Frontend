@@ -1,5 +1,6 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
+import { libravatarUrl } from "../utils/libravatar.ts";
 
 export default defineComponent({
   name: "CommentListItem",
@@ -8,6 +9,11 @@ export default defineComponent({
       type: Object as PropType<CommentT>,
       required: true
     },
+  },
+  data() {
+    return {
+      avatarUrl: '' as string,
+    }
   },
   computed: {
     formattedDate() {
@@ -24,14 +30,18 @@ export default defineComponent({
         .join('')
         .toUpperCase();
     }
-  }
+  },
+  async mounted() {
+    this.avatarUrl = await libravatarUrl(this.comment.author.email, 64);
+  },
 })
 </script>
 
 <template>
   <div class="flex gap-3">
-    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-400/20 flex items-center justify-center">
-      <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{{ initials }}</span>
+    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-400/20 flex items-center justify-center overflow-hidden">
+      <img v-if="avatarUrl" :src="avatarUrl" referrerpolicy="no-referrer" class="w-full h-full object-cover" :alt="comment.author.name" />
+      <span v-else class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{{ initials }}</span>
     </div>
     <div class="flex-1 min-w-0">
       <div class="flex items-baseline gap-2 flex-wrap">

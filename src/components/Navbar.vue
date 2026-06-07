@@ -21,6 +21,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import Logo from "./Logo.vue";
 import ProjectDataService from "../services/ProjectDataService.ts";
+import { libravatarUrl } from "../utils/libravatar.ts";
 
 export default defineComponent({
   name: "Navbar",
@@ -67,6 +68,8 @@ export default defineComponent({
         open: false
       },
 
+      avatarUrl: '' as string,
+
       navigation: [
         { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
         { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
@@ -103,6 +106,10 @@ export default defineComponent({
   },
 
   mounted() {
+    libravatarUrl(this.store.getUser.email, 64).then(url => {
+      this.avatarUrl = url;
+    });
+
     ProjectDataService.getAll().then(response => {
       if ("messageType" in response) {
         this.messagePopupData.uxresponse = {
@@ -173,7 +180,7 @@ export default defineComponent({
                   <li class="-mx-6 mt-auto">
                     <div class="flex items-center justify-between px-6 py-3">
                       <RouterLink to="/account/change-password" @click="sidebarOpen = false" class="flex items-center gap-x-4 text-sm font-semibold leading-6 text-white hover:text-indigo-200 min-w-0">
-                        <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                        <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                         <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
                       </RouterLink>
                       <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0" title="Log out">
@@ -235,7 +242,7 @@ export default defineComponent({
               <RouterLink v-if="!store.sidebarCollapsed" to="/account/change-password"
                 class="flex items-center gap-x-3 min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200"
                 title="Change password">
-                <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                 <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
               </RouterLink>
               <button
@@ -259,7 +266,7 @@ export default defineComponent({
     <div class="flex-1 text-sm font-semibold leading-6 text-white">Dashboard</div>
     <div>
       <span class="sr-only">Your profile</span>
-      <img class="h-8 w-8 rounded-full bg-indigo-700" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+      <img class="h-8 w-8 rounded-full bg-indigo-700" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
     </div>
   </div>
 </template>
