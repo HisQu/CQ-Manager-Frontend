@@ -62,7 +62,7 @@ watch(term, (newTerm) => {
     termIsSelected = true;
     nextTick(() => passage.value?.focus());
   }
-})
+}, { flush: 'sync' })
 const filteredTerms = computed(() =>
     terms.value === undefined ? [] :
         query.value === ''
@@ -242,9 +242,11 @@ fetchTerms()
                     :displayValue="(t: unknown) => (t as TermT)?.content ?? ''"
                     placeholder="Term"
                     @input="onComboboxInput($event)"
+                    @keydown.tab.prevent="passage?.focus()"
                 />
                 <ComboboxButton
                     class="absolute inset-y-0 right-0 flex items-center pr-2"
+                    :tabindex="-1"
                 >
                   <ChevronUpDownIcon
                       class="h-5 w-5 text-gray-400"
