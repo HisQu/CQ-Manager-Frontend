@@ -20,10 +20,8 @@ export default defineComponent({
   watch: {
     email: {
       immediate: true,
-      async handler(val: string | undefined) {
-        if (val) {
-          this.avatarUrl = await libravatarUrl(val, 64);
-        }
+      handler(val: string | undefined) {
+        if (val) this.avatarUrl = libravatarUrl(val, 64);
       }
     }
   },

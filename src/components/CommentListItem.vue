@@ -31,8 +31,8 @@ export default defineComponent({
         .toUpperCase();
     }
   },
-  async mounted() {
-    this.avatarUrl = await libravatarUrl(this.comment.author.email, 64);
+  mounted() {
+    this.avatarUrl = libravatarUrl(this.comment.author.email, 64);
   },
 })
 </script>

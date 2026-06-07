@@ -106,9 +106,7 @@ export default defineComponent({
   },
 
   mounted() {
-    libravatarUrl(this.store.getUser.email, 64).then(url => {
-      this.avatarUrl = url;
-    });
+    this.avatarUrl = libravatarUrl(this.store.getUser.email, 64);
 
     ProjectDataService.getAll().then(response => {
       if ("messageType" in response) {
