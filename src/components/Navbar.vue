@@ -192,7 +192,7 @@ export default defineComponent({
 
   <!-- Static sidebar for desktop -->
   <div :class="[store.sidebarCollapsed ? 'sm:w-16' : 'sm:w-72', 'hidden sm:fixed sm:inset-y-0 sm:z-50 sm:flex sm:flex-col transition-[width] duration-200']">
-    <div :class="[store.sidebarCollapsed ? 'px-2' : 'px-6', 'flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 transition-[padding] duration-200']">
+    <div :class="[store.sidebarCollapsed ? 'px-2' : 'px-6', 'flex grow flex-col gap-y-5 overflow-y-auto overflow-x-hidden bg-indigo-600 transition-[padding] duration-200']">
       <div class="flex h-16 shrink-0 items-center" :class="store.sidebarCollapsed ? 'justify-center' : 'justify-between'">
         <span v-if="!store.sidebarCollapsed" class="text-2xl font-bold text-white mt-5">
           <Logo/>
@@ -232,13 +232,13 @@ export default defineComponent({
           </li>
           <li class="-mx-6 mt-auto">
             <div :class="[store.sidebarCollapsed ? 'justify-center px-2' : 'px-6', 'flex items-center py-3 gap-x-2']">
-              <RouterLink to="/account/change-password"
-                :class="[store.sidebarCollapsed ? 'justify-center' : 'gap-x-3', 'flex items-center min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200']"
+              <RouterLink v-if="!store.sidebarCollapsed" to="/account/change-password"
+                class="flex items-center gap-x-3 min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200"
                 title="Change password">
                 <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-                <span v-if="!store.sidebarCollapsed" class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
+                <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
               </RouterLink>
-              <button v-if="!store.sidebarCollapsed"
+              <button
                 @click="store.logout(); $router.push('/login');"
                 class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0"
                 title="Log out">
