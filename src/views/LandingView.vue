@@ -7,6 +7,8 @@ import {
   CloudArrowUpIcon,
   FingerPrintIcon,
   XMarkIcon,
+  DocumentMagnifyingGlassIcon,
+  ArrowsPointingInIcon,
 } from '@heroicons/vue/24/outline'
 import Logo from "../components/Logo.vue";
 import AppScreenshot from "../assets/app-screenshot.png";
@@ -17,28 +19,28 @@ const navigation: { name: string; href: string }[] = [
 
 const features = [
   {
-    name: 'Direct Collaboration with Domain Experts',
+    name: 'Team Authoring with Ratings & Comments',
     description:
-        'Our permission handling allows for a company wide collaboration, where everybody is in the loop, while keeping an overview over who has done what.',
+        'Create, rate, and comment on competency questions as a team. Role-based permissions keep projects organized while giving domain experts and ontology engineers a shared workspace.',
     icon: CloudArrowUpIcon,
   },
   {
-    name: 'Term Annotation',
+    name: 'Question Consolidation',
     description:
-        'Reoccurring terms can be annotated and connected with other questions that use the same term.',
+        'Identify duplicate or overlapping questions and merge them into a single authoritative result. Keep your question set clean, non-redundant, and ready for ontology development.',
+    icon: ArrowsPointingInIcon,
+  },
+  {
+    name: 'Term Annotation & Catalogues',
+    description:
+        'Tag recurring terms across questions and group them into topic catalogues. Linked terms give your whole team a shared, navigable vocabulary.',
     icon: ArrowPathIcon,
   },
-  // {
-  //   name: 'Ontology Visualisation',
-  //   description:
-  //       'Quisque est vel vulputate cursus. Risus proin diam nunc commodo. Lobortis auctor congue commodo diam neque.',
-  //   icon: ArrowPathIcon,
-  // },
   {
-    name: 'Collaboration between Ontology Engineers',
+    name: 'SPARQL Reports',
     description:
-        'Using our annotation tools, versioning and rating even big projects are lucid!.',
-    icon: FingerPrintIcon,
+        'Validate your ontology with a built-in SPARQL editor featuring live diagnostics and completions. Run queries and share results with stakeholders directly from the platform.',
+    icon: DocumentMagnifyingGlassIcon,
   },
 ]
 
@@ -141,7 +143,7 @@ const mobileMenuOpen = ref(false)
                 Manage <span class="whitespace-nowrap">Competency Questions</span> effectively
               </h1>
               <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-200">
-                The CQ-Manager allows for an <span class="underline decoration-sky-500 font-bold">efficient</span> and <span class="underline decoration-sky-500 font-bold">structured</span> collaboration between ontology engineers and users.
+                The CQ-Manager brings <span class="underline decoration-sky-500 font-bold">ontology engineers</span> and <span class="underline decoration-sky-500 font-bold">domain experts</span> together — from first question to consolidated, validated ontology.
               </p>
               <div class="mt-10 flex items-center justify-center gap-x-6">
                 <a href="/login"
@@ -176,7 +178,7 @@ const mobileMenuOpen = ref(false)
           <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">Everything you
             need to develop ontologies in big teams</p>
           <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
-            Staying on top of different end users wishes can be a challenging task. We've got something for you!
+            From collaborative authoring to SPARQL validation — every step of the competency question lifecycle, in one place.
           </p>
         </div>
         <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
