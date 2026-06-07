@@ -205,18 +205,6 @@ fetchTerms()
     </div>
 
     <h3 class="mt-10 mb-5 text-xl">Term Annotations</h3>
-    <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 mb-5">
-      This section allows you to add terms to a question. If a certain term does not exist yet, it will be created.
-      Questions that contain the same terms can be found via the
-      <RouterLink to="/terms" class="font-bold underline decoration-blue-500 decoration-2 dark:text-slate-200">Terms
-      </RouterLink>
-    </p>
-    <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 mb-5">
-      <span class="font-bold italic">What are terms and passages?</span>
-      Below you can select a term (select an existing or add a new one) which should be associated to a certain passage
-      or declined form of the term in the question. For example: the plural "pizzas" is the passage where the term "pizza"
-      occurs.
-    </p>
 
     <div v-for="element in annotations"
          class="items-center rounded-md my-4 px-2 py-1 mx-auto font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-ray-500/10">
@@ -271,7 +259,7 @@ fetchTerms()
                   @after-leave="query = ''"
               >
                 <ComboboxOptions
-                    class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
                 >
                   <ComboboxOption
                       v-for="term in filteredTerms"

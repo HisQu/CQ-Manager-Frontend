@@ -5,9 +5,8 @@
 
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
-import {PaperAirplaneIcon, TrashIcon} from "@heroicons/vue/24/solid";
+import {PaperAirplaneIcon} from "@heroicons/vue/24/solid";
 import CommentListItem from "./CommentListItem.vue";
-import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
 import CommentDataService from "../services/CommentDataService.ts";
 
 export default defineComponent({
@@ -22,10 +21,8 @@ export default defineComponent({
             ...response
           };
           this.messagePopupData.open = true;
-
         } else {
-          // refetch the competency question to display the new comment
-          this.displaySuccess = true
+          this.displaySuccess = true;
 
           if (this.timeout !== -100) {
             clearTimeout(this.timeout);
@@ -33,13 +30,13 @@ export default defineComponent({
 
           this.timeout = setTimeout(() => {
             this.displaySuccess = false;
-          }, 1000);
+          }, 1500);
           this.$emit('refresh');
         }
       });
     }
   },
-  components: {SubmitButtonWithCallback, TrashIcon, CommentListItem, PaperAirplaneIcon},
+  components: {CommentListItem, PaperAirplaneIcon},
   props: {
     questionId: {
       type: String,
@@ -52,7 +49,9 @@ export default defineComponent({
   },
   computed: {
     commentsSorted() {
-      return this.comments ? this.comments.sort((a:CommentT, b:CommentT)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()) : []
+      return this.comments
+        ? [...this.comments].sort((a: CommentT, b: CommentT) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        : []
     }
   },
   data() {
@@ -75,24 +74,36 @@ export default defineComponent({
 </script>
 
 <template>
-  <section aria-labelledby="reviews-heading" class="">
-    <div v-if="comments" class="flex flex-col space-y-10 divide-y divide-gray-200 dark:divide-gray-600">
+  <section>
+    <!-- Comment list -->
+    <div v-if="comments && comments.length > 0" class="space-y-5">
       <CommentListItem v-for="comment in commentsSorted" :key="comment.id" :comment="comment" />
     </div>
-    <div class="mt-20 mb-36">
-      <textarea rows="3" name="comment" placeholder="Add new comment..." id="comment" v-model="commentText"
-                class="dark:bg-gray-700 block w-full rounded-md border-0 py-1.5 dark:text-gray-100 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-      <button type="button"
-              @click="comment(commentText, questionId); commentText=''"
-              class="float-right inline-flex items-center gap-x-2 rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-5"
-              :class="displaySuccess ? 'bg-green-600' : 'bg-indigo-600'">
-        <PaperAirplaneIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-        Comment
-      </button>
+    <p v-else class="text-sm text-gray-500 dark:text-gray-400">No comments yet.</p>
+
+    <!-- New comment form -->
+    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <label for="new-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add a comment</label>
+      <textarea
+        rows="3"
+        name="new-comment"
+        placeholder="Write your comment…"
+        id="new-comment"
+        v-model="commentText"
+        class="block w-full rounded-md border-0 py-1.5 dark:bg-gray-800 dark:text-gray-100 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      />
+      <div class="mt-3 flex justify-end">
+        <button
+          type="button"
+          @click="comment(commentText, questionId); commentText = ''"
+          :disabled="!commentText.trim()"
+          class="inline-flex items-center gap-x-1.5 rounded-md px-3.5 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          :class="displaySuccess ? 'bg-green-600 hover:bg-green-500' : 'bg-indigo-600 hover:bg-indigo-500'"
+        >
+          <PaperAirplaneIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
+          {{ displaySuccess ? 'Sent!' : 'Comment' }}
+        </button>
+      </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-
-</style>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import StarComponent from "./StarComponent.vue";
-import UserCardSmall from "./UserCardSmall.vue";
 import IdBadge from "./IdBadge.vue";
 import CQTypeBadge from "./CQTypeBadge.vue";
 
@@ -67,8 +66,15 @@ const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.le
               class="inline-flex items-center rounded-md bg-violet-50 dark:bg-violet-400/10 px-2 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-400 ring-1 ring-inset ring-violet-700/10 dark:ring-violet-400/30">
           {{ cq.group.name }}
         </span>
+        <span v-if="cq.noComments"
+              class="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
+          {{ cq.noComments }}
+        </span>
         <IdBadge :id="cq.id" />
-        <UserCardSmall v-if="cq.author?.name ?? cq.creator" :name="(cq.author?.name ?? cq.creator)!" />
+        <span v-if="cq.author?.name ?? cq.creator"
+              class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-400/10 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/30">
+          {{ cq.author?.name ?? cq.creator }}
+        </span>
       </div>
 
     </div>
