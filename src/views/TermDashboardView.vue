@@ -62,25 +62,23 @@ watch(getProject, (_, __) => {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div class="w-full">
-    <DetailPageHeader title="Terms" :project="getProject.name">
+    <DetailPageHeader title="Glossary" :project="getProject.name">
       <template #meta>
         <span class="text-gray-500 dark:text-gray-400">New terms can be added via a Competency Question detail view.</span>
       </template>
     </DetailPageHeader>
 
     <div v-if="terms">
-      <div v-if="terms.data.length === 0" class="mt-10">
+      <div v-if="terms.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
         There are no terms yet!
       </div>
 
-      <div class="mt-10" v-for="term in terms.data">
-        <TermListItem :term="term"/>
-      </div>
+      <TermListItem v-for="term in terms.data" :key="term.id" :term="term"/>
 
     </div>
     <div v-else>
       <div v-for="_ in 4" :key="_"
-           class="border-1 shadow rounded-md p-4 max-w-xl w-full mx-auto dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-10">
+           class="border-1 shadow rounded-lg p-4 max-w-xl w-full dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4">
         <div class="animate-pulse flex space-x-4">
           <div class="flex-1 space-y-6 py-1">
             <div class="h-2 bg-slate-500 rounded"></div>

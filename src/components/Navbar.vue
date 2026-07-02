@@ -74,8 +74,8 @@ export default defineComponent({
         { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
         { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
 { name: 'Catalogues', href: '/catalogues', icon: TagIcon },
+        { name: 'Glossary', href: '/terms', icon: QueueListIcon },
         { name: 'Group', href: '/groups', icon: UsersIcon },
-        { name: 'Terms', href: '/terms', icon: QueueListIcon },
       ],
     }
   },
@@ -177,7 +177,7 @@ export default defineComponent({
                   </li>
                   <li class="-mx-6 mt-auto">
                     <div class="flex items-center justify-between px-6 py-3">
-                      <RouterLink to="/account/change-password" @click="sidebarOpen = false" class="flex items-center gap-x-4 text-sm font-semibold leading-6 text-white hover:text-indigo-200 min-w-0">
+                      <RouterLink to="/account/profile" @click="sidebarOpen = false" class="flex items-center gap-x-4 text-sm font-semibold leading-6 text-white hover:text-indigo-200 min-w-0">
                         <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                         <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
                       </RouterLink>
@@ -237,7 +237,7 @@ export default defineComponent({
           </li>
           <li class="-mx-6 mt-auto">
             <div :class="[store.sidebarCollapsed ? 'justify-center px-2' : 'px-6', 'flex items-center py-3 gap-x-2']">
-              <RouterLink v-if="!store.sidebarCollapsed" to="/account/change-password"
+              <RouterLink v-if="!store.sidebarCollapsed" to="/account/profile"
                 class="flex items-center gap-x-3 min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200"
                 title="Change password">
                 <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />

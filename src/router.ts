@@ -136,9 +136,9 @@ const routes =  [
         props: true
     },
     {
-        path: "/account/change-password",
-        name: "change-password",
-        component: () => import("./views/ChangePasswordView.vue")
+        path: "/account/profile",
+        name: "profile",
+        component: () => import("./views/ProfileView.vue")
     }
 ];
 

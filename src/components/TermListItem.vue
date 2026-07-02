@@ -15,8 +15,10 @@ export default defineComponent({
 
 <template>
   <RouterLink :to="'/terms/' + term.projectId + '/' + term.id">
-    <div class="mt-3 dark:bg-gray-600 hover:dark:bg-gray-600 p-1 pl-3 rounded hover:bg-gray-200">
-      {{term.content}}
+    <div class="dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4 rounded-lg p-4 text-left shadow-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-600">
+      <div class="flex items-center gap-3">
+        <h3 class="font-semibold text-gray-900 dark:text-white">{{ term.content }}</h3>
+      </div>
     </div>
   </RouterLink>
 </template>
