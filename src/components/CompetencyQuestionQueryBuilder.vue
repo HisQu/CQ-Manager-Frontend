@@ -55,6 +55,8 @@ const terms = ref<TermT[]>();
 const term = ref<TermT | { content: string } | null>(null)
 const query = ref('')
 const newTermOption = reactive({ content: '' })
+const newTermDefinition = ref('')
+const newTermConceptIri = ref('')
 let termIsSelected = false;
 watch(query, (q) => { if (!termIsSelected) newTermOption.content = q; }, { immediate: true })
 watch(term, (newTerm) => {
@@ -79,9 +81,14 @@ function onComboboxInput(event: Event) {
 
 function insertTermPassagePair() {
   if (!term.value?.content) return;
+  const isNewTerm = !('id' in term.value);
   TermDataService.add(props.id, [{
     term: term.value.content,
-    passage: addPassageInput.value
+    passage: addPassageInput.value,
+    ...(isNewTerm ? {
+      definition: newTermDefinition.value || null,
+      conceptIri: newTermConceptIri.value || null,
+    } : {})
   }]).then(response => {
     if ("messageType" in response) {
       messagePopupData.value.uxresponse = {
@@ -94,6 +101,8 @@ function insertTermPassagePair() {
       emits('fetchCompetencyQuestion');
       term.value = null;
       addPassageInput.value = '';
+      newTermDefinition.value = '';
+      newTermConceptIri.value = '';
       termIsSelected = false;
       query.value = '';
     }
@@ -210,7 +219,8 @@ fetchTerms()
          class="items-center rounded-md my-4 px-2 py-1 mx-auto font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-ray-500/10">
       Term:
       <RouterLink class="font-bold underline decoration-blue-500 decoration-2 text-blue-500"
-                  :to="'/terms/'+props.projectId+'/'+element.term.id">
+                  :to="'/terms/'+props.projectId+'/'+element.term.id"
+                  :title="element.term.definition ?? undefined">
         {{ element.term.content }}
       </RouterLink>
       , Passage: {{ element.content }}
@@ -311,6 +321,16 @@ fetchTerms()
               ↵ ENTER
             </kbd>
           </div>
+        </div>
+        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2" v-if="term && !('id' in term)">
+          <input type="text"
+                 v-model="newTermDefinition"
+                 placeholder="Definition (optional)"
+                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+          <input type="text"
+                 v-model="newTermConceptIri"
+                 placeholder="Concept IRI (optional)"
+                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
         </div>
       </div>
       <div class="mt-auto">

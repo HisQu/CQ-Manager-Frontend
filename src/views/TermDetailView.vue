@@ -18,6 +18,8 @@ const messagePopupData = ref({
 
 const termOccurrences = ref<any[]>();
 const content = ref("");
+const definition = ref<string | null>(null);
+const conceptIri = ref<string | null>(null);
 const projectName = ref("");
 const canEdit = ref(false);
 
@@ -30,7 +32,11 @@ async function fetchTerm() {
     messagePopupData.value.open = true;
   } else {
     const match = response.data.find((t: TermT) => t.id === props.id);
-    if (match) content.value = match.content;
+    if (match) {
+      content.value = match.content;
+      definition.value = match.definition ?? null;
+      conceptIri.value = match.conceptIri ?? null;
+    }
   }
 }
 
@@ -85,7 +91,7 @@ const deleteConfirmDetail = computed(() => {
 });
 
 async function save() {
-  const response = await TermDataService.update(props.projectid, props.id, content.value);
+  const response = await TermDataService.update(props.projectid, props.id, content.value, definition.value || null, conceptIri.value || null);
   if ("messageType" in response) {
     messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
     messagePopupData.value.open = true;
@@ -130,6 +136,17 @@ fetchPermissions();
       </template>
     </DetailPageHeader>
 
+    <p v-if="definition" class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+      {{ definition }}
+    </p>
+    <a v-if="conceptIri && /^https?:\/\//i.test(conceptIri)" :href="conceptIri" target="_blank" rel="noopener noreferrer"
+       class="mt-1 inline-block text-sm text-indigo-600 dark:text-indigo-400 underline break-all">
+      {{ conceptIri }}
+    </a>
+    <p v-else-if="conceptIri" class="mt-1 text-sm text-gray-500 dark:text-gray-400 break-all">
+      {{ conceptIri }}
+    </p>
+
     <hr class="my-6 border-gray-200 dark:border-gray-700"/>
 
     <!-- Occurrences -->
@@ -163,6 +180,24 @@ fetchPermissions();
           Term name
         </label>
         <input type="text" v-model="content" id="term-content"
+               class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+      </div>
+
+      <div class="mb-6">
+        <label for="term-definition" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
+          Definition <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        </label>
+        <textarea v-model="definition" id="term-definition" rows="3"
+                  placeholder="Human-readable definition of this term..."
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
+      </div>
+
+      <div class="mb-6">
+        <label for="term-concept-iri" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
+          Concept IRI <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        </label>
+        <input type="text" v-model="conceptIri" id="term-concept-iri"
+               placeholder="https://example.org/ontology/Term"
                class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
       </div>
 

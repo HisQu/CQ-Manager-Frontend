@@ -58,8 +58,8 @@ class TermDataService {
     }
     
 
-    async update(project_id: string, term_id: string, content: string): Promise<AxiosResponse<any, TermT> | UXResponse> {
-        return http.put<TermT>(`/terms/${project_id}/${term_id}`, { content }, { headers: authHeader() }).then(response => {
+    async update(project_id: string, term_id: string, content: string, definition?: string | null, conceptIri?: string | null): Promise<AxiosResponse<any, TermT> | UXResponse> {
+        return http.put<TermT>(`/terms/${project_id}/${term_id}`, { content, definition, conceptIri }, { headers: authHeader() }).then(response => {
             return response;
         }).catch(reason => {
             return {
