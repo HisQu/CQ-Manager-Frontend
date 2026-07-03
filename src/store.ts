@@ -27,6 +27,8 @@ export const useStore = defineStore('cq-manager', {
         sidebarCollapsed: false,
         cqSelectedGroup: { id: '', name: 'No filter' },
         cqUnifiedView: true,
+        cqExportFormat: 'markdown',
+        cqExportFields: ["question", "type", "group", "comment", "reference", "exampleAnswer"],
     }),
 
     getters: {

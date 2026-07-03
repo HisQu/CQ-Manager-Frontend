@@ -1,4 +1,4 @@
-type CQType = "LCQ" | "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
+type CQType = "RQ" | "SCQ" | "VCQ" | "FCQ" | "RCQ" | "aRCQ" | "efRCQ" | "drRCQ" | "rpRCQ" | "MpCQ"
 
 type CQConsolidationEntryT = {
     id: string,

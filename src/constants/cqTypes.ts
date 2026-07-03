@@ -1,9 +1,9 @@
 export const CQ_TYPES: CQType[] = [
-  "LCQ", "SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ",
+  "RQ", "SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ",
 ]
 
 export const CQ_TYPE_LABELS: Record<CQType, string> = {
-  LCQ:   'LCQ – Literature',
+  RQ:    'RQ – Literature',
   SCQ:   'SCQ – Scoping',
   VCQ:   'VCQ – Validation',
   FCQ:   'FCQ – Foundational',
@@ -18,7 +18,7 @@ export const CQ_TYPE_LABELS: Record<CQType, string> = {
 type CQTypeHint = { purpose: string; mustInclude: string; answer: string }
 
 export const CQ_TYPE_HINTS: Partial<Record<CQType, CQTypeHint>> = {
-  LCQ:   { purpose: 'Research question from literature about a domain',                              mustInclude: '>=1 domain entity, subject domain',                                                                                                             answer: 'Non-empty content set' },
+  RQ:    { purpose: 'Research question from literature about a domain',                              mustInclude: '>=1 domain entity, subject domain',                                                                                                             answer: 'Non-empty content set' },
   SCQ:   { purpose: 'Demarcate subject domain',                                                      mustInclude: '>=1 domain entity, subject domain, target ontology',                                                                                           answer: 'Non-empty content set' },
   VCQ:   { purpose: 'Verify content coverage',                                                       mustInclude: '>=1 domain entity; query logic must fit within the ontology logic',                                                                            answer: 'Content or yes/no; must be formalisable' },
   FCQ:   { purpose: 'Align domain entity to a foundational ontology',                                mustInclude: 'Reference to an FO entity or its property',                                                                                                    answer: 'yes / no / not applicable' },

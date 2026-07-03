@@ -4,7 +4,8 @@ import CompetencyQuestionDataService from "../services/CompetencyQuestionDataSer
 import TopicDataService from "../services/TopicDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon} from "@heroicons/vue/20/solid"
+import ExportCqModal from "../components/ExportCqModal.vue";
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
@@ -29,6 +30,7 @@ const groups = ref();
 const topics = ref<TopicT[]>([]);
 const searchQuery = ref('');
 const consolidatedOnly = ref(false);
+const exportModalOpen = ref(false);
 
 const ALL_TOPICS = { id: '', identifier: '', name: 'All catalogues' };
 const UNCATEGORISED = { id: '__uncategorised__', identifier: '', name: 'Uncategorised' };
@@ -183,10 +185,18 @@ async function fetchCompetencyQuestion() {
   <MessagePopup :uxresponse="messagePopupData.uxresponse"
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
+  <ExportCqModal v-if="displayedCqs" :open="exportModalOpen" :cqs="displayedCqs" @close="exportModalOpen = false" />
   <div class="w-full">
     <DetailPageHeader title="Competency Questions" :project="getProject.name">
       <template #actions>
         <div class="flex items-center gap-2">
+          <button type="button"
+                  :disabled="!displayedCqs || displayedCqs.length === 0"
+                  class="inline-flex items-center gap-x-2 rounded-md bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="exportModalOpen = true">
+            Export
+            <ArrowDownTrayIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+          </button>
           <RouterLink to="/consolidations/add" class="inline-flex items-center gap-x-2 rounded-md bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Consolidate
             <ArrowDownOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
