@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DEFAULT_CQ_FILTERS, countActiveFilters, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
@@ -57,6 +57,43 @@ describe('cqFilters', () => {
     ]
     expect(filterWith(cqs, { consolidation: 'consolidated' })).toEqual(['result', 'source'])
     expect(filterWith(cqs, { consolidation: 'not_consolidated' })).toEqual(['plain'])
+  })
+
+  describe('date filters', () => {
+    const now = new Date('2026-10-06T12:00:00Z')
+    const daysAgo = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString()
+    const cqs = [
+      makeCq({ id: 'today', createdAt: daysAgo(0.5), updatedAt: daysAgo(0.5), lastCommentAt: daysAgo(0.5) }),
+      makeCq({ id: 'week', createdAt: daysAgo(5), updatedAt: daysAgo(5), lastCommentAt: daysAgo(5) }),
+      makeCq({ id: 'old', createdAt: daysAgo(60), updatedAt: daysAgo(60), lastCommentAt: daysAgo(60) }),
+      makeCq({ id: 'silent', createdAt: daysAgo(60), updatedAt: daysAgo(2), lastCommentAt: null }),
+    ]
+
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(now)
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it.each([
+      ['within_1d', ['today']],
+      ['within_7d', ['today', 'week']],
+      ['older_30d', ['old', 'silent']],
+    ])('filters by created %s', (created, expected) => {
+      expect(filterWith(cqs, { created })).toEqual(expected)
+    })
+
+    it('filters by last change independently of creation', () => {
+      expect(filterWith(cqs, { updated: 'within_7d' })).toEqual(['today', 'week', 'silent'])
+    })
+
+    it('filters by last comment, excluding uncommented CQs from date ranges', () => {
+      expect(filterWith(cqs, { lastComment: 'none' })).toEqual(['silent'])
+      expect(filterWith(cqs, { lastComment: 'within_30d' })).toEqual(['today', 'week'])
+      expect(filterWith(cqs, { lastComment: 'older_30d' })).toEqual(['old'])
+    })
   })
 
   it('lists "Me" plus the other authors, sorted by name', () => {
