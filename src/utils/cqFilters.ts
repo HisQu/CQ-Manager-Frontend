@@ -11,6 +11,9 @@ export const DEFAULT_CQ_FILTERS = {
   sparql: 'any',        // 'any' | 'with' | 'without'
   exampleAnswer: 'any', // 'any' | 'with' | 'without'
   consolidation: 'any', // 'any' | 'consolidated' | 'not_consolidated'
+  created: 'any',       // 'any' | DateRange
+  updated: 'any',       // 'any' | DateRange
+  lastComment: 'any',   // 'any' | 'none' | DateRange
 };
 
 export type CqFilters = typeof DEFAULT_CQ_FILTERS;
@@ -19,6 +22,16 @@ const withWithout = (what: string) => [
   { value: 'any', label: 'Any' },
   { value: 'with', label: `With ${what}` },
   { value: 'without', label: `Without ${what}` },
+];
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// DateRange values: 'within_<n>d' (at most n days ago) | 'older_<n>d' (more than n days ago).
+const dateRanges = [
+  { value: 'within_1d', label: 'Last 24 hours' },
+  { value: 'within_7d', label: 'Last 7 days' },
+  { value: 'within_30d', label: 'Last 30 days' },
+  { value: 'older_30d', label: 'More than 30 days ago' },
 ];
 
 export const CQ_FILTER_OPTIONS = {
@@ -42,6 +55,13 @@ export const CQ_FILTER_OPTIONS = {
     { value: 'consolidated', label: 'Consolidated' },
     { value: 'not_consolidated', label: 'Not consolidated' },
   ],
+  created: [{ value: 'any', label: 'Any time' }, ...dateRanges],
+  updated: [{ value: 'any', label: 'Any time' }, ...dateRanges],
+  lastComment: [
+    { value: 'any', label: 'Any time' },
+    { value: 'none', label: 'No comments' },
+    ...dateRanges,
+  ],
 };
 
 export function countActiveFilters(filters: CqFilters): number {
@@ -56,6 +76,16 @@ function isConsolidated(cq: CompetencyQuestionReducedT): boolean {
 
 function matchesWithWithout(filter: string, present: boolean): boolean {
   return filter === 'any' || (filter === 'with') === present;
+}
+
+function matchesDateRange(filter: string, timestamp: string | null | undefined, now: number): boolean {
+  if (filter === 'any') return true;
+  if (filter === 'none') return !timestamp;
+  const match = /^(within|older)_(\d+)d$/.exec(filter);
+  if (!match || !timestamp) return false;
+  const age = now - Date.parse(timestamp);
+  const limit = Number(match[2]) * DAY_MS;
+  return match[1] === 'within' ? age <= limit : age > limit;
 }
 
 /** Filter state plus the derived author options and predicate for a list of CQs. */
@@ -103,6 +133,11 @@ export function useCqFilters(getCqs: () => CompetencyQuestionReducedT[] | undefi
 
     if (f.consolidation === 'consolidated' && !isConsolidated(cq)) return false;
     if (f.consolidation === 'not_consolidated' && isConsolidated(cq)) return false;
+
+    const now = Date.now();
+    if (!matchesDateRange(f.created, cq.createdAt, now)) return false;
+    if (!matchesDateRange(f.updated, cq.updatedAt, now)) return false;
+    if (!matchesDateRange(f.lastComment, cq.lastCommentAt, now)) return false;
 
     return true;
   }

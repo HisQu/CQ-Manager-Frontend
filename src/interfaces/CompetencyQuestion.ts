@@ -59,6 +59,9 @@ type CompetencyQuestionReducedT = {
     topic?: TopicReducedT | null,
     cqCatalogueIdentifier?: string | null,
     noComments?: number,
+    createdAt?: string | null,
+    updatedAt?: string | null,
+    lastCommentAt?: string | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidation?: CQConsolidationEntryT | null,
 }
