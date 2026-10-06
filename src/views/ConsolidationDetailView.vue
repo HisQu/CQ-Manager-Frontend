@@ -6,12 +6,14 @@ import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {computed, ref} from "vue";
 import {TrashIcon, ArrowDownOnSquareIcon, ArrowTopRightOnSquareIcon, CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/24/solid";
 import {useStore} from "../store.ts";
+import {useRouter} from "vue-router";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
 const store = useStore()
+const router = useRouter()
 
 const messagePopupData = ref({
   uxresponse: {
@@ -45,6 +47,12 @@ const sourceCqs = computed(() => {
 const sourceSelectedIds = computed(() =>
   (consolidation.value?.sourceQuestions ?? []).map(q => q.id)
 );
+
+// Read-only users only see the questions that are part of the consolidation.
+const includedCqs = computed(() => {
+  const ids = new Set(sourceSelectedIds.value);
+  return cqs.value.filter(q => ids.has(q.id));
+});
 
 const sourceGroups = computed(() => {
   const seen = new Set<string>();
@@ -88,6 +96,15 @@ async function saveSourceQuestions(selectedIds: string[]) {
 
 fetchAll();
 
+async function deleteConsolidation() {
+  const response = await ConsolidationDataService.delete(props.id, consolidation.value!.project!.id);
+  if ("messageType" in response) {
+    showError(response);
+  } else {
+    router.push('/questions');
+  }
+}
+
 function showError(response: UXResponse) {
   messagePopupData.value.uxresponse = {...messagePopupData.value.uxresponse, ...response};
   messagePopupData.value.open = true;
@@ -120,7 +137,8 @@ async function fetchAll() {
     return;
   }
   consolidation.value = consoResp.data;
-  canEdit.value = (consoResp.data as any).permissionsProjectEngineer ?? false;
+  const data = consoResp.data as any;
+  canEdit.value = data.permissionsProjectEngineer || data.permissionsProjectManager || store.getUser.isSystemAdmin;
   const rq0 = consoResp.data.targetQuestion;
   resultQuestionText.value = rq0?.question ?? "";
   resultQuestionReference.value = rq0?.reference ?? null;
@@ -191,7 +209,7 @@ async function setResultQuestion() {
         <SubmitButtonWithCallback agree-button-text="Delete"
                                   title="Are you sure you want to delete this consolidation?"
                                   detail="This action is permanent. The source questions are not deleted."
-                                  @modalsuccessclose="ConsolidationDataService.delete(consolidation.id, consolidation.project!.id); $router.push('/consolidations/');">
+                                  @modalsuccessclose="deleteConsolidation">
           <TrashIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
           Delete
         </SubmitButtonWithCallback>
@@ -328,14 +346,18 @@ async function setResultQuestion() {
       </div>
 
       <QuestionSelectorTable
-        :cqs="sourceCqs"
+        :cqs="canEdit ? sourceCqs : includedCqs"
         :groups="sourceGroups"
         :initialSelectedIds="sourceSelectedIds"
+        :initialGroup="canEdit ? store.cqSelectedGroup : null"
+        :selectable="canEdit"
         @selectionChanged="currentSourceSelection = $event">
         <template #header>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Checked questions are currently included in this consolidation.
-            <span v-if="canEdit">Check or uncheck to add or remove, then save.</span>
+            <template v-if="canEdit">
+              Checked questions are currently included in this consolidation. Check or uncheck to add or remove, then save.
+            </template>
+            <template v-else>Questions included in this consolidation.</template>
           </p>
         </template>
       </QuestionSelectorTable>

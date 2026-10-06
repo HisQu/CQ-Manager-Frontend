@@ -1,16 +1,18 @@
 {
   "name": "cq-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.29.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
-    "@heroicons/vue": "^2.0.18",
+    "@heroicons/vue": "^2.2.0",
     "axios": "^1.6.2",
     "moment": "^2.29.1",
     "monaco-editor": "^0.55.1",
@@ -18,19 +20,21 @@
     "pinia-plugin-persistedstate": "^3.2.0",
     "qlue-ls": "^2.6.5",
     "vite-plugin-wasm": "^3.6.0",
-    "vue": "^3.3.8",
+    "vue": "^3.5.43",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
     "@vitejs/plugin-vue": "^4.5.0",
+    "@vue/test-utils": "^2.5.1",
     "autoprefixer": "^10.4.16",
+    "jsdom": "^25.0.1",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.5",
+    "vitest": "^3.2.7",
     "vue-tsc": "^2.1.6"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }

@@ -122,7 +122,7 @@ export default defineComponent({
         this.messagePopupData.uxresponse = {...this.messagePopupData.uxresponse, ...response};
         this.messagePopupData.open = true;
       } else {
-        this.$router.push('/consolidations/');
+        this.$router.push('/questions');
       }
     }
   }
@@ -150,6 +150,7 @@ export default defineComponent({
       <QuestionSelectorTable
         :cqs="sourceCqs"
         :groups="groups"
+        :initialGroup="store.cqSelectedGroup"
         @selectionChanged="selectedQuestions = $event"
         @groupChanged="onTableGroupChanged">
         <template #header>
@@ -316,7 +317,7 @@ export default defineComponent({
 
       <!-- Submit -->
       <div class="flex items-center justify-between pt-2 pb-8">
-        <RouterLink to="/consolidations/"
+        <RouterLink to="/questions"
                     class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
           Cancel
         </RouterLink>

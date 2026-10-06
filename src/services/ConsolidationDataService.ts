@@ -85,7 +85,7 @@ class ConsolidationDataService {
     }
 
     async addQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
-        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/add`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
+        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/add`, {sourceQuestionIds: question_uuids}, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -98,7 +98,7 @@ class ConsolidationDataService {
     }
 
     async removeQuestions(consolidation_uuid: string, project_uuid: string, question_uuids: string[]): Promise<AxiosResponse<any, ConsolidationReducedT> | UXResponse> {
-        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/remove`, {ids: question_uuids}, { headers: authHeader() }).then(response => {
+        return http.put<ConsolidationReducedT>(`/consolidations/${project_uuid}/${consolidation_uuid}/questions/remove`, {sourceQuestionIds: question_uuids}, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
