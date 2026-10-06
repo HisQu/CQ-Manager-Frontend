@@ -5,6 +5,9 @@ import TopicDataService from "../services/TopicDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import ExportCqModal from "../components/ExportCqModal.vue";
+import CqFilterPanel from "../components/CqFilterPanel.vue";
+import CqFilterButton from "../components/CqFilterButton.vue";
+import {useCqFilters} from "../utils/cqFilters.ts";
 import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
@@ -29,8 +32,10 @@ const cqs = ref();
 const groups = ref();
 const topics = ref<TopicT[]>([]);
 const searchQuery = ref('');
-const consolidatedOnly = ref(false);
 const exportModalOpen = ref(false);
+const filtersOpen = ref(false);
+
+const {filters, activeFilterCount, authorOptions, matchesFilters} = useCqFilters(() => cqs.value?.data);
 
 const ALL_TOPICS = { id: '', identifier: '', name: 'All catalogues' };
 const UNCATEGORISED = { id: '__uncategorised__', identifier: '', name: 'Uncategorised' };
@@ -63,13 +68,11 @@ const displayedCqs = computed(() => {
     items = items.filter(cq => cq.topic?.id === selectedTopic.value.id);
   }
 
-  if (consolidatedOnly.value) {
-    items = items.filter(cq => cq.unifiedEntryKind === 'consolidation_result');
-  }
+  items = items.filter(matchesFilters);
 
   const q = searchQuery.value;
   if (q.trim()) {
-    items = items.filter(cq => matchesSearch(q, cq.question, cq.comment));
+    items = items.filter(cq => matchesSearch(q, cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name));
   }
   return items;
 })
@@ -226,20 +229,6 @@ async function fetchCompetencyQuestion() {
         </SwitchLabel>
       </SwitchGroup>
 
-      <!-- Consolidated only toggle -->
-      <SwitchGroup as="div" class="flex items-center gap-x-3 flex-shrink-0">
-        <Switch v-model="consolidatedOnly"
-                :class="[consolidatedOnly ? 'bg-indigo-600' : 'bg-gray-200',
-                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2']">
-          <span aria-hidden="true"
-                :class="[consolidatedOnly ? 'translate-x-5' : 'translate-x-0',
-                         'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
-        </Switch>
-        <SwitchLabel as="span" class="text-sm">
-          <span class="font-medium text-gray-900 dark:text-gray-200">Consolidated only</span>
-        </SwitchLabel>
-      </SwitchGroup>
-
       <!-- Group filter -->
       <Listbox as="div" v-model="selectedGroup" class="flex-1 min-w-48">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
@@ -319,11 +308,15 @@ async function fetchCompetencyQuestion() {
         </div>
       </div>
 
+      <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
+
     </div> <!-- end controls row -->
+
+    <CqFilterPanel v-if="filtersOpen" class="mt-4" v-model="filters" :author-options="authorOptions" />
 
     <div v-if="cqs">
       <div v-if="displayedCqs && displayedCqs.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        {{ searchQuery.trim() ? 'No questions match your search.' : 'There are no CQs yet!' }}
+        {{ searchQuery.trim() || activeFilterCount || selectedTopic.id ? 'No questions match your search and filters.' : 'There are no CQs yet!' }}
       </div>
 
       <!-- Grouped by catalogue -->

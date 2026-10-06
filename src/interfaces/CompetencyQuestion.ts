@@ -44,6 +44,7 @@ type CompetencyQuestionReducedT = {
         name: string
     },
     question: string,
+    sparqlQuery?: string | null,
     author?: UserReducedT,
     creator?: string,
     aggregatedRating?: number,
