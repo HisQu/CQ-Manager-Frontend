@@ -5,7 +5,6 @@ import {
   ArrowPathIcon,
   Bars3Icon,
   CloudArrowUpIcon,
-  FingerPrintIcon,
   XMarkIcon,
   DocumentMagnifyingGlassIcon,
   ArrowsPointingInIcon,
