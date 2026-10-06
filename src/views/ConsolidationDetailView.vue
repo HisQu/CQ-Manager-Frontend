@@ -6,12 +6,14 @@ import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {computed, ref} from "vue";
 import {TrashIcon, ArrowDownOnSquareIcon, ArrowTopRightOnSquareIcon, CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/24/solid";
 import {useStore} from "../store.ts";
+import {useRouter} from "vue-router";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
 const store = useStore()
+const router = useRouter()
 
 const messagePopupData = ref({
   uxresponse: {
@@ -93,6 +95,15 @@ async function saveSourceQuestions(selectedIds: string[]) {
 }
 
 fetchAll();
+
+async function deleteConsolidation() {
+  const response = await ConsolidationDataService.delete(props.id, consolidation.value!.project!.id);
+  if ("messageType" in response) {
+    showError(response);
+  } else {
+    router.push('/questions');
+  }
+}
 
 function showError(response: UXResponse) {
   messagePopupData.value.uxresponse = {...messagePopupData.value.uxresponse, ...response};
@@ -198,7 +209,7 @@ async function setResultQuestion() {
         <SubmitButtonWithCallback agree-button-text="Delete"
                                   title="Are you sure you want to delete this consolidation?"
                                   detail="This action is permanent. The source questions are not deleted."
-                                  @modalsuccessclose="ConsolidationDataService.delete(consolidation.id, consolidation.project!.id); $router.push('/consolidations/');">
+                                  @modalsuccessclose="deleteConsolidation">
           <TrashIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
           Delete
         </SubmitButtonWithCallback>
