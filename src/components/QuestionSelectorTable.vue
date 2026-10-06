@@ -28,6 +28,11 @@ export default defineComponent({
       type: Object as PropType<GroupOption | null>,
       default: null,
     },
+    // When false, the table is read-only: no checkboxes and no selection UI.
+    selectable: {
+      type: Boolean,
+      default: true,
+    },
   },
   setup(props) {
     return useCqFilters(() => props.cqs);
@@ -72,8 +77,12 @@ export default defineComponent({
         this.$emit('selectionChanged', this.selectedIds);
       }
     },
-    selectedIds(newIds: string[]) {
-      this.$emit('selectionChanged', newIds);
+    // Immediate, so the parent knows the initial selection even before the user changes it.
+    selectedIds: {
+      handler(newIds: string[]) {
+        this.$emit('selectionChanged', newIds);
+      },
+      immediate: true,
     },
     initialSelectedIds(newIds: string[]) {
       this.selectedIds = [...newIds];
@@ -121,11 +130,11 @@ export default defineComponent({
           </slot>
         </div>
         <div class="flex items-center gap-3 flex-shrink-0 ml-4">
-          <span v-if="selectedIds.length > 0"
+          <span v-if="selectable && selectedIds.length > 0"
                 class="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-400/10 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:text-indigo-400 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
             {{ selectedIds.length }} selected
           </span>
-          <button v-if="$slots.default && selectedIds.length > 0"
+          <button v-if="selectable && $slots.default && selectedIds.length > 0"
                   type="button"
                   @click="handleAction"
                   class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
@@ -178,7 +187,7 @@ export default defineComponent({
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead>
           <tr class="bg-gray-50 dark:bg-gray-800/50">
-            <th scope="col" class="relative w-12 px-5">
+            <th v-if="selectable" scope="col" class="relative w-12 px-5">
               <input type="checkbox"
                      class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                      :checked="allSelected"
@@ -194,17 +203,17 @@ export default defineComponent({
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
           <tr v-if="filteredCqs.length === 0">
-            <td colspan="6" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
+            <td :colspan="selectable ? 6 : 5" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
               No questions available.
             </td>
           </tr>
           <tr v-for="cq in filteredCqs" :key="cq.id"
-              :class="selectedIds.includes(cq.id)
+              :class="selectable && selectedIds.includes(cq.id)
                 ? 'bg-indigo-50 dark:bg-indigo-900/20'
                 : cq.noConsolidations && cq.noConsolidations > 0
                   ? 'bg-blue-50 dark:bg-blue-900/20'
                   : 'bg-white dark:bg-gray-900'">
-            <td class="relative w-12 px-5">
+            <td v-if="selectable" class="relative w-12 px-5">
               <div v-if="selectedIds.includes(cq.id)"
                    class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"></div>
               <input type="checkbox"
@@ -212,8 +221,8 @@ export default defineComponent({
                      :value="cq.id"
                      v-model="selectedIds"/>
             </td>
-            <td class="py-3.5 pr-3 text-sm"
-                :class="selectedIds.includes(cq.id) ? 'font-medium text-indigo-700 dark:text-indigo-300' : 'text-gray-900 dark:text-gray-100'">
+            <td data-test="question" class="py-3.5 pr-3 text-sm"
+                :class="selectable && selectedIds.includes(cq.id) ? 'font-medium text-indigo-700 dark:text-indigo-300' : 'text-gray-900 dark:text-gray-100'">
               {{ cq.question }}
             </td>
             <td class="px-3 py-3.5 text-sm text-gray-500 dark:text-gray-400">{{ cq.group?.name }}</td>

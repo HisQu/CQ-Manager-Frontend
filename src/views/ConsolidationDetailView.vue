@@ -46,6 +46,12 @@ const sourceSelectedIds = computed(() =>
   (consolidation.value?.sourceQuestions ?? []).map(q => q.id)
 );
 
+// Read-only users only see the questions that are part of the consolidation.
+const includedCqs = computed(() => {
+  const ids = new Set(sourceSelectedIds.value);
+  return cqs.value.filter(q => ids.has(q.id));
+});
+
 const sourceGroups = computed(() => {
   const seen = new Set<string>();
   const result: { id: string; name: string }[] = [{ id: '', name: 'All groups' }];
@@ -120,7 +126,8 @@ async function fetchAll() {
     return;
   }
   consolidation.value = consoResp.data;
-  canEdit.value = (consoResp.data as any).permissionsProjectEngineer ?? false;
+  const data = consoResp.data as any;
+  canEdit.value = data.permissionsProjectEngineer || data.permissionsProjectManager || store.getUser.isSystemAdmin;
   const rq0 = consoResp.data.targetQuestion;
   resultQuestionText.value = rq0?.question ?? "";
   resultQuestionReference.value = rq0?.reference ?? null;
@@ -328,14 +335,18 @@ async function setResultQuestion() {
       </div>
 
       <QuestionSelectorTable
-        :cqs="sourceCqs"
+        :cqs="canEdit ? sourceCqs : includedCqs"
         :groups="sourceGroups"
         :initialSelectedIds="sourceSelectedIds"
+        :initialGroup="canEdit ? store.cqSelectedGroup : null"
+        :selectable="canEdit"
         @selectionChanged="currentSourceSelection = $event">
         <template #header>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Checked questions are currently included in this consolidation.
-            <span v-if="canEdit">Check or uncheck to add or remove, then save.</span>
+            <template v-if="canEdit">
+              Checked questions are currently included in this consolidation. Check or uncheck to add or remove, then save.
+            </template>
+            <template v-else>Questions included in this consolidation.</template>
           </p>
         </template>
       </QuestionSelectorTable>
