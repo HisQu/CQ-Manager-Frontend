@@ -2,12 +2,15 @@
 import {defineComponent, PropType} from 'vue'
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
 import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
+import CqFilterPanel from "./CqFilterPanel.vue";
+import CqFilterButton from "./CqFilterButton.vue";
+import {useCqFilters} from "../utils/cqFilters.ts";
 
 type GroupOption = { id: string; name: string };
 
 export default defineComponent({
   name: "QuestionSelectorTable",
-  components: {Listbox, ListboxButton, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon},
+  components: {Listbox, ListboxButton, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon, CqFilterPanel, CqFilterButton},
   props: {
     cqs: {
       type: Object as PropType<CompetencyQuestionReducedT[]>,
@@ -21,17 +24,27 @@ export default defineComponent({
       type: Array as PropType<string[]>,
       default: () => [],
     },
+    initialGroup: {
+      type: Object as PropType<GroupOption | null>,
+      default: null,
+    },
+  },
+  setup(props) {
+    return useCqFilters(() => props.cqs);
   },
   data() {
     return {
       selectedIds: [...this.initialSelectedIds] as string[],
-      selectedFilterGroup: { id: '', name: 'All groups' } as GroupOption,
+      selectedFilterGroup: (this.initialGroup?.id
+        ? this.initialGroup
+        : { id: '', name: 'All groups' }) as GroupOption,
       filterText: '',
+      filtersOpen: false,
     }
   },
   computed: {
     filteredCqs(): CompetencyQuestionReducedT[] {
-      let result = this.cqs;
+      let result = this.cqs.filter(this.matchesFilters);
       if (this.selectedFilterGroup.id) {
         result = result.filter(cq => (cq.group?.id ?? cq.groupId) === this.selectedFilterGroup.id);
       }
@@ -69,8 +82,8 @@ export default defineComponent({
       this.$emit('groupChanged', group);
     },
     groups(newGroups: GroupOption[]) {
-      if (newGroups.length > 0 && !newGroups.find(g => g.id === this.selectedFilterGroup.id)) {
-        this.selectedFilterGroup = newGroups[0];
+      if (newGroups.length > 0) {
+        this.selectedFilterGroup = newGroups.find(g => g.id === this.selectedFilterGroup.id) ?? newGroups[0];
       }
     },
   },
@@ -131,9 +144,9 @@ export default defineComponent({
         />
       </div>
 
-      <!-- Group filter -->
-      <div v-if="groups.length > 1" class="mt-2">
-        <Listbox v-model="selectedFilterGroup">
+      <div class="mt-2 flex items-center gap-2">
+        <!-- Group filter -->
+        <Listbox v-if="groups.length > 1" v-model="selectedFilterGroup" by="id">
           <div class="relative">
             <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <span class="block truncate">{{ selectedFilterGroup.name }}</span>
@@ -155,7 +168,10 @@ export default defineComponent({
             </transition>
           </div>
         </Listbox>
+        <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
       </div>
+
+      <CqFilterPanel v-if="filtersOpen" class="mt-3" v-model="filters" :author-options="authorOptions" />
     </div>
 
     <div class="overflow-x-auto">

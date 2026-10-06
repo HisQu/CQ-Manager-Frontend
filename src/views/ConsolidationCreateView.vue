@@ -150,6 +150,7 @@ export default defineComponent({
       <QuestionSelectorTable
         :cqs="sourceCqs"
         :groups="groups"
+        :initialGroup="store.cqSelectedGroup"
         @selectionChanged="selectedQuestions = $event"
         @groupChanged="onTableGroupChanged">
         <template #header>
