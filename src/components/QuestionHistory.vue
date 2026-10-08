@@ -10,14 +10,17 @@ const props = defineProps<{ questionId: string }>();
 const emit = defineEmits<{ error: [response: UXResponse] }>();
 
 const events = ref<QuestionEventT[]>([]);
+const loaded = ref(false);
 
 async function fetchHistory() {
+  loaded.value = false;
   const response = await CompetencyQuestionDataService.getHistory(props.questionId);
   if ('messageType' in response) {
     emit('error', response);
   } else {
     // Newest first.
     events.value = [...response.data].reverse();
+    loaded.value = true;
   }
 }
 
@@ -46,7 +49,8 @@ function formatDate(createdAt: string): string {
 </script>
 
 <template>
-  <ul class="space-y-2">
+  <p v-if="loaded && events.length === 0" class="text-sm text-gray-500 dark:text-gray-400">{{ t('noEntries') }}</p>
+  <ul v-else class="space-y-2">
     <li v-for="event in events" :key="event.id" class="flex flex-wrap items-baseline gap-x-2 text-sm dark:text-gray-300">
       <time :datetime="event.createdAt" class="w-40 shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ formatDate(event.createdAt) }}</time>
       <span v-if="event.actor" class="font-medium">{{ event.actor.name }}</span>

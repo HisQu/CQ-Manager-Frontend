@@ -511,5 +511,10 @@
   "questionDeletedNotice": "This competency question was deleted on {date}. Only system administrators can still see it.",
   "deletedCompetencyQuestions": "Deleted competency questions",
   "noDeletedCompetencyQuestions": "No competency questions of this project have been deleted.",
-  "deletedOn": "Deleted on {date}"
+  "deletedOn": "Deleted on {date}",
+  "expandComments": "Expand comments",
+  "collapseComments": "Collapse comments",
+  "commentSent": "Sent!",
+  "sendingComment": "Sending…",
+  "noEntries": "No entries"
 }

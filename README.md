@@ -11,6 +11,17 @@ the first layer is the name of the backend branch our branches are compatible wi
 Our branch `feature-detail-view` which is compatible with the backend branch `add-comments`
 will be named `backend-add-comments/feature-detail-view`. 
 
+Pull requests are merged using **squash and merge**. Fetch the remote before starting
+new work and create independent branches from the updated target branch (normally
+`origin/main`). A merged feature branch still contains its original commits, which
+are not ancestors of the squash commit; reusing that branch can bring already-merged
+commits into a new PR and cause conflicts.
+
+For dependent branches, rebase only the remaining work onto the updated target
+branch after the parent PR is squash-merged. Check the PR's commit list and diff
+against its intended base before pushing. Use `--force-with-lease` when pushing an
+authorized history rewrite.
+
 ## Recommended Environment Setup
 
 Put a `.env`-file in the frontend `src` directory.
