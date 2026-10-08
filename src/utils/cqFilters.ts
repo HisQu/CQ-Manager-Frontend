@@ -1,6 +1,7 @@
 import {computed, ref, type Ref} from "vue";
 import {useStore} from "../store.ts";
 import {CQ_TYPES} from "../constants/cqTypes.ts";
+import {UNCATALOGUED_IDENTIFIER} from "./catalogues.ts";
 
 // Attribute filters for CQ lists; 'any' (or an empty list for multi-selects) always means "no filter".
 // Multi-select filters match a CQ that fits any of the chosen values.
@@ -91,6 +92,27 @@ export function tagFilterOptions(tags: TagReducedT[]) {
     { value: 'none', label: 'No tags' },
     ...tags.map(t => ({ value: t.id, label: `#${t.name}` })),
   ];
+}
+
+/** Every word of the query has to appear in the question, comment, catalogue ID, author or a tag name. */
+export function matchesCqSearch(cq: CompetencyQuestionReducedT, query: string): boolean {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const text = [cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name, ...(cq.tags ?? []).map(t => t.name)]
+    .filter(Boolean).join(' ').toLowerCase();
+  return words.every(word => text.includes(word));
+}
+
+/** The distinct catalogues of a list of CQs as filter options, in identifier order with the uncatalogued catch-all last. */
+export function catalogueFilterOptions(cqs: CompetencyQuestionReducedT[]) {
+  const byId = new Map<string, TopicReducedT>();
+  for (const cq of cqs) {
+    if (cq.topic) byId.set(cq.topic.id, cq.topic);
+  }
+  const rank = (t: TopicReducedT) => t.identifier === UNCATALOGUED_IDENTIFIER ? Number.MAX_SAFE_INTEGER : t.identifier.length;
+  return [...byId.values()]
+    .sort((a, b) => rank(a) - rank(b) || a.identifier.localeCompare(b.identifier))
+    .map(t => ({ value: t.id, prefix: t.identifier, label: t.name }));
 }
 
 export function countActiveFilters(filters: CqFilters): number {

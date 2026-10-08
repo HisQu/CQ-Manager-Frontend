@@ -11,7 +11,7 @@ import CqFilterButton from "../components/CqFilterButton.vue";
 import CqSortControl from "../components/CqSortControl.vue";
 import FilterMultiSelect from "../components/FilterMultiSelect.vue";
 import {sortCqs} from "../utils/cqSort.ts";
-import {tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
+import {matchesCqSearch, tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
 import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
@@ -60,13 +60,6 @@ const unifiedView = computed({
   set: (val) => { useStore1.cqUnifiedView = val; }
 })
 
-function matchesSearch(query: string, ...fields: (string | null | undefined)[]): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  const text = fields.filter(Boolean).join(' ').toLowerCase();
-  return q.split(/\s+/).every(word => text.includes(word));
-}
-
 const displayedCqs = computed(() => {
   if (!cqs.value) return null;
   let items = cqs.value.data as CompetencyQuestionReducedT[];
@@ -77,10 +70,7 @@ const displayedCqs = computed(() => {
 
   items = items.filter(matchesFilters);
 
-  const q = searchQuery.value;
-  if (q.trim()) {
-    items = items.filter(cq => matchesSearch(q, cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name, ...(cq.tags ?? []).map(t => t.name)));
-  }
+  items = items.filter(cq => matchesCqSearch(cq, searchQuery.value));
   return sortCqs(items, sort.value);
 })
 
