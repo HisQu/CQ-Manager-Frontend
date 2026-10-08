@@ -511,5 +511,10 @@
   "questionDeletedNotice": "Diese Kompetenzfrage wurde am {date} gelöscht. Nur Systemadministratoren können sie noch sehen.",
   "deletedCompetencyQuestions": "Gelöschte Kompetenzfragen",
   "noDeletedCompetencyQuestions": "In diesem Projekt wurden keine Kompetenzfragen gelöscht.",
-  "deletedOn": "Gelöscht am {date}"
+  "deletedOn": "Gelöscht am {date}",
+  "expandComments": "Kommentare ausklappen",
+  "collapseComments": "Kommentare einklappen",
+  "commentSent": "Gesendet!",
+  "sendingComment": "Wird gesendet …",
+  "noEntries": "Keine Einträge"
 }

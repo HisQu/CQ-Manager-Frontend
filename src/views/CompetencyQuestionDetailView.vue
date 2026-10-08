@@ -4,11 +4,12 @@ import TopicDataService from "../services/TopicDataService.ts";
 import TagDataService from "../services/TagDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverButton, PopoverPanel} from "@headlessui/vue";
 import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
 import StarComponent from "../components/StarComponent.vue";
-import CommentComponent from "../components/CommentComponent.vue";
+import CqCommentsPane from "../components/CqCommentsPane.vue";
+import {cqCommentsPaneKey} from "../composables/cqCommentsPane";
 import CommentDataService from "../services/CommentDataService.ts";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import {useStore} from "../store.ts";
@@ -16,6 +17,8 @@ import {useI18n} from "vue-i18n";
 import TagSelector from "../components/TagSelector.vue";
 import QuestionHistory from "../components/QuestionHistory.vue";
 import {isUncatalogued, catalogueName} from "../utils/catalogues.ts";
+
+const {expanded: commentsPaneExpanded, docked: commentsPaneDocked} = inject(cqCommentsPaneKey, {expanded: ref(false), docked: ref(false)});
 
 const props = defineProps(['id'])
 const { locale } = useI18n();
@@ -170,6 +173,10 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
       </template>
     </DetailPageHeader>
 
+    <CqCommentsPane v-model:expanded="commentsPaneExpanded" :docked="commentsPaneDocked"
+                    :question-id="cq.data.id" :comments="cq.data.comments"
+                    :readonly="!!cq.data.deletedAt" @refresh="fetchCompetencyQuestion()"/>
+
     <hr class="my-6 border-gray-200 dark:border-gray-700"/>
 
     <!-- Catalogue assignment -->
@@ -308,12 +315,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('changeLog') }}</h2>
     <QuestionHistory ref="history" :question-id="cq.data.id" @error="showError"/>
 
-    <!-- Comments -->
-    <h2 class="mt-12 mb-3 text-lg font-semibold dark:text-white">
-      {{ $t('comments') }}
-      <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.comments.length }}</span>
-    </h2>
-    <CommentComponent :question-id="cq.data.id" :comments="cq.data.comments" :readonly="!!cq.data.deletedAt" @refresh="fetchCompetencyQuestion()"/>
+
   </div>
 
   <!-- Loading skeleton -->
