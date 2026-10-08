@@ -8,6 +8,7 @@ type StateT = {
     cqSearchQuery: string,
     cqFilters: import('../utils/cqFilters').CqFilters,
     cqFiltersOpen: boolean,
+    cqShowLastComment: boolean,
     cqSort: import('../utils/cqSort').CqSort,
     cqExportFormat: 'markdown' | 'csv',
     cqExportFields: string[],

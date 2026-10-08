@@ -9,6 +9,7 @@ import {Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverB
 import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
 import StarComponent from "../components/StarComponent.vue";
 import CommentComponent from "../components/CommentComponent.vue";
+import CommentDataService from "../services/CommentDataService.ts";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import {useStore} from "../store.ts";
 import TagSelector from "../components/TagSelector.vue";
@@ -37,6 +38,8 @@ async function fetchCompetencyQuestion() {
       messagePopupData.value.open = true;
     } else {
       cq.value = response;
+      // Opening the CQ shows all its comments, so they no longer count as unread in the lists.
+      void CommentDataService.markRead(props.id);
       comment.value = response.data.comment ?? null;
       canEdit.value = response.data.permissionsGroupMember || response.data.permissionsProjectManager;
       await fetchTopics(response.data.group.project.id);

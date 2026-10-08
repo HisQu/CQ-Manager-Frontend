@@ -32,6 +32,20 @@ class CommentDataService {
             }
         });
     }
+
+    /** Marks all current comments of a competency question as read by the logged-in user. */
+    async markRead(questionId: string): Promise<AxiosResponse<void> | UXResponse> {
+        return http.post<void>(`/comments/${questionId}/read`, null, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: "Oops! An error occurred...",
+                text: "... while marking the comments of a competency question as read. Debugging info can be found in the console.",
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
 }
 
 export default new CommentDataService();

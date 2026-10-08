@@ -64,6 +64,14 @@ type CompetencyQuestionReducedT = {
     createdAt?: string | null,
     updatedAt?: string | null,
     lastCommentAt?: string | null,
+    /** Comments by others the logged-in user has not seen yet. */
+    noUnreadComments?: number,
+    /** The latest comment, only while it is unread by the logged-in user. */
+    lastComment?: {
+        comment: string,
+        author: string | null,
+        createdAt: string,
+    } | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidation?: CQConsolidationEntryT | null,
 }

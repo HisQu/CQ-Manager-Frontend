@@ -12,7 +12,7 @@ import CqSortControl from "../components/CqSortControl.vue";
 import FilterMultiSelect from "../components/FilterMultiSelect.vue";
 import {sortCqs} from "../utils/cqSort.ts";
 import {tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
-import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon} from "@heroicons/vue/20/solid"
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
@@ -24,6 +24,7 @@ const useStore1 = useStore()
 const {
   getProject,
   cqSelectedTopicIds: selectedTopicIds,
+  cqShowLastComment: showLastComment,
   cqSearchQuery: searchQuery,
   cqFilters,
   cqFiltersOpen: filtersOpen,
@@ -304,6 +305,17 @@ async function fetchCompetencyQuestion() {
       </div>
 
       <CqSortControl v-model="sort" />
+      <button type="button"
+              :aria-pressed="showLastComment"
+              :title="showLastComment ? 'Hide the last comment of each CQ' : 'Show the last comment of each CQ'"
+              :class="['flex-shrink-0 inline-flex items-center gap-x-2 rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm ring-1 ring-inset',
+                       showLastComment
+                         ? 'bg-indigo-50 dark:bg-indigo-400/10 text-indigo-700 dark:text-indigo-300 ring-indigo-300 dark:ring-indigo-500/50 hover:bg-indigo-100 dark:hover:bg-indigo-400/20'
+                         : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700']"
+              @click="showLastComment = !showLastComment">
+        <ChatBubbleBottomCenterTextIcon :class="['-ml-0.5 h-5 w-5', showLastComment ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400']" aria-hidden="true" />
+        Last comment
+      </button>
       <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
     </div>
 
@@ -338,7 +350,8 @@ async function fetchCompetencyQuestion() {
           <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
             <CQListItem v-for="cq in group.cqs" :key="cq.id"
                         :cq="cq"
-                        :project-id="getProject.id" />
+                        :project-id="getProject.id"
+                        :show-last-comment="showLastComment" />
           </div>
         </div>
       </template>
@@ -348,7 +361,8 @@ async function fetchCompetencyQuestion() {
            class="mt-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
         <CQListItem v-for="cq in displayedCqs" :key="cq.id"
                     :cq="cq"
-                    :project-id="getProject.id" />
+                    :project-id="getProject.id"
+                    :show-last-comment="showLastComment" />
       </div>
     </div>
     <div v-else>

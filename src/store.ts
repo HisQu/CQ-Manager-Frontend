@@ -32,6 +32,7 @@ export const useStore = defineStore('cq-manager', {
         cqSelectedTopicIds: [],
         cqSearchQuery: '',
         cqFilters: normalizeCqFilters(null),
+        cqShowLastComment: true,
         cqFiltersOpen: false,
         cqSort: { ...DEFAULT_CQ_SORT },
         cqExportFormat: 'markdown',
