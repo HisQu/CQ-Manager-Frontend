@@ -9,9 +9,10 @@ import ExportCqModal from "../components/ExportCqModal.vue";
 import CqFilterPanel from "../components/CqFilterPanel.vue";
 import CqFilterButton from "../components/CqFilterButton.vue";
 import CqSortControl from "../components/CqSortControl.vue";
+import FilterMultiSelect from "../components/FilterMultiSelect.vue";
 import {sortCqs} from "../utils/cqSort.ts";
-import {tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
-import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon} from "@heroicons/vue/20/solid"
+import {matchesCqSearch, tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch} from "vue";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
@@ -22,7 +23,8 @@ import {isUncatalogued, UNCATALOGUED_IDENTIFIER} from "../utils/catalogues.ts";
 const useStore1 = useStore()
 const {
   getProject,
-  cqSelectedTopic: selectedTopic,
+  cqSelectedTopicIds: selectedTopicIds,
+  cqShowLastComment: showLastComment,
   cqSearchQuery: searchQuery,
   cqFilters,
   cqFiltersOpen: filtersOpen,
@@ -48,8 +50,6 @@ const exportModalOpen = ref(false);
 
 const {filters, activeFilterCount, authorOptions, matchesFilters} = useCqFilters(() => cqs.value?.data, cqFilters);
 
-const ALL_TOPICS = { id: '', identifier: '', name: 'All catalogues' };
-
 const selectedGroup = computed({
   get: () => useStore1.cqSelectedGroup,
   set: (val) => { useStore1.cqSelectedGroup = val; }
@@ -60,27 +60,17 @@ const unifiedView = computed({
   set: (val) => { useStore1.cqUnifiedView = val; }
 })
 
-function matchesSearch(query: string, ...fields: (string | null | undefined)[]): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  const text = fields.filter(Boolean).join(' ').toLowerCase();
-  return q.split(/\s+/).every(word => text.includes(word));
-}
-
 const displayedCqs = computed(() => {
   if (!cqs.value) return null;
   let items = cqs.value.data as CompetencyQuestionReducedT[];
 
-  if (selectedTopic.value.id) {
-    items = items.filter(cq => cq.topic?.id === selectedTopic.value.id);
+  if (selectedTopicIds.value.length) {
+    items = items.filter(cq => !!cq.topic && selectedTopicIds.value.includes(cq.topic.id));
   }
 
   items = items.filter(matchesFilters);
 
-  const q = searchQuery.value;
-  if (q.trim()) {
-    items = items.filter(cq => matchesSearch(q, cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name, ...(cq.tags ?? []).map(t => t.name)));
-  }
+  items = items.filter(cq => matchesCqSearch(cq, searchQuery.value));
   return sortCqs(items, sort.value);
 })
 
@@ -108,30 +98,17 @@ const groupedByTopic = computed(() => {
   return result;
 })
 
-const topicFilterOptions = computed(() => {
-  const opts: typeof ALL_TOPICS[] = [ALL_TOPICS];
-  for (const t of topics.value) {
-    opts.push({ id: t.id, identifier: t.identifier, name: t.name });
-  }
-  return opts;
-})
+const topicFilterOptions = computed(() =>
+  topics.value.map(t => ({ value: t.id, prefix: t.identifier, label: t.name })));
 
 async function fetchTopics() {
   if (!getProject.value.id) return;
   const response = await TopicDataService.getAllForProject(getProject.value.id);
   if (!('messageType' in response)) {
     topics.value = response.data;
-    // Drop a persisted catalogue filter that does not exist in this project (anymore).
-    const stored = selectedTopic.value;
-    if (stored.id) {
-      // Before the uncatalogued catch-all existed, uncatalogued CQs were filtered with a pseudo id.
-      const topic = stored.id === '__uncategorised__'
-        ? topics.value.find(isUncatalogued)
-        : topics.value.find(t => t.id === stored.id);
-      selectedTopic.value = topic
-        ? { id: topic.id, identifier: topic.identifier, name: topic.name }
-        : { ...ALL_TOPICS };
-    }
+    // Drop persisted catalogue filters that do not exist in this project (anymore).
+    const existing = selectedTopicIds.value.filter(id => topics.value.some(t => t.id === id));
+    if (existing.length !== selectedTopicIds.value.length) selectedTopicIds.value = existing;
   }
 }
 
@@ -140,10 +117,10 @@ async function fetchTags() {
   const response = await TagDataService.getAllForProject(getProject.value.id);
   if (!('messageType' in response)) {
     tags.value = response.data;
-    // Drop a persisted tag filter that does not exist in this project (anymore).
-    const stored = filters.value.tag;
-    if (stored !== 'any' && stored !== 'none' && !tags.value.some(t => t.id === stored)) {
-      filters.value = { ...filters.value, tag: 'any' };
+    // Drop persisted tag filters that do not exist in this project (anymore).
+    const existing = filters.value.tag.filter(id => id === 'none' || tags.value.some(t => t.id === id));
+    if (existing.length !== filters.value.tag.length) {
+      filters.value = { ...filters.value, tag: existing };
     }
   }
 }
@@ -294,34 +271,11 @@ async function fetchCompetencyQuestion() {
       </Listbox>
 
       <!-- Catalogue filter -->
-      <Listbox as="div" v-model="selectedTopic" by="id" class="flex-1 min-w-48">
-        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by catalogue</ListboxLabel>
-        <div class="relative mt-2">
-          <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
-            <span class="truncate">
-              <span v-if="selectedTopic.identifier" class="mr-1.5 font-semibold text-indigo-600 dark:text-indigo-400">{{ selectedTopic.identifier }}</span>{{ selectedTopic.name }}
-            </span>
-            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </span>
-          </ListboxButton>
-
-          <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none sm:text-sm">
-              <ListboxOption as="template" v-for="t in topicFilterOptions" :key="t.id" :value="t" v-slot="{ active, selected }">
-                <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                  <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate flex items-center gap-1.5']">
-                    <span v-if="t.identifier" class="font-bold">{{ t.identifier }}</span>{{ t.name }}
-                  </span>
-                  <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                  </span>
-                </li>
-              </ListboxOption>
-            </ListboxOptions>
-          </transition>
-        </div>
-      </Listbox>
+      <FilterMultiSelect class="flex-1 min-w-48"
+                         label="Filter by catalogue"
+                         placeholder="All catalogues"
+                         v-model="selectedTopicIds"
+                         :options="topicFilterOptions" />
 
     </div> <!-- end controls row -->
 
@@ -341,6 +295,17 @@ async function fetchCompetencyQuestion() {
       </div>
 
       <CqSortControl v-model="sort" />
+      <button type="button"
+              :aria-pressed="showLastComment"
+              :title="showLastComment ? 'Hide the last comment of each CQ' : 'Show the last comment of each CQ'"
+              :class="['flex-shrink-0 inline-flex items-center gap-x-2 rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm ring-1 ring-inset',
+                       showLastComment
+                         ? 'bg-indigo-50 dark:bg-indigo-400/10 text-indigo-700 dark:text-indigo-300 ring-indigo-300 dark:ring-indigo-500/50 hover:bg-indigo-100 dark:hover:bg-indigo-400/20'
+                         : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700']"
+              @click="showLastComment = !showLastComment">
+        <ChatBubbleBottomCenterTextIcon :class="['-ml-0.5 h-5 w-5', showLastComment ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400']" aria-hidden="true" />
+        Last comment
+      </button>
       <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
     </div>
 
@@ -348,7 +313,7 @@ async function fetchCompetencyQuestion() {
 
     <div v-if="cqs">
       <div v-if="displayedCqs && displayedCqs.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        {{ searchQuery.trim() || activeFilterCount || selectedTopic.id ? 'No questions match your search and filters.' : 'There are no CQs yet!' }}
+        {{ searchQuery.trim() || activeFilterCount || selectedTopicIds.length ? 'No questions match your search and filters.' : 'There are no CQs yet!' }}
       </div>
 
       <!-- Grouped by catalogue -->
@@ -375,7 +340,8 @@ async function fetchCompetencyQuestion() {
           <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
             <CQListItem v-for="cq in group.cqs" :key="cq.id"
                         :cq="cq"
-                        :project-id="getProject.id" />
+                        :project-id="getProject.id"
+                        :show-last-comment="showLastComment" />
           </div>
         </div>
       </template>
@@ -385,7 +351,8 @@ async function fetchCompetencyQuestion() {
            class="mt-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
         <CQListItem v-for="cq in displayedCqs" :key="cq.id"
                     :cq="cq"
-                    :project-id="getProject.id" />
+                    :project-id="getProject.id"
+                    :show-last-comment="showLastComment" />
       </div>
     </div>
     <div v-else>

@@ -99,7 +99,7 @@ async function deleteTag(tag: TagT) {
 }
 
 function showTaggedCqs(tag: TagT) {
-  useStore1.cqFilters = {...useStore1.cqFilters, tag: tag.id};
+  useStore1.cqFilters = {...useStore1.cqFilters, tag: [tag.id]};
   useStore1.cqFiltersOpen = true;
   router.push("/questions");
 }

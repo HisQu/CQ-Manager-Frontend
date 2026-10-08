@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DEFAULT_CQ_FILTERS, countActiveFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
+import {DEFAULT_CQ_FILTERS, countActiveFilters, normalizeCqFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
 import {toRef} from 'vue'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
@@ -23,16 +23,28 @@ describe('cqFilters', () => {
     expect(filterWith(cqs, {})).toEqual(['a', 'b'])
   })
 
-  it('counts only filters that are not "any"', () => {
-    expect(countActiveFilters({ ...DEFAULT_CQ_FILTERS, rating: '3', type: 'none' })).toBe(2)
+  it('counts only filters that are not "any" or empty', () => {
+    expect(countActiveFilters({ ...DEFAULT_CQ_FILTERS, rating: '3', type: ['none', 'SCQ'] })).toBe(2)
   })
 
   it.each([
-    ['me', ['mine']],
-    ['alice', ['hers']],
-  ])('filters by author %s', (author, expected) => {
-    const cqs = [makeCq({ id: 'mine', author: me }), makeCq({ id: 'hers', author: alice })]
+    [['me'], ['mine']],
+    [['alice'], ['hers']],
+    [['me', 'alice'], ['mine', 'hers']],
+  ])('filters by authors %j', (author, expected) => {
+    const cqs = [makeCq({ id: 'mine', author: me }), makeCq({ id: 'hers', author: alice }), makeCq({ id: 'zoe', author: makeUser({ id: 'zoe' }) })]
     expect(filterWith(cqs, { author })).toEqual(expected)
+  })
+
+  it('filters by several types, including "no type"', () => {
+    const cqs = [makeCq({ id: 'scq', type: 'SCQ' }), makeCq({ id: 'vcq', type: 'VCQ' }), makeCq({ id: 'untyped', type: null })]
+    expect(filterWith(cqs, { type: ['SCQ', 'none'] })).toEqual(['scq', 'untyped'])
+  })
+
+  it('converts single filter values persisted by older versions to lists', () => {
+    const legacy = { ...DEFAULT_CQ_FILTERS, author: 'me', type: 'any', tag: 't-1' } as unknown as CqFilters
+    expect(normalizeCqFilters(legacy)).toMatchObject({ author: ['me'], type: [], tag: ['t-1'] })
+    expect(normalizeCqFilters(null)).toEqual(DEFAULT_CQ_FILTERS)
   })
 
   it.each([
@@ -107,28 +119,29 @@ describe('cqFilters', () => {
       makeCq({ id: 'legacy' }),
     ]
 
-    it('keeps CQs carrying the selected tag', () => {
-      expect(filterWith(cqs, { tag: urgent.id })).toEqual(['both', 'urgent'])
-      expect(filterWith(cqs, { tag: archive.id })).toEqual(['both'])
+    it('keeps CQs carrying any of the selected tags', () => {
+      expect(filterWith(cqs, { tag: [urgent.id] })).toEqual(['both', 'urgent'])
+      expect(filterWith(cqs, { tag: [archive.id] })).toEqual(['both'])
+      expect(filterWith(cqs, { tag: [archive.id, 'none'] })).toEqual(['both', 'untagged', 'legacy'])
     })
 
     it('treats CQs without a tags field as untagged', () => {
-      expect(filterWith(cqs, { tag: 'none' })).toEqual(['untagged', 'legacy'])
+      expect(filterWith(cqs, { tag: ['none'] })).toEqual(['untagged', 'legacy'])
     })
 
     it('collects the distinct tags of a CQ list, sorted by name', () => {
       expect(tagsOf(cqs)).toEqual([archive, urgent])
     })
 
-    it('offers "any" and "none" before the tags', () => {
-      expect(tagFilterOptions([archive]).map(o => o.value)).toEqual(['any', 'none', archive.id])
+    it('offers "none" before the tags', () => {
+      expect(tagFilterOptions([archive]).map(o => o.value)).toEqual(['none', archive.id])
     })
   })
 
   it('lists "Me" plus the other authors, sorted by name', () => {
     const cqs = [makeCq({ author: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ author: alice }), makeCq({ author: me })]
     const labels = useCqFilters(() => cqs).authorOptions.value.map(o => o.label)
-    expect(labels).toEqual(['All authors', 'Me', 'Alice', 'Zoe'])
+    expect(labels).toEqual(['Me', 'Alice', 'Zoe'])
   })
 
   it('reads and writes the filter state through a provided ref', () => {
@@ -136,10 +149,10 @@ describe('cqFilters', () => {
     const cqs = [makeCq({ id: 'mine', author: me }), makeCq({ id: 'theirs', author: alice })]
     const f = useCqFilters(() => cqs, toRef(store, 'cqFilters'))
 
-    store.cqFilters.author = 'me'
+    store.cqFilters.author = ['me']
     expect(cqs.filter(f.matchesFilters).map(cq => cq.id)).toEqual(['mine'])
 
-    f.filters.value = { ...DEFAULT_CQ_FILTERS }
-    expect(store.cqFilters.author).toBe('any')
+    f.filters.value = normalizeCqFilters(null)
+    expect(store.cqFilters.author).toEqual([])
   })
 })
