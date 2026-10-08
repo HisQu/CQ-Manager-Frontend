@@ -18,6 +18,7 @@ import {
   ChevronRightIcon,
   ArrowRightStartOnRectangleIcon,
   TagIcon,
+  HashtagIcon,
 } from '@heroicons/vue/24/outline'
 import Logo from "./Logo.vue";
 import ProjectDataService from "../services/ProjectDataService.ts";
@@ -74,6 +75,7 @@ export default defineComponent({
         { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
         { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
 { name: 'Catalogues', href: '/catalogues', icon: TagIcon },
+        { name: 'Tags', href: '/tags', icon: HashtagIcon },
         { name: 'Glossary', href: '/terms', icon: QueueListIcon },
         { name: 'Group', href: '/groups', icon: UsersIcon },
       ],

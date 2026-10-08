@@ -9,7 +9,8 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(response => {
-    if (response.headers) {
+    // Empty bodies (e.g. 204 No Content) are strings and cannot carry the permission flags.
+    if (response.headers && response.data !== null && typeof response.data === 'object') {
         const isTrue = (v: string | undefined) => v?.toLowerCase() === 'true';
         try {
             response.data.permissionsGroupMember = isTrue(response.headers['permissions-group-member']);

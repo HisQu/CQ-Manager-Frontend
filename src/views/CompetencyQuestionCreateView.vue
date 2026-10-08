@@ -8,13 +8,14 @@ import SaveButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import {ArrowDownOnSquareIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import GroupDataService from "../services/GroupDataService.ts";
+import TagSelector from "../components/TagSelector.vue";
 import {useStore} from "../store.ts"
 import { CQ_TYPES, CQ_TYPE_LABELS, CQ_TYPE_HINTS } from '../constants/cqTypes.ts';
 
 export default defineComponent({
   name: "CompetencyQuestionCreateView",
   components: {
-    CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
+    TagSelector, CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
 
   data() {
     return {
@@ -36,6 +37,7 @@ export default defineComponent({
         anchor: "",
         exampleAnswer: "",
         type: null as CQType | null,
+        tags: [] as TagReducedT[],
       },
       cqTypes: CQ_TYPES,
       cqTypeLabels: CQ_TYPE_LABELS,
@@ -93,6 +95,7 @@ export default defineComponent({
           anchor: this.cq.anchor || null,
           exampleAnswer: this.cq.exampleAnswer || null,
           type: this.cq.type || null,
+          tagIds: this.cq.tags.map(t => t.id),
         },
       );
 
@@ -181,6 +184,13 @@ export default defineComponent({
           <input type="text" v-model="cq.reference" id="cq_reference" placeholder="e.g. S. 138." class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
         </div>
       </div>
+    </div>
+
+    <div class="my-5">
+      <TagSelector v-model="cq.tags"
+                   label="Tags (optional)"
+                   :project-id="store.getProject.id"
+                   @error="response => { messagePopupData.uxresponse = { ...messagePopupData.uxresponse, ...response }; messagePopupData.open = true; }" />
     </div>
 
     <div class="my-5">

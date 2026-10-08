@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import TopicDataService from "../services/TopicDataService.ts";
+import TagDataService from "../services/TagDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions, Popover, PopoverButton, PopoverPanel} from "@headlessui/vue";
 import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
 import StarComponent from "../components/StarComponent.vue";
 import CommentComponent from "../components/CommentComponent.vue";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
+import {useStore} from "../store.ts";
+import TagSelector from "../components/TagSelector.vue";
+import {isUncatalogued} from "../utils/catalogues.ts";
 
 const props = defineProps(['id'])
 
@@ -22,7 +26,6 @@ const canEdit = ref();
 const comment = ref<string | null>(null);
 
 const topics = ref<TopicT[]>([]);
-const NO_TOPIC = { id: '', identifier: '', name: 'None (remove from catalogue)' } as TopicReducedT & { id: string };
 const selectedTopic = ref<TopicReducedT | null>(null);
 
 fetchCompetencyQuestion();
@@ -52,17 +55,12 @@ async function fetchTopics(projectId: string) {
 async function saveCatalogueAssignment() {
   const projectId = cq.value.data.group.project.id;
   const questionId = cq.value.data.id;
-  const hasTopic = !!cq.value.data.topic;
+  if (!selectedTopic.value || selectedTopic.value.id === cq.value.data.topic?.id) return;
 
-  let response;
-  if (!selectedTopic.value || selectedTopic.value.id === '') {
-    if (!hasTopic) return;
-    response = await TopicDataService.removeQuestion(projectId, questionId);
-  } else if (hasTopic) {
-    response = await TopicDataService.changeQuestion(projectId, selectedTopic.value.id, questionId);
-  } else {
-    response = await TopicDataService.assignQuestion(projectId, selectedTopic.value.id, questionId);
-  }
+  // Moving a CQ into the uncatalogued catch-all is what removing it from its catalogue does.
+  const response = isUncatalogued(selectedTopic.value)
+    ? await TopicDataService.removeQuestion(projectId, questionId)
+    : await TopicDataService.changeQuestion(projectId, selectedTopic.value.id, questionId);
 
   if ('messageType' in response) {
     messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
@@ -71,6 +69,30 @@ async function saveCatalogueAssignment() {
     await fetchCompetencyQuestion();
   }
 }
+
+function showError(response: UXResponse) {
+  messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
+  messagePopupData.value.open = true;
+}
+
+// The backend lets every project participant tag CQs; the group-based `canEdit` covers most of them.
+const canEditTags = computed(() => canEdit.value || useStore().getUser.isSystemAdmin);
+
+// Tag changes are saved right away; the UI updates optimistically and is reverted if saving fails.
+const tags = computed<TagReducedT[]>({
+  get: () => cq.value?.data.tags ?? [],
+  set: async (newTags) => {
+    const previous = cq.value.data.tags;
+    cq.value.data.tags = newTags;
+    const response = await TagDataService.setQuestionTags(cq.value.data.group.project.id, cq.value.data.id, newTags.map(t => t.id));
+    if ('messageType' in response) {
+      cq.value.data.tags = previous;
+      showError(response);
+    } else {
+      cq.value.data.tags = response.data.tags ?? newTags;
+    }
+  },
+});
 
 function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
   comment.value = newComment;
@@ -81,10 +103,10 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
 </script>
 
 <template>
-  <div v-if="cq && !messagePopupData.open" class="w-full">
-    <MessagePopup :uxresponse="messagePopupData.uxresponse"
-                  :open="messagePopupData.open"
-                  @close="messagePopupData.open = false;"/>
+  <MessagePopup :uxresponse="messagePopupData.uxresponse"
+                :open="messagePopupData.open"
+                @close="messagePopupData.open = false;"/>
+  <div v-if="cq" class="w-full">
 
     <!-- Header -->
     <DetailPageHeader
@@ -145,13 +167,13 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
         <span class="inline-flex items-center justify-center rounded-md bg-indigo-100 dark:bg-indigo-400/20 px-2.5 py-0.5 text-sm font-bold text-indigo-700 dark:text-indigo-300 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
           {{ cq.data.topic.identifier }}
         </span>
-        <span class="text-sm text-gray-700 dark:text-gray-300">{{ cq.data.topic.name }}</span>
+        <span :class="['text-sm text-gray-700 dark:text-gray-300', isUncatalogued(cq.data.topic) ? 'italic' : '']">{{ cq.data.topic.name }}</span>
       </div>
       <p v-else class="text-sm text-gray-500 dark:text-gray-400 mb-3">Not assigned to a catalogue.</p>
 
       <!-- Reassignment controls (only when editable) -->
       <div v-if="canEdit" class="flex items-center gap-3 flex-wrap">
-        <Listbox v-model="selectedTopic" class="min-w-56 flex-1 max-w-sm">
+        <Listbox v-model="selectedTopic" by="id" class="min-w-56 flex-1 max-w-sm">
           <div class="relative">
             <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
               <span class="flex items-center gap-1.5 truncate">
@@ -164,18 +186,10 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
             </ListboxButton>
             <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
               <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none sm:text-sm">
-                <ListboxOption v-if="cq.data.topic" as="template" :value="NO_TOPIC" v-slot="{ active, selected }">
-                  <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400', 'relative cursor-default select-none py-2 pl-3 pr-9 italic']">
-                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">Remove from catalogue</span>
-                    <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                    </span>
-                  </li>
-                </ListboxOption>
                 <ListboxOption as="template" v-for="t in topics" :key="t.id" :value="t" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate flex items-center gap-1.5']">
-                      <span class="font-bold">{{ t.identifier }}</span>{{ t.name }}
+                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate flex items-center gap-1.5', isUncatalogued(t) ? 'italic' : '']">
+                      <span class="font-bold not-italic">{{ t.identifier }}</span>{{ t.name }}
                     </span>
                     <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
                       <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -189,18 +203,28 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
 
         <button
           type="button"
-          :disabled="selectedTopic?.id === (cq.data.topic?.id ?? '')"
+          :disabled="selectedTopic?.id === cq.data.topic?.id"
           :class="[
             'inline-flex items-center rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
-            selectedTopic?.id === (cq.data.topic?.id ?? '')
+            selectedTopic?.id === cq.data.topic?.id
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
               : 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
           ]"
           @click="saveCatalogueAssignment"
         >
-          {{ !cq.data.topic ? 'Assign' : (selectedTopic?.id === '' ? 'Remove' : 'Change') }}
+          {{ isUncatalogued(cq.data.topic) ? 'Assign' : (isUncatalogued(selectedTopic) ? 'Remove' : 'Change') }}
         </button>
       </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="mb-8">
+      <h2 class="text-base font-semibold dark:text-white mb-3">Tags</h2>
+      <TagSelector v-model="tags"
+                   class="max-w-xl"
+                   :project-id="cq.data.group.project.id"
+                   :disabled="!canEditTags"
+                   @error="showError" />
     </div>
 
     <!-- Question editor + term annotations -->

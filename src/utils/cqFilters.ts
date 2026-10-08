@@ -8,6 +8,7 @@ export const DEFAULT_CQ_FILTERS = {
   discussion: 'any',    // 'any' | 'with' | 'without'
   rating: 'any',        // 'any' | 'unrated' | 'rated' | '1'..'5' (at least n stars)
   type: 'any',          // 'any' | 'none' | CQType
+  tag: 'any',           // 'any' | 'none' | <tag id>
   sparql: 'any',        // 'any' | 'with' | 'without'
   exampleAnswer: 'any', // 'any' | 'with' | 'without'
   consolidation: 'any', // 'any' | 'consolidated' | 'not_consolidated'
@@ -63,6 +64,23 @@ export const CQ_FILTER_OPTIONS = {
     ...dateRanges,
   ],
 };
+
+/** The distinct tags carried by a list of CQs, sorted by name. */
+export function tagsOf(cqs: CompetencyQuestionReducedT[]): TagReducedT[] {
+  const byId = new Map<string, TagReducedT>();
+  for (const cq of cqs) {
+    for (const tag of cq.tags ?? []) byId.set(tag.id, tag);
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function tagFilterOptions(tags: TagReducedT[]) {
+  return [
+    { value: 'any', label: 'Any tag' },
+    { value: 'none', label: 'No tags' },
+    ...tags.map(t => ({ value: t.id, label: `#${t.name}` })),
+  ];
+}
 
 export function countActiveFilters(filters: CqFilters): number {
   return Object.values(filters).filter(v => v !== 'any').length;
@@ -132,6 +150,9 @@ export function useCqFilters(
 
     if (f.type === 'none' && cq.type) return false;
     if (f.type !== 'any' && f.type !== 'none' && cq.type !== f.type) return false;
+
+    if (f.tag === 'none' && cq.tags?.length) return false;
+    if (f.tag !== 'any' && f.tag !== 'none' && !cq.tags?.some(t => t.id === f.tag)) return false;
 
     if (!matchesWithWithout(f.sparql, !!cq.sparqlQuery?.trim())) return false;
     if (!matchesWithWithout(f.exampleAnswer, !!cq.exampleAnswer?.trim())) return false;

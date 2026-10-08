@@ -92,4 +92,27 @@ describe('QuestionSelectorTable', () => {
       expect(visibleQuestions(wrapper)).toEqual(['Commented?'])
     })
   })
+
+  describe('sorting', () => {
+    const cqs = [
+      makeCq({ id: 'c', question: 'Charlie?', cqCatalogueIdentifier: 'B.1' }),
+      makeCq({ id: 'a', question: 'Alpha?', cqCatalogueIdentifier: '#.1' }),
+      makeCq({ id: 'b', question: 'Bravo?', cqCatalogueIdentifier: 'A.1' }),
+    ]
+
+    it('sorts by catalogue ID by default', () => {
+      const { wrapper } = mountWithApp(QuestionSelectorTable, { props: { cqs } })
+      expect(visibleQuestions(wrapper)).toEqual(['Bravo?', 'Charlie?', 'Alpha?'])
+    })
+
+    it('sorts by a column when its header is clicked and reverses on a second click', async () => {
+      const { wrapper } = mountWithApp(QuestionSelectorTable, { props: { cqs } })
+
+      await wrapper.find('[data-test="sort-question"]').trigger('click')
+      expect(visibleQuestions(wrapper)).toEqual(['Alpha?', 'Bravo?', 'Charlie?'])
+
+      await wrapper.find('[data-test="sort-question"]').trigger('click')
+      expect(visibleQuestions(wrapper)).toEqual(['Charlie?', 'Bravo?', 'Alpha?'])
+    })
+  })
 })

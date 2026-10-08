@@ -3,6 +3,7 @@ import {computed} from "vue";
 import StarComponent from "./StarComponent.vue";
 import IdBadge from "./IdBadge.vue";
 import CQTypeBadge from "./CQTypeBadge.vue";
+import TagBadge from "./TagBadge.vue";
 
 const props = defineProps<{
   cq: CompetencyQuestionReducedT;
@@ -66,6 +67,7 @@ const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.le
               class="inline-flex items-center rounded-md bg-violet-50 dark:bg-violet-400/10 px-2 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-400 ring-1 ring-inset ring-violet-700/10 dark:ring-violet-400/30">
           {{ cq.group.name }}
         </span>
+        <TagBadge v-for="tag in cq.tags" :key="tag.id" :name="tag.name" />
         <span v-if="cq.noComments"
               class="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
           {{ cq.noComments }}

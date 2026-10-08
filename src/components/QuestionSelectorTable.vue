@@ -1,16 +1,22 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
-import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
+import {ArrowTopRightOnSquareIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon} from "@heroicons/vue/20/solid";
 import CqFilterPanel from "./CqFilterPanel.vue";
 import CqFilterButton from "./CqFilterButton.vue";
-import {useCqFilters} from "../utils/cqFilters.ts";
+import CqSortControl from "./CqSortControl.vue";
+import {tagFilterOptions, tagsOf, useCqFilters} from "../utils/cqFilters.ts";
+import {type CqSort, type CqSortField, DEFAULT_CQ_SORT, sortCqs, toggleCqSort} from "../utils/cqSort.ts";
 
 type GroupOption = { id: string; name: string };
 
 export default defineComponent({
   name: "QuestionSelectorTable",
-  components: {Listbox, ListboxButton, ListboxOption, ListboxOptions, CheckIcon, ChevronUpDownIcon, CqFilterPanel, CqFilterButton},
+  components: {
+    Listbox, ListboxButton, ListboxOption, ListboxOptions,
+    ArrowTopRightOnSquareIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon,
+    CqFilterPanel, CqFilterButton, CqSortControl,
+  },
   props: {
     cqs: {
       type: Object as PropType<CompetencyQuestionReducedT[]>,
@@ -45,9 +51,21 @@ export default defineComponent({
         : { id: '', name: 'All groups' }) as GroupOption,
       filterText: '',
       filtersOpen: false,
+      sort: { ...DEFAULT_CQ_SORT } as CqSort,
+      // Sortable columns; the sort control next to the filters offers the remaining fields.
+      columns: [
+        { field: 'catalogue', label: 'ID', class: 'px-3' },
+        { field: 'question', label: 'Question', class: 'pr-3' },
+        { field: 'group', label: 'Group', class: 'px-3' },
+        { field: 'author', label: 'Author', class: 'px-3' },
+        { field: 'consolidations', label: 'Consolidations', class: 'px-3' },
+      ] as { field: CqSortField; label: string; class: string }[],
     }
   },
   computed: {
+    tagOptions() {
+      return tagFilterOptions(tagsOf(this.cqs));
+    },
     filteredCqs(): CompetencyQuestionReducedT[] {
       let result = this.cqs.filter(this.matchesFilters);
       if (this.selectedFilterGroup.id) {
@@ -57,7 +75,7 @@ export default defineComponent({
         const needle = this.filterText.trim().toLowerCase();
         result = result.filter(cq => cq.question?.toLowerCase().includes(needle));
       }
-      return result;
+      return sortCqs(result, this.sort);
     },
     indeterminate(): boolean {
       const visibleSelected = this.filteredCqs.filter(cq => this.selectedIds.includes(cq.id)).length;
@@ -105,6 +123,13 @@ export default defineComponent({
         const visibleSet = new Set(visibleIds);
         this.selectedIds = this.selectedIds.filter(id => !visibleSet.has(id));
       }
+    },
+    sortBy(field: CqSortField) {
+      this.sort = toggleCqSort(this.sort, field);
+    },
+    ariaSort(field: CqSortField): 'ascending' | 'descending' | 'none' {
+      if (this.sort.field !== field) return 'none';
+      return this.sort.direction === 'asc' ? 'ascending' : 'descending';
     },
     clearSelection() {
       this.selectedIds = [];
@@ -177,10 +202,11 @@ export default defineComponent({
             </transition>
           </div>
         </Listbox>
+        <CqSortControl v-model="sort" size="sm" />
         <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
       </div>
 
-      <CqFilterPanel v-if="filtersOpen" class="mt-3" v-model="filters" :author-options="authorOptions" />
+      <CqFilterPanel v-if="filtersOpen" class="mt-3" v-model="filters" :author-options="authorOptions" :tag-options="tagOptions" />
     </div>
 
     <div class="overflow-x-auto">
@@ -194,16 +220,26 @@ export default defineComponent({
                      :indeterminate="indeterminate"
                      @change="toggleAll(($event.target as HTMLInputElement).checked)"/>
             </th>
-            <th scope="col" class="py-3 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Question</th>
-            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Group</th>
-            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Author</th>
-            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Consolidations</th>
-            <th scope="col" class="relative py-3 pl-3 pr-5"><span class="sr-only">View</span></th>
+            <th v-for="column in columns" :key="column.field" scope="col" :aria-sort="ariaSort(column.field)"
+                :class="[column.class, 'py-3 text-left']">
+              <button type="button"
+                      :data-test="`sort-${column.field}`"
+                      :class="['group inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide hover:text-gray-900 dark:hover:text-white',
+                               sort.field === column.field ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400']"
+                      @click="sortBy(column.field)">
+                {{ column.label }}
+                <span :class="['rounded', sort.field === column.field ? 'bg-gray-200 dark:bg-gray-700' : 'invisible group-hover:visible']">
+                  <ChevronUpIcon v-if="sort.field === column.field && sort.direction === 'asc'" class="h-4 w-4" aria-hidden="true" />
+                  <ChevronDownIcon v-else class="h-4 w-4" aria-hidden="true" />
+                </span>
+              </button>
+            </th>
+            <th scope="col" class="relative py-3 pl-3 pr-5"><span class="sr-only">Open</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
           <tr v-if="filteredCqs.length === 0">
-            <td :colspan="selectable ? 6 : 5" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
+            <td :colspan="selectable ? 7 : 6" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
               No questions available.
             </td>
           </tr>
@@ -221,6 +257,12 @@ export default defineComponent({
                      :value="cq.id"
                      v-model="selectedIds"/>
             </td>
+            <td class="px-3 py-3.5 text-sm whitespace-nowrap">
+              <span v-if="cq.cqCatalogueIdentifier"
+                    class="inline-flex items-center rounded-md bg-indigo-600 dark:bg-indigo-500 px-2 py-0.5 text-xs font-bold text-white tracking-wide">
+                {{ cq.cqCatalogueIdentifier }}
+              </span>
+            </td>
             <td data-test="question" class="py-3.5 pr-3 text-sm"
                 :class="selectable && selectedIds.includes(cq.id) ? 'font-medium text-indigo-700 dark:text-indigo-300' : 'text-gray-900 dark:text-gray-100'">
               {{ cq.question }}
@@ -236,8 +278,10 @@ export default defineComponent({
             </td>
             <td class="py-3.5 pl-3 pr-5 text-right text-sm">
               <RouterLink :to="`/questions/${cq.id}`"
-                          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
-                View
+                          :title="`Open ${cq.cqCatalogueIdentifier ?? 'this CQ'}`"
+                          class="inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-md bg-white dark:bg-gray-800 px-2.5 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700">
+                Open CQ
+                <ArrowTopRightOnSquareIcon class="h-4 w-4" aria-hidden="true" />
               </RouterLink>
             </td>
           </tr>

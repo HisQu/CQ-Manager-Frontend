@@ -4,6 +4,7 @@ import DetailPageHeader from "../components/DetailPageHeader.vue";
 import CQListItem from "../components/CQListItem.vue";
 import { ArrowDownOnSquareIcon } from "@heroicons/vue/24/solid";
 import TopicDataService from "../services/TopicDataService.ts";
+import { isUncatalogued } from "../utils/catalogues.ts";
 
 export default {
   name: 'TopicDetailView',
@@ -28,6 +29,12 @@ export default {
       topic: null as TopicT | null,
       name: '',
     };
+  },
+
+  computed: {
+    isUncatalogued(): boolean {
+      return isUncatalogued(this.topic);
+    },
   },
 
   methods: {
@@ -89,7 +96,11 @@ export default {
 
     <hr class="my-6 border-gray-200 dark:border-gray-700" />
 
-    <div class="mb-6 max-w-xl">
+    <p v-if="isUncatalogued" class="mb-10 max-w-xl text-sm text-gray-500 dark:text-gray-400">
+      Every CQ that does not belong to a catalogue yet is collected here. Assign a CQ to a catalogue on its page to move it out.
+    </p>
+
+    <div v-if="!isUncatalogued" class="mb-6 max-w-xl">
       <label for="topic_name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
         Name
       </label>
@@ -101,7 +112,7 @@ export default {
       />
     </div>
 
-    <div class="flex justify-end mb-10 max-w-xl">
+    <div v-if="!isUncatalogued" class="flex justify-end mb-10 max-w-xl">
       <button
         type="button"
         class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
