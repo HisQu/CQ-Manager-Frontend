@@ -16,7 +16,13 @@ import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
 
 const useStore1 = useStore()
-const {getProject} = storeToRefs(useStore1)
+const {
+  getProject,
+  cqSelectedTopic: selectedTopic,
+  cqSearchQuery: searchQuery,
+  cqFilters,
+  cqFiltersOpen: filtersOpen,
+} = storeToRefs(useStore1)
 
 const messagePopupData = ref({
   uxresponse: {
@@ -31,15 +37,12 @@ const messagePopupData = ref({
 const cqs = ref();
 const groups = ref();
 const topics = ref<TopicT[]>([]);
-const searchQuery = ref('');
 const exportModalOpen = ref(false);
-const filtersOpen = ref(false);
 
-const {filters, activeFilterCount, authorOptions, matchesFilters} = useCqFilters(() => cqs.value?.data);
+const {filters, activeFilterCount, authorOptions, matchesFilters} = useCqFilters(() => cqs.value?.data, cqFilters);
 
 const ALL_TOPICS = { id: '', identifier: '', name: 'All catalogues' };
 const UNCATEGORISED = { id: '__uncategorised__', identifier: '', name: 'Uncategorised' };
-const selectedTopic = ref(ALL_TOPICS);
 
 const selectedGroup = computed({
   get: () => useStore1.cqSelectedGroup,
@@ -118,6 +121,14 @@ async function fetchTopics() {
   const response = await TopicDataService.getAllForProject(getProject.value.id);
   if (!('messageType' in response)) {
     topics.value = response.data;
+    // Drop a persisted catalogue filter that does not exist in this project (anymore).
+    const stored = selectedTopic.value;
+    if (stored.id && stored.id !== UNCATEGORISED.id) {
+      const topic = topics.value.find(t => t.id === stored.id);
+      selectedTopic.value = topic
+        ? { id: topic.id, identifier: topic.identifier, name: topic.name }
+        : { ...ALL_TOPICS };
+    }
   }
 }
 
@@ -230,7 +241,7 @@ async function fetchCompetencyQuestion() {
       </SwitchGroup>
 
       <!-- Group filter -->
-      <Listbox as="div" v-model="selectedGroup" class="flex-1 min-w-48">
+      <Listbox as="div" v-model="selectedGroup" by="id" class="flex-1 min-w-48">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
         <div class="relative mt-2">
           <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
@@ -265,7 +276,7 @@ async function fetchCompetencyQuestion() {
       </Listbox>
 
       <!-- Catalogue filter -->
-      <Listbox as="div" v-model="selectedTopic" class="flex-1 min-w-48">
+      <Listbox as="div" v-model="selectedTopic" by="id" class="flex-1 min-w-48">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by catalogue</ListboxLabel>
         <div class="relative mt-2">
           <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">

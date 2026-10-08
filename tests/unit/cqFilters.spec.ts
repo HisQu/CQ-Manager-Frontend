@@ -1,5 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DEFAULT_CQ_FILTERS, countActiveFilters, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
+import {toRef} from 'vue'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
 
@@ -100,5 +101,17 @@ describe('cqFilters', () => {
     const cqs = [makeCq({ author: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ author: alice }), makeCq({ author: me })]
     const labels = useCqFilters(() => cqs).authorOptions.value.map(o => o.label)
     expect(labels).toEqual(['All authors', 'Me', 'Alice', 'Zoe'])
+  })
+
+  it('reads and writes the filter state through a provided ref', () => {
+    const store = useStore()
+    const cqs = [makeCq({ id: 'mine', author: me }), makeCq({ id: 'theirs', author: alice })]
+    const f = useCqFilters(() => cqs, toRef(store, 'cqFilters'))
+
+    store.cqFilters.author = 'me'
+    expect(cqs.filter(f.matchesFilters).map(cq => cq.id)).toEqual(['mine'])
+
+    f.filters.value = { ...DEFAULT_CQ_FILTERS }
+    expect(store.cqFilters.author).toBe('any')
   })
 })

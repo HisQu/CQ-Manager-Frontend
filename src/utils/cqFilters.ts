@@ -1,4 +1,4 @@
-import {computed, ref} from "vue";
+import {computed, ref, type Ref} from "vue";
 import {useStore} from "../store.ts";
 import {CQ_TYPES} from "../constants/cqTypes.ts";
 
@@ -88,10 +88,15 @@ function matchesDateRange(filter: string, timestamp: string | null | undefined, 
   return match[1] === 'within' ? age <= limit : age > limit;
 }
 
-/** Filter state plus the derived author options and predicate for a list of CQs. */
-export function useCqFilters(getCqs: () => CompetencyQuestionReducedT[] | undefined) {
+/**
+ * Filter state plus the derived author options and predicate for a list of CQs.
+ * Pass `filters` to back the state with an existing ref (e.g. persisted store state).
+ */
+export function useCqFilters(
+  getCqs: () => CompetencyQuestionReducedT[] | undefined,
+  filters: Ref<CqFilters> = ref<CqFilters>({ ...DEFAULT_CQ_FILTERS }),
+) {
   const store = useStore();
-  const filters = ref<CqFilters>({ ...DEFAULT_CQ_FILTERS });
   const activeFilterCount = computed(() => countActiveFilters(filters.value));
 
   const authorOptions = computed(() => {
