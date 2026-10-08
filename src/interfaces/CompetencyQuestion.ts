@@ -24,8 +24,10 @@ type CompetencyQuestionT = {
             id: string,
         },
         questionString: string,
+        sparqlQuery: string | null,
+        exampleAnswer: string | null,
         versionNumber: number
-    },
+    }[],
     group: GroupT,
     comment: string | null,
     reference: string | null,
@@ -35,6 +37,8 @@ type CompetencyQuestionT = {
     topic: TopicReducedT | null,
     tags: TagReducedT[],
     cqCatalogueIdentifier: string | null,
+    /** Set when the CQ was deleted; only system admins can still fetch it. */
+    deletedAt: string | null,
 }
 
 type CompetencyQuestionReducedT = {
@@ -74,6 +78,7 @@ type CompetencyQuestionReducedT = {
     } | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidation?: CQConsolidationEntryT | null,
+    deletedAt?: string | null,
 }
 
 type CompetencyQuestionReferenceT = {

@@ -496,5 +496,20 @@
   "noGroupSelected": "Keine Gruppe ausgewählt",
   "noFilter": "Kein Filter",
   "termNotReferenced": "Dieser Begriff wird derzeit in keiner Frage verwendet.",
-  "termDeletePermanent": "Dieser Begriff wird endgültig gelöscht."
+  "termDeletePermanent": "Dieser Begriff wird endgültig gelöscht.",
+  "changeLog": "Änderungsprotokoll",
+  "historyCreated": "hat die CQ erstellt",
+  "historyRevised": "hat die CQ überarbeitet",
+  "historyTagAdded": "hat das Tag „{tag}“ hinzugefügt",
+  "historyTagRemoved": "hat das Tag „{tag}“ entfernt",
+  "historyCatalogueAssigned": "hat die Katalogkennung {identifier} vergeben",
+  "historyDeleted": "hat die CQ gelöscht",
+  "historyImported": "Importiert",
+  "historyImportedHint": "Vor Einführung des Änderungsprotokolls erfasst; Person und genauer Zeitpunkt sind unbekannt.",
+  "errorRetrievingTheHistory": "Fehler beim Abrufen des Änderungsprotokolls der Kompetenzfrage.",
+  "errorRetrievingDeletedCompetencyQuestions": "Fehler beim Abrufen der gelöschten Kompetenzfragen.",
+  "questionDeletedNotice": "Diese Kompetenzfrage wurde am {date} gelöscht. Nur Systemadministratoren können sie noch sehen.",
+  "deletedCompetencyQuestions": "Gelöschte Kompetenzfragen",
+  "noDeletedCompetencyQuestions": "In diesem Projekt wurden keine Kompetenzfragen gelöscht.",
+  "deletedOn": "Gelöscht am {date}"
 }

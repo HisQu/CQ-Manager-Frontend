@@ -12,10 +12,13 @@ import CommentComponent from "../components/CommentComponent.vue";
 import CommentDataService from "../services/CommentDataService.ts";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import {useStore} from "../store.ts";
+import {useI18n} from "vue-i18n";
 import TagSelector from "../components/TagSelector.vue";
+import QuestionHistory from "../components/QuestionHistory.vue";
 import {isUncatalogued, catalogueName} from "../utils/catalogues.ts";
 
 const props = defineProps(['id'])
+const { locale } = useI18n();
 
 const messagePopupData = ref({
   uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
@@ -27,6 +30,7 @@ const canEdit = ref();
 const comment = ref<string | null>(null);
 
 const topics = ref<TopicT[]>([]);
+const history = ref<InstanceType<typeof QuestionHistory>>();
 const selectedTopic = ref<TopicReducedT | null>(null);
 
 fetchCompetencyQuestion();
@@ -38,10 +42,12 @@ async function fetchCompetencyQuestion() {
       messagePopupData.value.open = true;
     } else {
       cq.value = response;
+      void history.value?.refresh();
       // Opening the CQ shows all its comments, so they no longer count as unread in the lists.
-      void CommentDataService.markRead(props.id);
+      if (!response.data.deletedAt) void CommentDataService.markRead(props.id);
       comment.value = response.data.comment ?? null;
-      canEdit.value = response.data.permissionsGroupMember || response.data.permissionsProjectManager;
+      // Deleted CQs are read-only, system admins can only look at them.
+      canEdit.value = !response.data.deletedAt && (response.data.permissionsGroupMember || response.data.permissionsProjectManager);
       await fetchTopics(response.data.group.project.id);
       selectedTopic.value = response.data.topic ?? null;
     }
@@ -79,7 +85,7 @@ function showError(response: UXResponse) {
 }
 
 // The backend lets every project participant tag CQs; the group-based `canEdit` covers most of them.
-const canEditTags = computed(() => canEdit.value || useStore().getUser.isSystemAdmin);
+const canEditTags = computed(() => !cq.value?.data.deletedAt && (canEdit.value || useStore().getUser.isSystemAdmin));
 
 // Tag changes are saved right away; the UI updates optimistically and is reverted if saving fails.
 const tags = computed<TagReducedT[]>({
@@ -93,6 +99,7 @@ const tags = computed<TagReducedT[]>({
       showError(response);
     } else {
       cq.value.data.tags = response.data.tags ?? newTags;
+      void history.value?.refresh();
     }
   },
 });
@@ -110,6 +117,9 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div v-if="cq" class="w-full">
+    <div v-if="cq.data.deletedAt" class="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30">
+      {{ $t('questionDeletedNotice', { date: new Date(cq.data.deletedAt).toLocaleString(locale) }) }}
+    </div>
 
     <!-- Header -->
     <DetailPageHeader
@@ -129,7 +139,8 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
         </span>
       </template>
       <template #actions>
-        <StarComponent :rating="cq.data.aggregatedRating"
+        <StarComponent v-if="!cq.data.deletedAt"
+                       :rating="cq.data.aggregatedRating"
                        :question_id="cq.data.id"
                        :version="cq.data.versions?.versionNumber"
                        @afterRating="fetchCompetencyQuestion()"/>
@@ -281,20 +292,28 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     <template v-if="cq.data.versionNumber > 1">
       <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h2>
       <div class="space-y-2">
-        <p v-for="v in cq.data.versions" class="text-sm dark:text-gray-300">
+        <div v-for="v in cq.data.versions" class="text-sm dark:text-gray-300">
           <span class="font-medium">{{ v.editor.name }}</span>
           <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">v{{ v.versionNumber }}</span>
           <span class="ml-2 text-gray-600 dark:text-gray-400">{{ v.questionString }}</span>
-        </p>
+          <p v-if="v.exampleAnswer" class="ml-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <span class="font-medium">{{ $t('exampleAnswer') }}:</span> {{ v.exampleAnswer }}
+          </p>
+          <pre v-if="v.sparqlQuery" class="ml-2 mt-1 overflow-x-auto rounded bg-gray-50 p-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{ v.sparqlQuery }}</pre>
+        </div>
       </div>
     </template>
+
+    <!-- Provenance log -->
+    <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('changeLog') }}</h2>
+    <QuestionHistory ref="history" :question-id="cq.data.id" @error="showError"/>
 
     <!-- Comments -->
     <h2 class="mt-12 mb-3 text-lg font-semibold dark:text-white">
       {{ $t('comments') }}
       <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.comments.length }}</span>
     </h2>
-    <CommentComponent :question-id="cq.data.id" :comments="cq.data.comments" @refresh="fetchCompetencyQuestion()"/>
+    <CommentComponent :question-id="cq.data.id" :comments="cq.data.comments" :readonly="!!cq.data.deletedAt" @refresh="fetchCompetencyQuestion()"/>
   </div>
 
   <!-- Loading skeleton -->

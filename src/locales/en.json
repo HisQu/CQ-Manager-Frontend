@@ -496,5 +496,20 @@
   "noGroupSelected": "No Group selected",
   "noFilter": "No filter",
   "termNotReferenced": "This term is not currently referenced in any questions.",
-  "termDeletePermanent": "This will permanently delete the term."
+  "termDeletePermanent": "This will permanently delete the term.",
+  "changeLog": "Change log",
+  "historyCreated": "created the CQ",
+  "historyRevised": "revised the CQ",
+  "historyTagAdded": "added the tag “{tag}”",
+  "historyTagRemoved": "removed the tag “{tag}”",
+  "historyCatalogueAssigned": "assigned the catalogue identifier {identifier}",
+  "historyDeleted": "deleted the CQ",
+  "historyImported": "Imported",
+  "historyImportedHint": "Recorded before the change log existed; the user and exact time are unknown.",
+  "errorRetrievingTheHistory": "Error retrieving the change log of the competency question.",
+  "errorRetrievingDeletedCompetencyQuestions": "Error retrieving the deleted competency questions.",
+  "questionDeletedNotice": "This competency question was deleted on {date}. Only system administrators can still see it.",
+  "deletedCompetencyQuestions": "Deleted competency questions",
+  "noDeletedCompetencyQuestions": "No competency questions of this project have been deleted.",
+  "deletedOn": "Deleted on {date}"
 }

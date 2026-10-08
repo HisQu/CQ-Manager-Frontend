@@ -106,6 +106,32 @@ class CompetencyQuestionDataService {
         });
     }
 
+    async getHistory(question_uuid: string): Promise<AxiosResponse<QuestionEventT[]> | UXResponse> {
+        return http.get<QuestionEventT[]>(`/questions/${question_uuid}/history`, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheHistory'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
+    async getDeletedForProject(project_uuid: string): Promise<AxiosResponse<CompetencyQuestionReducedT[]> | UXResponse> {
+        return http.get<CompetencyQuestionReducedT[]>(`/questions/by_project/${project_uuid}/deleted`, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorRetrievingDeletedCompetencyQuestions'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
     async delete(question_uuid: string): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
         return http.delete<DeleteResponse>(`/questions/${question_uuid}`, { headers: authHeader() }).then(response => {
             return response
