@@ -34,10 +34,10 @@ const lastCommentDate = computed(() => {
 
 <template>
   <RouterLink :to="linkTo" class="block">
-    <div class="text-left transition-colors rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-600/50"
+    <div class="text-left transition-colors rounded-lg px-3 py-2 ring-1 ring-inset hover:bg-gray-50 dark:hover:bg-gray-600/50"
          :class="[
            cardStyle ? 'bg-gray-100 dark:bg-gray-700 dark:text-gray-200 shadow-sm' : '',
-           isConsolidationResult ? 'ring-1 ring-inset ring-blue-400/30' : (cq.consolidations?.length ? 'ring-1 ring-inset ring-blue-400/30' : ''),
+           isConsolidationResult || cq.consolidations?.length ? 'ring-blue-400/30' : 'ring-gray-200 dark:ring-gray-700',
          ]">
 
       <div class="flex items-center gap-4">

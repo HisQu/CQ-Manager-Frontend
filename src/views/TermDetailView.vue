@@ -168,7 +168,9 @@ fetchPermissions();
       <h3 class="text-lg font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-300 mb-2">
         {{ group.groupName }}
       </h3>
-      <CQListItem v-for="cq in group.questions" :key="cq.id" :cq="cq" />
+      <div class="space-y-2">
+        <CQListItem v-for="cq in group.questions" :key="cq.id" :cq="cq" />
+      </div>
     </div>
 
     <!-- Edit section — ontology engineers only -->

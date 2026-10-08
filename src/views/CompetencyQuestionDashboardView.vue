@@ -339,7 +339,7 @@ async function fetchCompetencyQuestion() {
           </div>
 
           <!-- CQ cards in this catalogue -->
-          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
+          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-3 space-y-2">
             <CQListItem v-for="cq in group.cqs" :key="cq.id"
                         :cq="cq"
                         :project-id="getProject.id"
@@ -350,7 +350,7 @@ async function fetchCompetencyQuestion() {
 
       <!-- Flat list in the chosen order -->
       <div v-else-if="displayedCqs && displayedCqs.length > 0"
-           class="mt-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1">
+           class="mt-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-3 space-y-2">
         <CQListItem v-for="cq in displayedCqs" :key="cq.id"
                     :cq="cq"
                     :project-id="getProject.id"
