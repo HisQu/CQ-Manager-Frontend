@@ -4,7 +4,7 @@ type StateT = {
     sidebarCollapsed: boolean,
     cqSelectedGroup: { id: string, name: string },
     cqUnifiedView: boolean,
-    cqSelectedTopic: { id: string, identifier: string, name: string },
+    cqSelectedTopicIds: string[],
     cqSearchQuery: string,
     cqFilters: import('../utils/cqFilters').CqFilters,
     cqFiltersOpen: boolean,

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import LoginDataService from "./services/LoginDataService.ts";
-import {DEFAULT_CQ_FILTERS} from "./utils/cqFilters.ts";
+import {normalizeCqFilters} from "./utils/cqFilters.ts";
 import {DEFAULT_CQ_SORT} from "./utils/cqSort.ts";
 
 export const useStore = defineStore('cq-manager', {
@@ -29,9 +29,9 @@ export const useStore = defineStore('cq-manager', {
         sidebarCollapsed: false,
         cqSelectedGroup: { id: '', name: 'No filter' },
         cqUnifiedView: true,
-        cqSelectedTopic: { id: '', identifier: '', name: 'All catalogues' },
+        cqSelectedTopicIds: [],
         cqSearchQuery: '',
-        cqFilters: { ...DEFAULT_CQ_FILTERS },
+        cqFilters: normalizeCqFilters(null),
         cqFiltersOpen: false,
         cqSort: { ...DEFAULT_CQ_SORT },
         cqExportFormat: 'markdown',
