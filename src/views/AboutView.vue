@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MessagePopup from "../components/MessagePopup.vue";
 import {ref} from "vue";
+import {version} from "../../package.json";
 
 
 const messagePopupData = ref({
@@ -27,9 +28,7 @@ const messagePopupData = ref({
     <section class="max-w-2xl my-12 leading-relaxed">
       <h2 class="text-3xl font-extrabold mb-4">{{ $t('versionHistory') }}</h2>
       <p>
-        {{ $t('theCurrentVersionIs') }} <span class="font-medium text-blue-600">v0.1.0</span>{{ $t('releasedOn') }}
-        <time datetime="2025-03-02">3.2.2025</time>
-        {{ $t('thisVersionFixesIssuesWhereTermsCannotBeAddedAndUsersCannotBeAddedToGroupsPostHoc') }}
+        {{ $t('theCurrentVersionIs') }} <span class="font-medium text-blue-600">v{{ version }}</span>.
       </p>
     </section>
 
