@@ -127,7 +127,7 @@ export default {
 
     <div v-if="topic.questions && topic.questions.length > 0">
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{{ $t('linkedCompetencyQuestions') }}</h2>
-      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-2 space-y-1 max-w-xl">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 px-3 py-3 space-y-2 max-w-xl">
         <CQListItem v-for="q in topic.questions" :key="q.id" :cq="q" :project-id="projectid" />
       </div>
     </div>
