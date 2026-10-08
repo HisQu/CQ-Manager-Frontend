@@ -45,6 +45,10 @@ export default defineComponent({
     comments: {
       type: Object as PropType<CommentT[]>,
       required: true
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -82,7 +86,7 @@ export default defineComponent({
     <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noCommentsYet') }}</p>
 
     <!-- New comment form -->
-    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <div v-if="!readonly" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
       <label for="new-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('addAComment') }}</label>
       <textarea
         rows="3"
