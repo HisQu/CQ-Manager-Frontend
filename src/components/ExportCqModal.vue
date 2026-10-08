@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import {computed} from "vue";
 import {Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot} from "@headlessui/vue";
 import {ArrowDownTrayIcon} from "@heroicons/vue/20/solid";
@@ -18,19 +20,19 @@ const emit = defineEmits<{
 type FieldKey = "question" | "type" | "tags" | "rating" | "group" | "topic" | "cqCatalogueIdentifier" | "author" | "comment" | "reference" | "anchor" | "exampleAnswer" | "id";
 
 const fieldDescriptors: { key: FieldKey; label: string; accessor: (cq: CompetencyQuestionReducedT) => string }[] = [
-  {key: "question", label: "Question", accessor: cq => cq.question ?? ""},
-  {key: "type", label: "Type", accessor: cq => cq.type ?? ""},
-  {key: "tags", label: "Tags", accessor: cq => (cq.tags ?? []).map(t => t.name).join(", ")},
-  {key: "rating", label: "Rating", accessor: cq => cq.rating != null ? String(cq.rating) : ""},
-  {key: "group", label: "Group", accessor: cq => cq.group?.name ?? ""},
-  {key: "topic", label: "Catalogue", accessor: cq => [cq.topic?.identifier, cq.topic?.name].filter(Boolean).join(" ")},
-  {key: "cqCatalogueIdentifier", label: "Catalogue identifier", accessor: cq => cq.cqCatalogueIdentifier ?? ""},
-  {key: "author", label: "Author", accessor: cq => cq.author?.name ?? cq.creator ?? ""},
-  {key: "comment", label: "Comment", accessor: cq => cq.comment ?? ""},
-  {key: "reference", label: "Reference", accessor: cq => cq.reference ?? ""},
-  {key: "anchor", label: "Anchor", accessor: cq => cq.anchor ?? ""},
-  {key: "exampleAnswer", label: "Example answer", accessor: cq => cq.exampleAnswer ?? ""},
-  {key: "id", label: "ID", accessor: cq => cq.id ?? ""},
+  {key: "question", get label() { return t('question') }, accessor: cq => cq.question ?? ""},
+  {key: "type", get label() { return t('type') }, accessor: cq => cq.type ?? ""},
+  {key: "tags", get label() { return t('tags') }, accessor: cq => (cq.tags ?? []).map(t => t.name).join(", ")},
+  {key: "rating", get label() { return t('rating') }, accessor: cq => cq.rating != null ? String(cq.rating) : ""},
+  {key: "group", get label() { return t('group') }, accessor: cq => cq.group?.name ?? ""},
+  {key: "topic", get label() { return t('catalogue') }, accessor: cq => [cq.topic?.identifier, cq.topic?.name].filter(Boolean).join(" ")},
+  {key: "cqCatalogueIdentifier", get label() { return t('catalogueIdentifier') }, accessor: cq => cq.cqCatalogueIdentifier ?? ""},
+  {key: "author", get label() { return t('author') }, accessor: cq => cq.author?.name ?? cq.creator ?? ""},
+  {key: "comment", get label() { return t('comment') }, accessor: cq => cq.comment ?? ""},
+  {key: "reference", get label() { return t('reference') }, accessor: cq => cq.reference ?? ""},
+  {key: "anchor", get label() { return t('anchor') }, accessor: cq => cq.anchor ?? ""},
+  {key: "exampleAnswer", get label() { return t('exampleAnswer2') }, accessor: cq => cq.exampleAnswer ?? ""},
+  {key: "id", get label() { return t('iD') }, accessor: cq => cq.id ?? ""},
 ];
 
 const validFieldKeys = new Set(fieldDescriptors.map(d => d.key));
@@ -57,7 +59,7 @@ function buildMarkdown(): string {
   const lines: string[] = [];
   for (const cq of props.cqs) {
     const questionDescriptor = descriptors.find(d => d.key === "question");
-    lines.push(`### ${(questionDescriptor ? questionDescriptor.accessor(cq) : cq.question) || "(untitled)"}`);
+    lines.push(`### ${(questionDescriptor ? questionDescriptor.accessor(cq) : cq.question) || t('untitled')}`);
     for (const d of descriptors) {
       if (d.key === "question") continue;
       const value = d.accessor(cq).trim();
@@ -121,11 +123,11 @@ function download() {
             <DialogPanel
                 class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
               <DialogTitle as="h3" class="text-base font-semibold leading-6 text-gray-900 dark:text-gray-100">
-                Export {{ cqs.length }} competency question{{ cqs.length !== 1 ? "s" : "" }}
+                {{ $t('exportQuestionCount', cqs.length) }}
               </DialogTitle>
 
               <div class="mt-4">
-                <span class="block text-sm font-medium text-gray-900 dark:text-gray-200">Format</span>
+                <span class="block text-sm font-medium text-gray-900 dark:text-gray-200">{{ $t('format') }}</span>
                 <div class="mt-2 flex gap-4">
                   <label class="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-200">
                     <input type="radio" value="markdown" v-model="format"
@@ -141,7 +143,7 @@ function download() {
               </div>
 
               <div class="mt-4">
-                <span class="block text-sm font-medium text-gray-900 dark:text-gray-200">Fields</span>
+                <span class="block text-sm font-medium text-gray-900 dark:text-gray-200">{{ $t('fields') }}</span>
                 <div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
                   <label v-for="d in fieldDescriptors" :key="d.key"
                          class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -156,13 +158,13 @@ function download() {
                 <button type="button"
                         class="inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
                         @click="emit('close')">
-                  Cancel
+                  {{ $t('cancel') }}
                 </button>
                 <button type="button"
                         :disabled="selectedFields.length === 0"
                         class="inline-flex w-full items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         @click="download">
-                  Download
+                  {{ $t('download') }}
                   <ArrowDownTrayIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
                 </button>
               </div>

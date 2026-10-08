@@ -20,7 +20,7 @@ const classes = computed(() => tagColorClasses(props.name));
     <button v-if="removable" type="button"
             class="group relative -mr-1 ml-0.5 h-3.5 w-3.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
             @click.stop.prevent="emit('remove')">
-      <span class="sr-only">Remove tag {{ name }}</span>
+      <span class="sr-only">{{ $t('removeTag') }} {{ name }}</span>
       <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-current opacity-60 group-hover:opacity-100">
         <path d="M4 4l6 6m0-6l-6 6" />
       </svg>

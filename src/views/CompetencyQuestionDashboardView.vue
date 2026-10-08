@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import CQListItem from "../components/CQListItem.vue";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import TopicDataService from "../services/TopicDataService.ts";
@@ -18,7 +20,7 @@ import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
-import {isUncatalogued, UNCATALOGUED_IDENTIFIER} from "../utils/catalogues.ts";
+import {isUncatalogued, UNCATALOGUED_IDENTIFIER, catalogueName} from "../utils/catalogues.ts";
 
 const useStore1 = useStore()
 const {
@@ -92,14 +94,14 @@ const groupedByTopic = computed(() => {
   for (const [topicId, bucket] of byTopicId) {
     const topic = topics.value.find(t => t.id === topicId)
       ?? bucket[0].topic
-      ?? { identifier: UNCATALOGUED_IDENTIFIER, name: 'Uncatalogued' };
-    result.push({ topicId, identifier: topic.identifier, name: topic.name, cqs: bucket });
+      ?? { identifier: UNCATALOGUED_IDENTIFIER, get name() { return t('uncatalogued') } };
+    result.push({ topicId, identifier: topic.identifier, name: catalogueName(topic), cqs: bucket });
   }
   return result;
 })
 
 const topicFilterOptions = computed(() =>
-  topics.value.map(t => ({ value: t.id, prefix: t.identifier, label: t.name })));
+  topics.value.map(topic => ({ value: topic.id, prefix: topic.identifier, get label() { return catalogueName(topic) } })));
 
 async function fetchTopics() {
   if (!getProject.value.id) return;
@@ -196,22 +198,22 @@ async function fetchCompetencyQuestion() {
                 @close="messagePopupData.open = false;"/>
   <ExportCqModal v-if="displayedCqs" :open="exportModalOpen" :cqs="displayedCqs" @close="exportModalOpen = false" />
   <div class="w-full">
-    <DetailPageHeader title="Competency Questions" :project="getProject.name">
+    <DetailPageHeader :title="$t('competencyQuestions')" :project="getProject.name">
       <template #actions>
         <div class="flex items-center gap-2">
           <button type="button"
                   :disabled="!displayedCqs || displayedCqs.length === 0"
                   class="inline-flex items-center gap-x-2 rounded-md bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   @click="exportModalOpen = true">
-            Export
+            {{ $t('export') }}
             <ArrowDownTrayIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
           </button>
           <RouterLink to="/consolidations/add" class="inline-flex items-center gap-x-2 rounded-md bg-white dark:bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Consolidate
+            {{ $t('consolidate') }}
             <ArrowDownOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
           </RouterLink>
           <RouterLink to="/questions/add/" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Add
+            {{ $t('add') }}
             <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
           </RouterLink>
         </div>
@@ -230,17 +232,17 @@ async function fetchCompetencyQuestion() {
                          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
         </Switch>
         <SwitchLabel as="span" class="text-sm">
-          <span class="font-medium text-gray-900 dark:text-gray-200">Unified view</span>
-          <span class="ml-1 text-gray-500 dark:text-gray-400">(collapse consolidated sets)</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200">{{ $t('unifiedView') }}</span>
+          <span class="ml-1 text-gray-500 dark:text-gray-400">{{ $t('collapseConsolidatedSets') }}</span>
         </SwitchLabel>
       </SwitchGroup>
 
       <!-- Group filter -->
       <Listbox as="div" v-model="selectedGroup" by="id" class="flex-1 min-w-48">
-        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Filter by group</ListboxLabel>
+        <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">{{ $t('filterByGroup') }}</ListboxLabel>
         <div class="relative mt-2">
           <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
-            <span class="truncate">{{ selectedGroup.name }}</span>
+            <span class="truncate">{{ selectedGroup.id ? selectedGroup.name : $t('noFilter') }}</span>
             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
             </span>
@@ -251,7 +253,7 @@ async function fetchCompetencyQuestion() {
               <ListboxOption as="template" v-for="g in groups.data" :key="g.id" :value="g" v-slot="{ active, selected }">
                 <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                   <div class="flex items-center justify-between">
-                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">{{ g.name }}</span>
+                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">{{ g.id ? g.name : $t('noFilter') }}</span>
                     <span v-if="g.noQuestions != null"
                           :class="[active
                             ? 'bg-white/20 text-white ring-white/30'
@@ -272,8 +274,8 @@ async function fetchCompetencyQuestion() {
 
       <!-- Catalogue filter -->
       <FilterMultiSelect class="flex-1 min-w-48"
-                         label="Filter by catalogue"
-                         placeholder="All catalogues"
+                         :label="$t('filterByCatalogue')"
+                         :placeholder="$t('allCatalogues')"
                          v-model="selectedTopicIds"
                          :options="topicFilterOptions" />
 
@@ -282,14 +284,14 @@ async function fetchCompetencyQuestion() {
     <!-- Search, sort and filters -->
     <div class="mt-4 flex items-end gap-4 flex-wrap" v-if="selectedGroup">
       <div class="flex-1 min-w-52">
-        <label class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">Search</label>
+        <label class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">{{ $t('search') }}</label>
         <div class="relative mt-2">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
           </div>
           <input v-model="searchQuery"
                  type="text"
-                 placeholder="Search questions..."
+                 :placeholder="$t('searchQuestions2')"
                  class="block w-full rounded-md border-0 py-1.5 pl-9 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
         </div>
       </div>
@@ -297,14 +299,14 @@ async function fetchCompetencyQuestion() {
       <CqSortControl v-model="sort" />
       <button type="button"
               :aria-pressed="showLastComment"
-              :title="showLastComment ? 'Hide the last comment of each CQ' : 'Show the last comment of each CQ'"
+              :title="showLastComment ? $t('hideTheLastCommentOfEachCQ') : $t('showTheLastCommentOfEachCQ')"
               :class="['flex-shrink-0 inline-flex items-center gap-x-2 rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm ring-1 ring-inset',
                        showLastComment
                          ? 'bg-indigo-50 dark:bg-indigo-400/10 text-indigo-700 dark:text-indigo-300 ring-indigo-300 dark:ring-indigo-500/50 hover:bg-indigo-100 dark:hover:bg-indigo-400/20'
                          : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700']"
               @click="showLastComment = !showLastComment">
         <ChatBubbleBottomCenterTextIcon :class="['-ml-0.5 h-5 w-5', showLastComment ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400']" aria-hidden="true" />
-        Last comment
+        {{ $t('lastComment') }}
       </button>
       <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
     </div>
@@ -313,7 +315,7 @@ async function fetchCompetencyQuestion() {
 
     <div v-if="cqs">
       <div v-if="displayedCqs && displayedCqs.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        {{ searchQuery.trim() || activeFilterCount || selectedTopicIds.length ? 'No questions match your search and filters.' : 'There are no CQs yet!' }}
+        {{ searchQuery.trim() || activeFilterCount || selectedTopicIds.length ? $t('noQuestionsMatchYourSearchAndFilters') : $t('thereAreNoCQsYet') }}
       </div>
 
       <!-- Grouped by catalogue -->

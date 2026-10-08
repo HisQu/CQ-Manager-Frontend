@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import {AxiosResponse} from "axios";
 
@@ -27,15 +28,15 @@ class LoginDataService {
             console.log(reason);
             if (reason.status === 401) {
                 return {
-                    title: "Oops! These credentials seem to be invalid...",
-                    text: "You may contact your system administrator for a password reset.",
+                    title: t('invalidCredentials'),
+                    text: t('contactAdminPasswordReset'),
                     detail: reason,
                     messageType: "warning"
                 }
             } else {
                 return {
-                    title: "Oops! An error occurred...",
-                    text: "... while logging in. Debugging info can be found in the console.",
+                    title: t('errorOccurred'),
+                    text: t('errorLoggingIn'),
                     detail: reason,
                     messageType: "error"
                 }

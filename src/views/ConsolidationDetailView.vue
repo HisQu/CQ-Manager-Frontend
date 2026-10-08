@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
@@ -56,7 +58,7 @@ const includedCqs = computed(() => {
 
 const sourceGroups = computed(() => {
   const seen = new Set<string>();
-  const result: { id: string; name: string }[] = [{ id: '', name: 'All groups' }];
+  const result: { id: string; name: string }[] = [{ id: '', get name() { return t('allGroups') } }];
   for (const q of cqs.value) {
     const id = q.group?.id ?? q.groupId;
     const name = q.group?.name;
@@ -195,23 +197,23 @@ async function setResultQuestion() {
                 @close="messagePopupData.open = false;"/>
 
   <div v-if="consolidation" class="w-full">
-    <DetailPageHeader title="Consolidation" :project="consolidation.project?.name ?? store.getProject.name">
+    <DetailPageHeader :title="$t('consolidation')" :project="consolidation.project?.name ?? store.getProject.name">
       <template #meta>
         <span v-if="consolidation.engineer">
-          By <span class="font-medium text-gray-700 dark:text-gray-200">{{ consolidation.engineer.name }}</span>
+          {{ $t('by') }} <span class="font-medium text-gray-700 dark:text-gray-200">{{ consolidation.engineer.name }}</span>
         </span>
         <span v-if="(consolidation.sourceQuestions?.length ?? 0) > 0"
               class="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ consolidation.sourceQuestions!.length }} source question{{ consolidation.sourceQuestions!.length !== 1 ? 's' : '' }}
+          {{ $t('sourceQuestionCount', consolidation.sourceQuestions!.length) }}
         </span>
       </template>
       <template v-if="canEdit" #actions>
-        <SubmitButtonWithCallback agree-button-text="Delete"
-                                  title="Are you sure you want to delete this consolidation?"
-                                  detail="This action is permanent. The source questions are not deleted."
+        <SubmitButtonWithCallback :agree-button-text="$t('delete')"
+                                  :title="$t('areYouSureYouWantToDeleteThisConsolidation')"
+                                  :detail="$t('thisActionIsPermanentTheSourceQuestionsAreNotDeleted')"
                                   @modalsuccessclose="deleteConsolidation">
           <TrashIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-          Delete
+          {{ $t('delete') }}
         </SubmitButtonWithCallback>
       </template>
     </DetailPageHeader>
@@ -219,11 +221,11 @@ async function setResultQuestion() {
     <!-- Target Question -->
     <div class="mt-8">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-semibold dark:text-white">Target Question</h2>
+        <h2 class="text-lg font-semibold dark:text-white">{{ $t('targetQuestion') }}</h2>
         <RouterLink v-if="consolidation.targetQuestion"
                     :to="`/questions/${consolidation.targetQuestion.id}`"
                     class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Open target CQ
+          {{ $t('openTargetCQ') }}
           <span v-if="consolidation.targetQuestion.cqCatalogueIdentifier" class="rounded bg-white/20 px-1.5 text-xs font-bold">
             {{ consolidation.targetQuestion.cqCatalogueIdentifier }}
           </span>
@@ -236,14 +238,14 @@ async function setResultQuestion() {
           <input type="text"
                  :disabled="!canEdit"
                  v-model="resultQuestionText"
-                 placeholder="No question text"
+                 :placeholder="$t('noQuestionText')"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-              Type <span class="font-normal text-gray-400">(optional)</span>
+              {{ $t('type') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
             </label>
             <select :disabled="!canEdit" v-model="resultQuestionType"
                     class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
@@ -253,29 +255,29 @@ async function setResultQuestion() {
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-              Reference (Fundstelle) <span class="font-normal text-gray-400">(optional)</span>
+              {{ $t('referenceFundstelle') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
             </label>
             <input type="text" :disabled="!canEdit" v-model="resultQuestionReference"
-                   placeholder="e.g. S. 138."
+                   :placeholder="$t('eGS138')"
                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Anchor (Beleganker) <span class="font-normal text-gray-400">(optional)</span>
+            {{ $t('anchorBeleganker') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
           </label>
           <textarea :disabled="!canEdit" v-model="resultQuestionAnchor" rows="2"
-                    placeholder="Source text or evidence..."
+                    :placeholder="$t('sourceTextOrEvidence')"
                     class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Example Answer <span class="font-normal text-gray-400">(optional)</span>
+            {{ $t('exampleAnswer') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
           </label>
           <textarea :disabled="!canEdit" v-model="resultQuestionExampleAnswer" rows="2"
-                    placeholder="Sample or example answer..."
+                    :placeholder="$t('sampleOrExampleAnswer')"
                     class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
@@ -285,19 +287,19 @@ async function setResultQuestion() {
                   :disabled="savingResultQuestion"
                   class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
             <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-            {{ savingResultQuestion ? 'Saving...' : 'Save' }}
+            {{ savingResultQuestion ? 'Saving...' : $t('save') }}
           </button>
         </div>
       </div>
 
       <div v-else-if="canEdit" class="space-y-3">
-        <p class="text-sm text-gray-500 dark:text-gray-400">No target question set. Pick an existing CQ to use as the target question.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noTargetQuestionSetPickAnExistingCQToUseAsTheTargetQuestion') }}</p>
         <Combobox v-model="newResultCq">
           <div class="relative">
             <ComboboxInput
               :displayValue="(cq: any) => cq?.question ?? ''"
               @change="targetQuery = $event.target.value"
-              placeholder="Search for a CQ…"
+              :placeholder="$t('searchForACQ')"
               class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             />
             <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -324,27 +326,27 @@ async function setResultQuestion() {
                   @click="setResultQuestion"
                   class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             <CheckIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-            Set Target Question
+            {{ $t('setTargetQuestion') }}
           </button>
         </div>
       </div>
 
       <div v-else>
-        <p class="text-sm text-gray-500 dark:text-gray-400">No target question set.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noTargetQuestionSet') }}</p>
       </div>
     </div>
 
     <!-- Source Questions -->
     <div class="mt-10">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold dark:text-white">Source Questions</h2>
+        <h2 class="text-lg font-semibold dark:text-white">{{ $t('sourceQuestions') }}</h2>
         <button v-if="canEdit"
                 type="button"
                 @click="saveSourceQuestions(currentSourceSelection)"
                 :disabled="savingSourceQuestions"
                 class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
           <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-          {{ savingSourceQuestions ? 'Saving…' : 'Save source questions' }}
+          {{ savingSourceQuestions ? 'Saving…' : $t('saveSourceQuestions') }}
         </button>
       </div>
 
@@ -358,9 +360,9 @@ async function setResultQuestion() {
         <template #header>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             <template v-if="canEdit">
-              Checked questions are currently included in this consolidation. Check or uncheck to add or remove, then save.
+              {{ $t('checkedQuestionsAreCurrentlyIncludedInThisConsolidationCheckOrUncheckToAddOrRemoveThe') }}
             </template>
-            <template v-else>Questions included in this consolidation.</template>
+            <template v-else>{{ $t('questionsIncludedInThisConsolidation') }}</template>
           </p>
         </template>
       </QuestionSelectorTable>

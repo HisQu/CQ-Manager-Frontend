@@ -90,7 +90,7 @@ export default defineComponent({
 
 <template>
   <div v-if="rating === 0 && isNotClickable && !ignore_zero_rating">
-    No rating.
+    {{ $t('noRating') }}
   </div>
   <div v-else>
     <MessagePopup :uxresponse="messagePopupData.uxresponse"

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { t } from '../i18n'
+
 import {ref, computed} from "vue";
 import MessagePopup from "../components/MessagePopup.vue";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
@@ -79,15 +81,15 @@ const saveConfirmDetail = computed(() => {
   if (!termOccurrences.value) return '';
   const qCount = termOccurrences.value.length;
   const gCount = uniqueGroupCount.value;
-  if (qCount === 0) return 'This term is not currently referenced in any questions.';
-  return `This will rename the term in ${qCount} competency question${qCount !== 1 ? 's' : ''} across ${gCount} group${gCount !== 1 ? 's' : ''}.`;
+  if (qCount === 0) return t('termNotReferenced');
+  return t('termRenameDetail', { questions: t('cqCount', qCount), groups: t('groupCount', gCount) });
 });
 
 const deleteConfirmDetail = computed(() => {
   if (!termOccurrences.value) return '';
   const qCount = termOccurrences.value.length;
-  if (qCount === 0) return 'This will permanently delete the term.';
-  return `This will permanently delete the term and remove its annotations from ${qCount} question${qCount !== 1 ? 's' : ''}.`;
+  if (qCount === 0) return t('termDeletePermanent');
+  return t('termDeleteDetail', { questions: t('questionCount', qCount) });
 });
 
 async function save() {
@@ -97,9 +99,9 @@ async function save() {
     messagePopupData.value.open = true;
   } else {
     messagePopupData.value.uxresponse = {
-      title: "Saved",
+      title: t('saved'),
       messageType: "success",
-      text: "The term has been updated.",
+      text: t('theTermHasBeenUpdated'),
       detail: "",
     };
     messagePopupData.value.open = true;
@@ -127,11 +129,11 @@ fetchPermissions();
     <DetailPageHeader :title="content" :project="projectName">
       <template #meta>
         <span class="inline-flex items-center rounded-md bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">
-          Term
+          {{ $t('term2') }}
         </span>
         <span v-if="termOccurrences.length > 0" class="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ termOccurrences.length }} occurrence{{ termOccurrences.length !== 1 ? 's' : '' }}
-          <template v-if="uniqueGroupCount > 0"> in {{ uniqueGroupCount }} group{{ uniqueGroupCount !== 1 ? 's' : '' }}</template>
+          {{ $t('occurrenceCount', termOccurrences.length) }}
+          <template v-if="uniqueGroupCount > 0"> {{ $t('in') }} {{ $t('groupCount', uniqueGroupCount) }}</template>
         </span>
       </template>
     </DetailPageHeader>
@@ -151,15 +153,15 @@ fetchPermissions();
 
     <!-- Occurrences -->
     <h2 class="text-lg font-semibold dark:text-white mb-1">
-      Occurrences
+      {{ $t('occurrences') }}
       <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ termOccurrences.length }}</span>
     </h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-      Competency questions in this project that reference this term.
+      {{ $t('competencyQuestionsInThisProjectThatReferenceThisTerm') }}
     </p>
 
     <div v-if="termOccurrences.length === 0" class="text-sm text-gray-500 dark:text-gray-400">
-      This term is not used in any question yet.
+      {{ $t('thisTermIsNotUsedInAnyQuestionYet') }}
     </div>
 
     <div v-for="group in groupedOccurrences" :key="group.groupId" class="mt-6">
@@ -173,11 +175,11 @@ fetchPermissions();
     <template v-if="canEdit">
       <hr class="my-8 border-gray-200 dark:border-gray-700"/>
 
-      <h2 class="text-lg font-semibold dark:text-white mb-4">Edit Term</h2>
+      <h2 class="text-lg font-semibold dark:text-white mb-4">{{ $t('editTerm') }}</h2>
 
       <div class="mb-6">
         <label for="term-content" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-          Term name
+          {{ $t('termName') }}
         </label>
         <input type="text" v-model="content" id="term-content"
                class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
@@ -185,16 +187,16 @@ fetchPermissions();
 
       <div class="mb-6">
         <label for="term-definition" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-          Definition <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+          {{ $t('definition') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
         </label>
         <textarea v-model="definition" id="term-definition" rows="3"
-                  placeholder="Human-readable definition of this term..."
+                  :placeholder="$t('humanReadableDefinitionOfThisTerm')"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
       </div>
 
       <div class="mb-6">
         <label for="term-concept-iri" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-          Concept IRI <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+          {{ $t('conceptIRI') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
         </label>
         <input type="text" v-model="conceptIri" id="term-concept-iri"
                placeholder="https://example.org/ontology/Term"
@@ -203,21 +205,21 @@ fetchPermissions();
 
       <div class="flex items-center justify-between">
         <SubmitButtonWithCallback
-          agree-button-text="Delete term"
-          title="Delete this term?"
+          :agree-button-text="$t('deleteTerm')"
+          :title="$t('deleteThisTerm')"
           :detail="deleteConfirmDetail"
           @modalsuccessclose="deleteTerm">
           <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-          Delete
+          {{ $t('delete') }}
         </SubmitButtonWithCallback>
 
         <SubmitButtonWithCallback
-          agree-button-text="Rename term"
-          title="Rename this term?"
+          :agree-button-text="$t('renameTerm')"
+          :title="$t('renameThisTerm')"
           :detail="saveConfirmDetail"
           @modalsuccessclose="save">
           <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-          Save
+          {{ $t('save') }}
         </SubmitButtonWithCallback>
       </div>
     </template>

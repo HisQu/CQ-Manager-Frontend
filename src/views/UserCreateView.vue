@@ -54,11 +54,11 @@ export default {
                   @close="messagePopupData.open = false;" />
   </div>
 
-  <h1 class="text-2xl">Create new user</h1>
+  <h1 class="text-2xl">{{ $t('createNewUser') }}</h1>
 
   <div class="my-5">
     <label for="user-name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-      Full name:
+      {{ $t('fullName') }}
     </label>
     <div class="mt-2">
       <input type="text" v-model="form.name" id="user-name" name="user-name"
@@ -68,7 +68,7 @@ export default {
 
   <div class="my-5">
     <label for="user-email" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-      E-mail address:
+      {{ $t('eMailAddress') }}
     </label>
     <div class="mt-2">
       <input type="email" v-model="form.email" id="user-email" name="user-email"
@@ -78,7 +78,7 @@ export default {
 
   <div class="my-5">
     <label for="user-password" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-      Initial password:
+      {{ $t('initialPassword') }}
     </label>
     <div class="mt-2">
       <input type="password" v-model="form.password" id="user-password" name="user-password"
@@ -88,12 +88,12 @@ export default {
 
   <div class="flex justify-end mt-4">
     <SubmitButtonWithCallback
-      agree-button-text="Create user"
-      title="Are you sure you want to create this user?"
-      detail="The user will be created with the provided credentials."
+      :agree-button-text="$t('createUser')"
+      :title="$t('areYouSureYouWantToCreateThisUser')"
+      :detail="$t('theUserWillBeCreatedWithTheProvidedCredentials')"
       @modalsuccessclose="save()">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-      Create
+      {{ $t('create') }}
     </SubmitButtonWithCallback>
   </div>
 </template>

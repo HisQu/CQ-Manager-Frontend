@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import {computed} from "vue";
 import StarComponent from "./StarComponent.vue";
 import CQTypeBadge from "./CQTypeBadge.vue";
 import TagBadge from "./TagBadge.vue";
 import {ChatBubbleLeftIcon} from "@heroicons/vue/20/solid";
+
+const { locale } = useI18n();
 
 const props = defineProps<{
   cq: CompetencyQuestionReducedT;
@@ -25,7 +28,7 @@ const totalComments = computed(() => props.cq.noComments ?? 0);
 
 const lastCommentDate = computed(() => {
   const createdAt = props.cq.lastComment?.createdAt;
-  return createdAt ? new Date(createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  return createdAt ? new Date(createdAt).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 });
 </script>
 
@@ -58,7 +61,7 @@ const lastCommentDate = computed(() => {
             <!-- Consolidation result badges -->
             <template v-if="isConsolidationResult">
               <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/30">
-                {{ sourceCount }} source question{{ sourceCount !== 1 ? 's' : '' }}
+                {{ $t('sourceQuestionCount', sourceCount) }}
               </span>
             </template>
 
@@ -69,7 +72,7 @@ const lastCommentDate = computed(() => {
                       :class="c.role === 'target'
                         ? 'inline-flex items-center rounded-md bg-green-50 dark:bg-green-400/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/30'
                         : 'inline-flex items-center rounded-md bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30'">
-                  {{ c.role === 'target' ? 'Target' : 'Source' }}
+                  {{ c.role === 'target' ? $t('target') : $t('source') }}
                 </span>
               </template>
             </template>
@@ -92,7 +95,7 @@ const lastCommentDate = computed(() => {
                class="mt-2 flex items-start gap-2 rounded-md bg-gray-50 dark:bg-gray-900/40 px-2.5 py-1.5 text-sm text-gray-600 dark:text-gray-300">
             <ChatBubbleLeftIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" aria-hidden="true" />
             <p class="min-w-0 line-clamp-2">
-              <span class="font-medium text-gray-800 dark:text-gray-100">{{ cq.lastComment.author ?? 'Unknown' }}</span>
+              <span class="font-medium text-gray-800 dark:text-gray-100">{{ cq.lastComment.author ?? $t('unknown') }}</span>
               <span class="mx-1 text-xs text-gray-400 dark:text-gray-500">{{ lastCommentDate }}</span>
               {{ cq.lastComment.comment }}
             </p>
@@ -101,12 +104,12 @@ const lastCommentDate = computed(() => {
 
         <!-- Comment count: red for unread comments, grey once everything is read -->
         <span v-if="unreadComments"
-              :title="`${unreadComments} unread of ${totalComments} comment${totalComments !== 1 ? 's' : ''}`"
+              :title="$t('unreadCommentsCount', { unread: unreadComments, count: totalComments }, totalComments)"
               class="flex-shrink-0 inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
           {{ unreadComments }}
         </span>
         <span v-else-if="totalComments"
-              :title="`${totalComments} comment${totalComments !== 1 ? 's' : ''}, all read`"
+              :title="$t('readCommentsCount', totalComments)"
               class="flex-shrink-0 inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-600 px-2 py-0.5 text-xs font-bold text-gray-700 dark:text-gray-200">
           {{ totalComments }}
         </span>

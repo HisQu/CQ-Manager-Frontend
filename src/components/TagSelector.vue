@@ -107,7 +107,7 @@ function handleBackspace() {
              ref="inputRef"
              v-model="inputValue"
              :maxlength="TAG_NAME_MAX_LENGTH"
-             :placeholder="selected.length === 0 ? 'Add tags…' : ''"
+             :placeholder="selected.length === 0 ? $t('addTags') : ''"
              class="flex-1 min-w-32 border-0 bg-transparent py-0 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-0"
              @focus="focused = true"
              @input="focused = true"
@@ -117,7 +117,7 @@ function handleBackspace() {
              @keydown.up.prevent="highlightedIndex = Math.max(highlightedIndex - 1, 0)"
              @keydown.esc="inputValue = ''; inputRef?.blur()"
              @keydown.backspace="handleBackspace" />
-      <span v-else-if="selected.length === 0" class="text-sm text-gray-400">No tags</span>
+      <span v-else-if="selected.length === 0" class="text-sm text-gray-400">{{ $t('noTags') }}</span>
     </div>
     <ul v-if="focused && options.length > 0"
         class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 py-1 text-sm">
@@ -129,11 +129,11 @@ function handleBackspace() {
         <template v-if="option.kind === 'existing'">
           <span class="truncate">#{{ option.tag.name }}</span>
           <span :class="['text-xs flex-shrink-0', i === highlightedIndex ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500']">
-            {{ option.tag.noQuestions }} CQ{{ option.tag.noQuestions !== 1 ? 's' : '' }}
+            {{ $t('cqCount', option.tag.noQuestions) }}
           </span>
         </template>
         <span v-else class="truncate">
-          {{ creating ? 'Creating' : 'Create tag' }} <span class="font-semibold">#{{ option.name }}</span>
+          {{ creating ? $t('creating') : $t('createTag') }} <span class="font-semibold">#{{ option.name }}</span>
         </span>
       </li>
     </ul>

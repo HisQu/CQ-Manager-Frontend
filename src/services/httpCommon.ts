@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import axios from "axios";
 
 console.log('[httpCommon] VITE_API_URL =', import.meta.env.VITE_API_URL);
@@ -20,8 +21,8 @@ axiosInstance.interceptors.response.use(response => {
         }
         catch (e) {
             return Promise.reject({
-                title: "Permission headers error",
-                text: "Could not read permission headers from the server response.",
+                title: t('permissionHeadersError'),
+                text: t('permissionHeadersErrorText'),
                 detail: String(e),
                 messageType: "error"
             } satisfies UXResponse);

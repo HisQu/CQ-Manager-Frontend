@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '../i18n'
+
 import { defineComponent } from 'vue';
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
@@ -31,9 +33,9 @@ export default defineComponent({
     async save() {
       if (!this.name.trim()) {
         this.messagePopupData.uxresponse = {
-          title: 'Name required',
+          title: t('nameRequired'),
           messageType: 'warning',
-          text: 'Please enter a catalogue name.',
+          text: t('pleaseEnterACatalogueName'),
           detail: '',
         };
         this.messagePopupData.open = true;
@@ -62,32 +64,32 @@ export default defineComponent({
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;" />
   <div class="w-full">
-    <DetailPageHeader title="Add Catalogue" :project="store.getProject.name" />
+    <DetailPageHeader :title="$t('addCatalogue')" :project="store.getProject.name" />
 
     <hr class="my-6 border-gray-200 dark:border-gray-700" />
 
     <div class="mb-6 max-w-xl">
       <label for="topic_name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Name
+        {{ $t('name') }}
       </label>
       <input
         type="text"
         id="topic_name"
         v-model="name"
-        placeholder="e.g. Personen, Identifikation, Namen"
+        :placeholder="$t('eGPersonenIdentifikationNamen')"
         class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
       />
     </div>
 
     <div class="mb-8 max-w-xl">
       <label for="topic_identifier" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-1">
-        Identifier <span class="text-gray-400 font-normal">(optional — assigned automatically if left blank)</span>
+        {{ $t('identifier') }} <span class="text-gray-400 font-normal">{{ $t('optionalAssignedAutomaticallyIfLeftBlank') }}</span>
       </label>
       <input
         type="text"
         id="topic_identifier"
         v-model="identifier"
-        placeholder="e.g. A"
+        :placeholder="$t('eGA')"
         class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
       />
     </div>
@@ -99,7 +101,7 @@ export default defineComponent({
         @click="save"
       >
         <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Save
+        {{ $t('save') }}
       </button>
     </div>
   </div>
