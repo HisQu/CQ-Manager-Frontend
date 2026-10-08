@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import LoginDataService from "./services/LoginDataService.ts";
 import {DEFAULT_CQ_FILTERS} from "./utils/cqFilters.ts";
+import {DEFAULT_CQ_SORT} from "./utils/cqSort.ts";
 
 export const useStore = defineStore('cq-manager', {
     persist: true,
@@ -32,6 +33,7 @@ export const useStore = defineStore('cq-manager', {
         cqSearchQuery: '',
         cqFilters: { ...DEFAULT_CQ_FILTERS },
         cqFiltersOpen: false,
+        cqSort: { ...DEFAULT_CQ_SORT },
         cqExportFormat: 'markdown',
         cqExportFields: ["question", "type", "group", "comment", "reference", "exampleAnswer"],
     }),

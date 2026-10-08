@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DEFAULT_CQ_FILTERS, countActiveFilters, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
+import {DEFAULT_CQ_FILTERS, countActiveFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
 import {toRef} from 'vue'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
@@ -94,6 +94,34 @@ describe('cqFilters', () => {
       expect(filterWith(cqs, { lastComment: 'none' })).toEqual(['silent'])
       expect(filterWith(cqs, { lastComment: 'within_30d' })).toEqual(['today', 'week'])
       expect(filterWith(cqs, { lastComment: 'older_30d' })).toEqual(['old'])
+    })
+  })
+
+  describe('tag filter', () => {
+    const urgent = { id: 't-urgent', name: 'urgent' }
+    const archive = { id: 't-archive', name: 'Archive' }
+    const cqs = [
+      makeCq({ id: 'both', tags: [archive, urgent] }),
+      makeCq({ id: 'urgent', tags: [urgent] }),
+      makeCq({ id: 'untagged', tags: [] }),
+      makeCq({ id: 'legacy' }),
+    ]
+
+    it('keeps CQs carrying the selected tag', () => {
+      expect(filterWith(cqs, { tag: urgent.id })).toEqual(['both', 'urgent'])
+      expect(filterWith(cqs, { tag: archive.id })).toEqual(['both'])
+    })
+
+    it('treats CQs without a tags field as untagged', () => {
+      expect(filterWith(cqs, { tag: 'none' })).toEqual(['untagged', 'legacy'])
+    })
+
+    it('collects the distinct tags of a CQ list, sorted by name', () => {
+      expect(tagsOf(cqs)).toEqual([archive, urgent])
+    })
+
+    it('offers "any" and "none" before the tags', () => {
+      expect(tagFilterOptions([archive]).map(o => o.value)).toEqual(['any', 'none', archive.id])
     })
   })
 

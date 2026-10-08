@@ -33,6 +33,7 @@ type CompetencyQuestionT = {
     exampleAnswer: string | null,
     type: CQType | null,
     topic: TopicReducedT | null,
+    tags: TagReducedT[],
     cqCatalogueIdentifier: string | null,
 }
 
@@ -57,6 +58,7 @@ type CompetencyQuestionReducedT = {
     exampleAnswer?: string | null,
     type?: CQType | null,
     topic?: TopicReducedT | null,
+    tags?: TagReducedT[],
     cqCatalogueIdentifier?: string | null,
     noComments?: number,
     createdAt?: string | null,

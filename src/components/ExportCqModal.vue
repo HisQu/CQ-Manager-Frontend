@@ -15,11 +15,12 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-type FieldKey = "question" | "type" | "rating" | "group" | "topic" | "cqCatalogueIdentifier" | "author" | "comment" | "reference" | "anchor" | "exampleAnswer" | "id";
+type FieldKey = "question" | "type" | "tags" | "rating" | "group" | "topic" | "cqCatalogueIdentifier" | "author" | "comment" | "reference" | "anchor" | "exampleAnswer" | "id";
 
 const fieldDescriptors: { key: FieldKey; label: string; accessor: (cq: CompetencyQuestionReducedT) => string }[] = [
   {key: "question", label: "Question", accessor: cq => cq.question ?? ""},
   {key: "type", label: "Type", accessor: cq => cq.type ?? ""},
+  {key: "tags", label: "Tags", accessor: cq => (cq.tags ?? []).map(t => t.name).join(", ")},
   {key: "rating", label: "Rating", accessor: cq => cq.rating != null ? String(cq.rating) : ""},
   {key: "group", label: "Group", accessor: cq => cq.group?.name ?? ""},
   {key: "topic", label: "Catalogue", accessor: cq => [cq.topic?.identifier, cq.topic?.name].filter(Boolean).join(" ")},

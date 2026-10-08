@@ -4,6 +4,7 @@ import {CQ_FILTER_OPTIONS, DEFAULT_CQ_FILTERS, countActiveFilters, CqFilters} fr
 
 defineProps<{
   authorOptions: { value: string; label: string }[];
+  tagOptions: { value: string; label: string }[];
 }>();
 
 const filters = defineModel<CqFilters>({ required: true });
@@ -16,6 +17,7 @@ const filters = defineModel<CqFilters>({ required: true });
       <FilterSelect label="Discussion" v-model="filters.discussion" :options="CQ_FILTER_OPTIONS.discussion" />
       <FilterSelect label="Rating" v-model="filters.rating" :options="CQ_FILTER_OPTIONS.rating" />
       <FilterSelect label="Type" v-model="filters.type" :options="CQ_FILTER_OPTIONS.type" />
+      <FilterSelect label="Tag" v-model="filters.tag" :options="tagOptions" />
       <FilterSelect label="SPARQL query" v-model="filters.sparql" :options="CQ_FILTER_OPTIONS.sparql" />
       <FilterSelect label="Example answer" v-model="filters.exampleAnswer" :options="CQ_FILTER_OPTIONS.exampleAnswer" />
       <FilterSelect label="Consolidation" v-model="filters.consolidation" :options="CQ_FILTER_OPTIONS.consolidation" />
