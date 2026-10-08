@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import {UNCATALOGUED_IDENTIFIER} from "./catalogues.ts";
 
 export type CqSortField =
@@ -21,17 +22,17 @@ export const DEFAULT_CQ_SORT: CqSort = { field: 'catalogue', direction: 'asc' };
 
 // `defaultDirection` is what users usually want first: newest / best / most first for numbers and dates.
 export const CQ_SORT_FIELDS: { value: CqSortField; label: string; defaultDirection: CqSortDirection }[] = [
-  { value: 'catalogue', label: 'Catalogue ID', defaultDirection: 'asc' },
-  { value: 'question', label: 'Question', defaultDirection: 'asc' },
-  { value: 'created', label: 'Created', defaultDirection: 'desc' },
-  { value: 'updated', label: 'Last edited', defaultDirection: 'desc' },
-  { value: 'lastComment', label: 'Last comment', defaultDirection: 'desc' },
-  { value: 'rating', label: 'Rating', defaultDirection: 'desc' },
-  { value: 'comments', label: 'Number of comments', defaultDirection: 'desc' },
-  { value: 'consolidations', label: 'Number of consolidations', defaultDirection: 'desc' },
-  { value: 'author', label: 'Author', defaultDirection: 'asc' },
-  { value: 'group', label: 'Group', defaultDirection: 'asc' },
-  { value: 'type', label: 'Type', defaultDirection: 'asc' },
+  { value: 'catalogue', get label() { return t('catalogueID') }, defaultDirection: 'asc' },
+  { value: 'question', get label() { return t('question') }, defaultDirection: 'asc' },
+  { value: 'created', get label() { return t('created') }, defaultDirection: 'desc' },
+  { value: 'updated', get label() { return t('lastEdited') }, defaultDirection: 'desc' },
+  { value: 'lastComment', get label() { return t('lastComment') }, defaultDirection: 'desc' },
+  { value: 'rating', get label() { return t('rating') }, defaultDirection: 'desc' },
+  { value: 'comments', get label() { return t('numberOfComments') }, defaultDirection: 'desc' },
+  { value: 'consolidations', get label() { return t('numberOfConsolidations') }, defaultDirection: 'desc' },
+  { value: 'author', get label() { return t('author') }, defaultDirection: 'asc' },
+  { value: 'group', get label() { return t('group') }, defaultDirection: 'asc' },
+  { value: 'type', get label() { return t('type') }, defaultDirection: 'asc' },
 ];
 
 export function defaultDirectionOf(field: CqSortField): CqSortDirection {

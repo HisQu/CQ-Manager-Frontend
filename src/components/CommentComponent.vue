@@ -79,15 +79,15 @@ export default defineComponent({
     <div v-if="comments && comments.length > 0" class="space-y-5">
       <CommentListItem v-for="comment in commentsSorted" :key="comment.id" :comment="comment" />
     </div>
-    <p v-else class="text-sm text-gray-500 dark:text-gray-400">No comments yet.</p>
+    <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noCommentsYet') }}</p>
 
     <!-- New comment form -->
     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <label for="new-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add a comment</label>
+      <label for="new-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('addAComment') }}</label>
       <textarea
         rows="3"
         name="new-comment"
-        placeholder="Write your comment…"
+        :placeholder="$t('writeYourComment')"
         id="new-comment"
         v-model="commentText"
         class="block w-full rounded-md border-0 py-1.5 dark:bg-gray-800 dark:text-gray-100 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -101,7 +101,7 @@ export default defineComponent({
           :class="displaySuccess ? 'bg-green-600 hover:bg-green-500' : 'bg-indigo-600 hover:bg-indigo-500'"
         >
           <PaperAirplaneIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-          {{ displaySuccess ? 'Sent!' : 'Comment' }}
+          {{ displaySuccess ? 'Sent!' : $t('comment') }}
         </button>
       </div>
     </div>

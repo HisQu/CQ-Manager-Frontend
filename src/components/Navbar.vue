@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '../i18n'
+
 import {defineComponent} from 'vue'
 import {useStore} from "../store.ts";
 
@@ -72,12 +74,12 @@ export default defineComponent({
       avatarUrl: '' as string,
 
       navigation: [
-        { name: 'About / Bugs', href: '/about', icon: QuestionMarkCircleIcon },
-        { name: 'Competency Questions', href: '/questions', icon: ListBulletIcon },
-{ name: 'Catalogues', href: '/catalogues', icon: TagIcon },
-        { name: 'Tags', href: '/tags', icon: HashtagIcon },
-        { name: 'Glossary', href: '/terms', icon: QueueListIcon },
-        { name: 'Group', href: '/groups', icon: UsersIcon },
+        { get name() { return t('aboutBugs') }, href: '/about', icon: QuestionMarkCircleIcon },
+        { get name() { return t('competencyQuestions') }, href: '/questions', icon: ListBulletIcon },
+        { get name() { return t('catalogues') }, href: '/catalogues', icon: TagIcon },
+        { get name() { return t('tags') }, href: '/tags', icon: HashtagIcon },
+        { get name() { return t('glossary') }, href: '/terms', icon: QueueListIcon },
+        { get name() { return t('group') }, href: '/groups', icon: UsersIcon },
       ],
     }
   },
@@ -124,8 +126,8 @@ export default defineComponent({
     });
 
     if (this.store.getUser.isSystemAdmin) {
-      this.navigation.push({ name: 'Projects (SysAdmin)', href: '/projects', icon: FolderIcon })
-      this.navigation.push({ name: 'Users (SysAdmin)', href: '/users', icon: UsersIcon })
+      this.navigation.push({ get name() { return t('projectsSysAdmin') }, href: '/projects', icon: FolderIcon })
+      this.navigation.push({ get name() { return t('usersSysAdmin') }, href: '/users', icon: UsersIcon })
     }
 
   },
@@ -145,7 +147,7 @@ export default defineComponent({
             <TransitionChild as="template" enter="ease-in-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-300" leave-from="opacity-100" leave-to="opacity-0">
               <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
                 <button type="button" class="-m-2.5 p-2.5" @click="sidebarOpen = false">
-                  <span class="sr-only">Close sidebar</span>
+                  <span class="sr-only">{{ $t('closeSidebar') }}</span>
                   <XMarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
                 </button>
               </div>
@@ -158,7 +160,7 @@ export default defineComponent({
                 <ul role="list" class="flex flex-1 flex-col gap-y-7">
                   <li>
                     <ul role="list" class="-mx-2 space-y-1">
-                      <li v-for="item in navigation" :key="item.name">
+                      <li v-for="item in navigation" :key="item.href">
                         <RouterLink :to="item.href" @click="sidebarOpen = false" :class="[currentRouteName.startsWith(item.href) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-700', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
                           <component :is="item.icon" :class="[currentRouteName.startsWith(item.href) ? 'text-white' : 'text-indigo-200 group-hover:text-white', 'h-6 w-6 shrink-0']" aria-hidden="true" />
                           {{ item.name }}
@@ -167,7 +169,7 @@ export default defineComponent({
                     </ul>
                   </li>
                   <li>
-                    <div class="text-xs font-semibold leading-6 text-indigo-200">Your projects</div>
+                    <div class="text-xs font-semibold leading-6 text-indigo-200">{{ $t('yourProjects') }}</div>
                     <ul role="list" class="-mx-2 mt-2 space-y-1">
                       <li v-for="project in projects" :key="project.name" @click="store.project = project; sidebarOpen = false">
                         <button class="w-full" :class="[isDeepEqual(currentProject, project) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-700', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
@@ -183,7 +185,7 @@ export default defineComponent({
                         <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                         <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
                       </RouterLink>
-                      <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0" title="Log out">
+                      <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0" :title="$t('logOut')">
                         <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
                       </button>
                     </div>
@@ -204,7 +206,7 @@ export default defineComponent({
         <span v-if="!store.sidebarCollapsed" class="text-2xl font-bold text-white mt-5">
           <Logo/>
         </span>
-        <button @click="store.toggleSidebar()" class="text-indigo-200 hover:text-white p-1 rounded hover:bg-indigo-700 mt-5 flex-shrink-0" :title="store.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+        <button @click="store.toggleSidebar()" class="text-indigo-200 hover:text-white p-1 rounded hover:bg-indigo-700 mt-5 flex-shrink-0" :title="store.sidebarCollapsed ? $t('expandSidebar') : $t('collapseSidebar')">
           <ChevronLeftIcon v-if="!store.sidebarCollapsed" class="h-5 w-5"/>
           <ChevronRightIcon v-else class="h-5 w-5"/>
         </button>
@@ -214,7 +216,7 @@ export default defineComponent({
         <ul role="list" class="flex flex-1 flex-col gap-y-7">
           <li>
             <ul role="list" class="-mx-2 space-y-1">
-              <li v-for="item in navigation" :key="item.name">
+              <li v-for="item in navigation" :key="item.href">
                 <RouterLink :to="item.href"
                   :class="[currentRouteName.startsWith(item.href) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-700',
                     store.sidebarCollapsed ? 'justify-center' : 'gap-x-3',
@@ -227,7 +229,7 @@ export default defineComponent({
             </ul>
           </li>
           <li v-if="!store.sidebarCollapsed">
-            <div class="text-xs font-semibold leading-6 text-indigo-200">Your projects</div>
+            <div class="text-xs font-semibold leading-6 text-indigo-200">{{ $t('yourProjects') }}</div>
             <ul role="list" class="-mx-2 mt-2 space-y-1">
               <li v-for="project in projects" :key="project.name" @click="store.project = project">
                 <button class="w-full" :class="[isDeepEqual(currentProject, project) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-700', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
@@ -241,14 +243,14 @@ export default defineComponent({
             <div :class="[store.sidebarCollapsed ? 'justify-center px-2' : 'px-6', 'flex items-center py-3 gap-x-2']">
               <RouterLink v-if="!store.sidebarCollapsed" to="/account/profile"
                 class="flex items-center gap-x-3 min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200"
-                title="Change password">
+                :title="$t('changePassword')">
                 <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                 <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
               </RouterLink>
               <button
                 @click="store.logout(); $router.push('/login');"
                 class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0"
-                title="Log out">
+                :title="$t('logOut')">
                 <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
@@ -260,12 +262,12 @@ export default defineComponent({
 
   <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-indigo-600 px-4 py-4 shadow-sm sm:hidden">
     <button type="button" class="-m-2.5 p-2.5 text-indigo-200" @click="sidebarOpen = true">
-      <span class="sr-only">Open sidebar</span>
+      <span class="sr-only">{{ $t('openSidebar') }}</span>
       <Bars3Icon class="h-6 w-6" aria-hidden="true" />
     </button>
-    <div class="flex-1 text-sm font-semibold leading-6 text-white">Dashboard</div>
+    <div class="flex-1 text-sm font-semibold leading-6 text-white">{{ $t('dashboard') }}</div>
     <div>
-      <span class="sr-only">Your profile</span>
+      <span class="sr-only">{{ $t('yourProfile') }}</span>
       <img class="h-8 w-8 rounded-full bg-indigo-700" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
     </div>
   </div>

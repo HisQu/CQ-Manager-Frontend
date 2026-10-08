@@ -112,13 +112,13 @@ export default {
 
   <div v-if="name" class="w-full">
     <h1 class="text-2xl font-semibold dark:text-white">{{ name }}</h1>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Project</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('project2') }}</p>
 
     <hr class="my-6 border-gray-200 dark:border-gray-700"/>
 
     <div class="mb-6">
       <label for="project_name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Project title
+        {{ $t('projectTitle') }}
       </label>
       <input
           type="text"
@@ -133,7 +133,7 @@ export default {
       <EmailChipsInput
           :members="managers"
           :suggestions="allUsers"
-          label="Project managers"
+          :label="$t('projectManagers')"
           input-id="project_managers"
           @add="addManager"
           @remove="removeManager"
@@ -144,7 +144,7 @@ export default {
       <EmailChipsInput
           :members="engineers"
           :suggestions="allUsers"
-          label="Ontology engineers"
+          :label="$t('ontologyEngineers2')"
           input-id="project_engineers"
           @add="addEngineer"
           @remove="removeEngineer"
@@ -153,13 +153,13 @@ export default {
 
     <div class="flex items-center justify-between">
       <SubmitButtonWithCallback
-          agree-button-text="Delete the project"
-          title="Are you sure you want to delete the project?"
-          detail="This action is permanent."
+          :agree-button-text="$t('deleteTheProject')"
+          :title="$t('areYouSureYouWantToDeleteTheProject')"
+          :detail="$t('thisActionIsPermanent')"
           @modalsuccessclose="deleteProject"
       >
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Delete
+        {{ $t('delete') }}
       </SubmitButtonWithCallback>
 
       <button
@@ -168,7 +168,7 @@ export default {
           @click="saveProject"
       >
         <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Save
+        {{ $t('save') }}
       </button>
     </div>
   </div>

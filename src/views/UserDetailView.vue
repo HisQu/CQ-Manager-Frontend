@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '../i18n'
+
 import MessagePopup from "../components/MessagePopup.vue";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import { ArrowDownOnSquareIcon, TrashIcon, EnvelopeIcon } from "@heroicons/vue/24/solid";
@@ -76,9 +78,9 @@ export default {
       } else {
         this.newPassword = "";
         this.messagePopupData.uxresponse = {
-          title: "Password reset",
+          title: t('passwordReset'),
           messageType: "success",
-          text: "The password has been updated successfully.",
+          text: t('thePasswordHasBeenUpdatedSuccessfully'),
           detail: "",
         };
         this.messagePopupData.open = true;
@@ -95,9 +97,9 @@ export default {
       } else {
         this.form.is_verified = true;
         this.messagePopupData.uxresponse = {
-          title: "Invitation sent",
+          title: t('invitationSent'),
           messageType: "success",
-          text: "The user has been verified successfully.",
+          text: t('theUserHasBeenVerifiedSuccessfully'),
           detail: "",
         };
         this.messagePopupData.open = true;
@@ -128,12 +130,12 @@ export default {
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;" />
 
-    <h1 class="text-2xl">Edit User</h1>
+    <h1 class="text-2xl">{{ $t('editUser') }}</h1>
 
     <div v-if="form.email">
       <div class="my-5">
         <label for="edit-name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-          Full name:
+          {{ $t('fullName') }}
         </label>
         <input type="text" v-model="form.name" id="edit-name"
                class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
@@ -141,7 +143,7 @@ export default {
 
       <div class="my-5">
         <label for="edit-email" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-          E-mail address:
+          {{ $t('eMailAddress') }}
         </label>
         <input type="email" v-model="form.email" id="edit-email"
                class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
@@ -151,69 +153,69 @@ export default {
         <input type="checkbox" v-model="form.is_system_admin" id="edit-admin"
                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
         <label for="edit-admin" class="text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">
-          System Administrator
+          {{ $t('systemAdministrator') }}
         </label>
       </div>
 
       <div class="my-5">
-        <span class="text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Verification status: </span>
-        <span v-if="form.is_verified" class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Verified</span>
-        <span v-else class="inline-flex items-center rounded-md bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Unverified</span>
+        <span class="text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('verificationStatus') }} </span>
+        <span v-if="form.is_verified" class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{{ $t('verified') }}</span>
+        <span v-else class="inline-flex items-center rounded-md bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">{{ $t('unverified') }}</span>
       </div>
 
       <div class="flex items-center justify-between mt-6">
         <SubmitButtonWithCallback
-          agree-button-text="Delete user"
-          title="Are you sure you want to delete this user?"
-          detail="This action is permanent and cannot be undone."
+          :agree-button-text="$t('deleteUser')"
+          :title="$t('areYouSureYouWantToDeleteThisUser')"
+          :detail="$t('thisActionIsPermanentAndCannotBeUndone')"
           @modalsuccessclose="deleteUser">
           <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-          Delete
+          {{ $t('delete') }}
         </SubmitButtonWithCallback>
 
         <button type="button" @click="saveUser"
                 class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
           <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-          Save
+          {{ $t('save') }}
         </button>
       </div>
 
       <hr class="my-8 border-gray-300 dark:border-gray-600" />
 
       <div>
-        <h2 class="text-xl mb-4">Send Invitation</h2>
+        <h2 class="text-xl mb-4">{{ $t('sendInvitation') }}</h2>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Marks the user account as verified and active.
+          {{ $t('marksTheUserAccountAsVerifiedAndActive') }}
         </p>
         <SubmitButtonWithCallback
-          agree-button-text="Send invitation"
-          title="Send invitation to this user?"
-          detail="This will mark the user as verified."
+          :agree-button-text="$t('sendInvitation2')"
+          :title="$t('sendInvitationToThisUser')"
+          :detail="$t('thisWillMarkTheUserAsVerified')"
           @modalsuccessclose="sendInvitation">
           <EnvelopeIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-          Send Invitation
+          {{ $t('sendInvitation') }}
         </SubmitButtonWithCallback>
       </div>
 
       <hr class="my-8 border-gray-300 dark:border-gray-600" />
 
       <div>
-        <h2 class="text-xl mb-4">Reset Password</h2>
+        <h2 class="text-xl mb-4">{{ $t('resetPassword') }}</h2>
         <div class="my-3">
           <label for="new-password" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-            New password:
+            {{ $t('newPassword2') }}
           </label>
           <input type="password" v-model="newPassword" id="new-password"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
         </div>
         <div class="flex justify-end mt-4">
           <SubmitButtonWithCallback
-            agree-button-text="Reset password"
-            title="Are you sure you want to reset the password?"
-            detail="The user's current password will be replaced immediately."
+            :agree-button-text="$t('resetPassword2')"
+            :title="$t('areYouSureYouWantToResetThePassword')"
+            :detail="$t('theUserSCurrentPasswordWillBeReplacedImmediately')"
             @modalsuccessclose="resetPassword">
             <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-            Reset Password
+            {{ $t('resetPassword') }}
           </SubmitButtonWithCallback>
         </div>
       </div>

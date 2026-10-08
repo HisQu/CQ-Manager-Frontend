@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { isUncatalogued } from '../utils/catalogues.ts';
+import { isUncatalogued, catalogueName } from '../utils/catalogues.ts';
 
 export default defineComponent({
   name: 'TopicListItem',
@@ -10,7 +10,7 @@ export default defineComponent({
       required: true,
     },
   },
-  methods: { isUncatalogued },
+  methods: { isUncatalogued, catalogueName },
 });
 </script>
 
@@ -21,9 +21,9 @@ export default defineComponent({
         <span class="flex-shrink-0 inline-flex items-center justify-center rounded-md bg-indigo-100 dark:bg-indigo-400/20 px-2.5 py-0.5 text-sm font-bold text-indigo-700 dark:text-indigo-300 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30 min-w-[2.5rem] text-center">
           {{ topic.identifier }}
         </span>
-        <h3 :class="['font-semibold text-gray-900 dark:text-white', isUncatalogued(topic) ? 'italic' : '']">{{ topic.name }}</h3>
+        <h3 :class="['font-semibold text-gray-900 dark:text-white', isUncatalogued(topic) ? 'italic' : '']">{{ catalogueName(topic) }}</h3>
         <span v-if="topic.questions !== undefined" class="ml-auto flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
-          {{ topic.questions.length }} CQ{{ topic.questions.length !== 1 ? 's' : '' }}
+          {{ $t('cqCount', topic.questions.length) }}
         </span>
       </div>
     </div>

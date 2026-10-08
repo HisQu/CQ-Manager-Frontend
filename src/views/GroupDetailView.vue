@@ -103,10 +103,10 @@ export default {
     <DetailPageHeader :title="data.name ?? ''" :project="data.project?.name">
       <template #meta>
         <span class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
-          {{ data.noMembers }} member{{ data.noMembers !== 1 ? 's' : '' }}
+          {{ $t('memberCount', data.noMembers) }}
         </span>
         <span class="ml-1.5 inline-flex items-center rounded-md bg-violet-50 px-1.5 py-0.5 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/30">
-          {{ data.noQuestions }} question{{ data.noQuestions !== 1 ? 's' : '' }}
+          {{ $t('questionCount', data.noQuestions) }}
         </span>
       </template>
     </DetailPageHeader>
@@ -115,7 +115,7 @@ export default {
 
     <div class="mb-6">
       <label for="group_name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Group title
+        {{ $t('groupTitle') }}
       </label>
       <input
           type="text"
@@ -128,7 +128,7 @@ export default {
 
     <div class="mb-6">
       <label for="group_comment" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Comment
+        {{ $t('comment') }}
       </label>
       <textarea
           id="group_comment"
@@ -142,7 +142,7 @@ export default {
       <EmailChipsInput
           :members="members"
           :suggestions="allUsers"
-          label="Members"
+          :label="$t('members')"
           input-id="group_members"
           @add="addMember"
           @remove="removeMember"
@@ -151,13 +151,13 @@ export default {
 
     <div class="flex items-center justify-between">
       <SubmitButtonWithCallback
-          agree-button-text="Delete the group"
-          title="Are you sure you want to delete the group?"
-          detail="This action is permanent."
+          :agree-button-text="$t('deleteTheGroup')"
+          :title="$t('areYouSureYouWantToDeleteTheGroup')"
+          :detail="$t('thisActionIsPermanent')"
           @modalsuccessclose="deleteGroup"
       >
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Delete
+        {{ $t('delete') }}
       </SubmitButtonWithCallback>
 
       <button
@@ -166,7 +166,7 @@ export default {
           @click="saveGroup"
       >
         <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Save
+        {{ $t('save') }}
       </button>
     </div>
   </div>

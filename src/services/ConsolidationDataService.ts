@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
@@ -8,8 +9,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving all consolidations. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingAllConsolidations'),
                 detail: reason,
                 messageType: "error"
             }
@@ -21,8 +22,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving all consolidations for a project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingAllConsolidationsForAProject'),
                 detail: reason,
                 messageType: "error"
             }
@@ -34,8 +35,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving this consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingThisConsolidation'),
                 detail: reason,
                 messageType: "error"
             }
@@ -50,8 +51,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding a consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingAConsolidation'),
                 detail: reason,
                 messageType: "error"
             }
@@ -63,8 +64,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while updating this consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorUpdatingThisConsolidation'),
                 detail: reason,
                 messageType: "error"
             }
@@ -76,8 +77,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheConsolidation'),
                 detail: reason,
                 messageType: "error"
             }
@@ -89,8 +90,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding a question to this consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingAQuestionToThisConsolidation'),
                 detail: reason,
                 messageType: "error"
             }
@@ -102,8 +103,8 @@ class ConsolidationDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing a question from this consolidation. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingAQuestionFromThisConsolidation'),
                 detail: reason,
                 messageType: "error"
             }

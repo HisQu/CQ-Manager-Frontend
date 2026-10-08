@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
@@ -9,8 +10,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving terms. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTerms'),
                 detail: reason,
                 messageType: "error"
             };
@@ -22,8 +23,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving terms. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTerms'),
                 detail: reason,
                 messageType: "error"
             };
@@ -35,8 +36,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while the questions a term belongs to. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorTheQuestionsATermBelongsTo'),
                 detail: reason,
                 messageType: "error"
             };
@@ -49,8 +50,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding the term. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingTheTerm'),
                 detail: reason,
                 messageType: "error"
             };
@@ -63,8 +64,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while updating the term. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorUpdatingTheTerm'),
                 detail: reason,
                 messageType: "error"
             };
@@ -76,8 +77,8 @@ class TermDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the term. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheTerm'),
                 detail: reason,
                 messageType: "error"
             };
@@ -94,8 +95,8 @@ class TermDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing the term. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingTheTerm'),
                 detail: reason,
                 messageType: "error"
             }

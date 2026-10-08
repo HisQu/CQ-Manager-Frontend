@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
@@ -8,8 +9,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -21,8 +22,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -35,8 +36,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while getting the groups for this project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorGettingTheGroupsForThisProject'),
                 detail: reason,
                 messageType: "error"
             }
@@ -48,8 +49,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving unified competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingUnifiedCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -61,8 +62,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving unified competency questions for this group. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingUnifiedCompetencyQuestionsForThisGroup'),
                 detail: reason,
                 messageType: "error"
             }
@@ -74,8 +75,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -97,8 +98,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding the competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingTheCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -110,8 +111,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheCompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }
@@ -134,8 +135,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheCompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }

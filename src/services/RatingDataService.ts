@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
@@ -9,8 +10,8 @@ class RatingDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the rating of a competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheRatingOfACompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -21,8 +22,8 @@ class RatingDataService {
         if (stars < 1 || stars > 5) {
             return new Promise(() => {
                 return {
-                    title: "Oops! An error occurred...",
-                    text: "The rating can only be between 1 and 5 stars.",
+                    title: t('errorOccurred'),
+                    text: t('invalidRating'),
                     messageType: "error"
                 }
             })
@@ -40,8 +41,8 @@ class RatingDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while rating the competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRatingTheCompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }

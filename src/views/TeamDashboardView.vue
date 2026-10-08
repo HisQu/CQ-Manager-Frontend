@@ -7,7 +7,7 @@ export default defineComponent({
 </script>
 
 <template>
-  TeamView
+  {{ $t('teamView') }}
 </template>
 
 <style scoped>

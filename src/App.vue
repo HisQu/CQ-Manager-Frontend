@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import LanguageSelector from "./components/LanguageSelector.vue";
 import Navbar from "./components/Navbar.vue";
 
 import { useStore } from "./store.ts";
@@ -24,6 +25,9 @@ const showNavbar = computed(() =>  {
     <main class="pb-10 pt-7 min-h-screen dark:bg-gray-800 dark:text-gray-100"
           :class="[showNavbar ? (sidebarCollapsed ? 'sm:pl-16' : 'sm:pl-72') : '']">
       <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div v-if="route.path !== '/'" class="flex justify-end mb-4">
+          <LanguageSelector />
+        </div>
         <Suspense>
           <RouterView :key="$route.fullPath" />
         </Suspense>

@@ -1,7 +1,8 @@
+import { t } from '../i18n'
 import {computed, ref, type Ref} from "vue";
 import {useStore} from "../store.ts";
 import {CQ_TYPES} from "../constants/cqTypes.ts";
-import {UNCATALOGUED_IDENTIFIER} from "./catalogues.ts";
+import {UNCATALOGUED_IDENTIFIER, catalogueName} from "./catalogues.ts";
 
 // Attribute filters for CQ lists; 'any' (or an empty list for multi-selects) always means "no filter".
 // Multi-select filters match a CQ that fits any of the chosen values.
@@ -33,47 +34,47 @@ export function normalizeCqFilters(filters: Partial<Record<keyof CqFilters, unkn
   return result;
 }
 
-const withWithout = (what: string) => [
-  { value: 'any', label: 'Any' },
-  { value: 'with', label: `With ${what}` },
-  { value: 'without', label: `Without ${what}` },
+const withWithout = (what: 'Comments' | 'Sparql' | 'ExampleAnswer') => [
+  { value: 'any', get label() { return t('any') } },
+  { value: 'with', get label() { return t(`with${what}`) } },
+  { value: 'without', get label() { return t(`without${what}`) } },
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // DateRange values: 'within_<n>d' (at most n days ago) | 'older_<n>d' (more than n days ago).
 const dateRanges = [
-  { value: 'within_1d', label: 'Last 24 hours' },
-  { value: 'within_7d', label: 'Last 7 days' },
-  { value: 'within_30d', label: 'Last 30 days' },
-  { value: 'older_30d', label: 'More than 30 days ago' },
+  { value: 'within_1d', get label() { return t('last24Hours') } },
+  { value: 'within_7d', get label() { return t('last7Days') } },
+  { value: 'within_30d', get label() { return t('last30Days') } },
+  { value: 'older_30d', get label() { return t('moreThan30DaysAgo') } },
 ];
 
 export const CQ_FILTER_OPTIONS = {
-  discussion: withWithout('comments'),
+  discussion: withWithout('Comments'),
   rating: [
-    { value: 'any', label: 'Any rating' },
-    { value: 'unrated', label: 'Unrated' },
-    { value: 'rated', label: 'Rated' },
-    ...[2, 3, 4].map(n => ({ value: String(n), label: `At least ${n} stars` })),
-    { value: '5', label: '5 stars' },
+    { value: 'any', get label() { return t('anyRating') } },
+    { value: 'unrated', get label() { return t('unrated') } },
+    { value: 'rated', get label() { return t('rated') } },
+    ...[2, 3, 4].map(n => ({ value: String(n), get label() { return t('atLeastStars', { count: n }) } })),
+    { value: '5', get label() { return t('5Stars') } },
   ],
   type: [
-    { value: 'none', label: 'No type' },
+    { value: 'none', get label() { return t('noType') } },
     ...CQ_TYPES.map(t => ({ value: t, label: t })),
   ],
-  sparql: withWithout('SPARQL query'),
-  exampleAnswer: withWithout('example answer'),
+  sparql: withWithout('Sparql'),
+  exampleAnswer: withWithout('ExampleAnswer'),
   consolidation: [
-    { value: 'any', label: 'Any' },
-    { value: 'consolidated', label: 'Consolidated' },
-    { value: 'not_consolidated', label: 'Not consolidated' },
+    { value: 'any', get label() { return t('any') } },
+    { value: 'consolidated', get label() { return t('consolidated') } },
+    { value: 'not_consolidated', get label() { return t('notConsolidated') } },
   ],
-  created: [{ value: 'any', label: 'Any time' }, ...dateRanges],
-  updated: [{ value: 'any', label: 'Any time' }, ...dateRanges],
+  created: [{ value: 'any', get label() { return t('anyTime') } }, ...dateRanges],
+  updated: [{ value: 'any', get label() { return t('anyTime') } }, ...dateRanges],
   lastComment: [
-    { value: 'any', label: 'Any time' },
-    { value: 'none', label: 'No comments' },
+    { value: 'any', get label() { return t('anyTime') } },
+    { value: 'none', get label() { return t('noComments') } },
     ...dateRanges,
   ],
 };
@@ -89,7 +90,7 @@ export function tagsOf(cqs: CompetencyQuestionReducedT[]): TagReducedT[] {
 
 export function tagFilterOptions(tags: TagReducedT[]) {
   return [
-    { value: 'none', label: 'No tags' },
+    { value: 'none', get label() { return t('noTags') } },
     ...tags.map(t => ({ value: t.id, label: `#${t.name}` })),
   ];
 }
@@ -112,7 +113,7 @@ export function catalogueFilterOptions(cqs: CompetencyQuestionReducedT[]) {
   const rank = (t: TopicReducedT) => t.identifier === UNCATALOGUED_IDENTIFIER ? Number.MAX_SAFE_INTEGER : t.identifier.length;
   return [...byId.values()]
     .sort((a, b) => rank(a) - rank(b) || a.identifier.localeCompare(b.identifier))
-    .map(t => ({ value: t.id, prefix: t.identifier, label: t.name }));
+    .map(topic => ({ value: topic.id, prefix: topic.identifier, get label() { return catalogueName(topic) } }));
 }
 
 export function countActiveFilters(filters: CqFilters): number {
@@ -161,7 +162,7 @@ export function useCqFilters(
       .sort(([, a], [, b]) => a.localeCompare(b))
       .map(([value, label]) => ({ value, label }));
     return [
-      { value: 'me', label: 'Me' },
+      { value: 'me', get label() { return t('me') } },
       ...others,
     ];
   });

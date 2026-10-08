@@ -21,6 +21,7 @@
     "qlue-ls": "^2.6.5",
     "vite-plugin-wasm": "^3.6.0",
     "vue": "^3.5.43",
+    "vue-i18n": "^11.4.13",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
   },

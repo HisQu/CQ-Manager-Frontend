@@ -133,7 +133,7 @@ fetchTerms()
                 @close="messagePopupData.open = false;"/>
   <div>
     <label for="question"
-           class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">Question</label>
+           class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('question') }}</label>
     <div class="mt-2">
       <textarea name="question" id="question" rows="4"
              class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -141,7 +141,7 @@ fetchTerms()
       ></textarea>
     </div>
     <div class="mt-4">
-      <label for="cq_comment" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">Comment</label>
+      <label for="cq_comment" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('comment') }}</label>
       <div class="mt-2">
         <textarea id="cq_comment" rows="3"
                   :disabled="!canEdit"
@@ -154,7 +154,7 @@ fetchTerms()
     <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
         <label for="cq_type" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
-          Type <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+          {{ $t('type') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
         </label>
         <div class="mt-2">
           <select id="cq_type"
@@ -165,21 +165,21 @@ fetchTerms()
             <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ CQ_TYPE_LABELS[t] ?? t }}</option>
           </select>
           <div v-if="localType && CQ_TYPE_HINTS[localType]" class="mt-1.5 rounded-md bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
-            <p><span class="font-medium">Purpose:</span> {{ CQ_TYPE_HINTS[localType]!.purpose }}</p>
-            <p><span class="font-medium">Must include:</span> {{ CQ_TYPE_HINTS[localType]!.mustInclude }}</p>
-            <p><span class="font-medium">Expected answer:</span> {{ CQ_TYPE_HINTS[localType]!.answer }}</p>
+            <p><span class="font-medium">{{ $t('purpose') }}</span> {{ CQ_TYPE_HINTS[localType]!.purpose }}</p>
+            <p><span class="font-medium">{{ $t('mustInclude') }}</span> {{ CQ_TYPE_HINTS[localType]!.mustInclude }}</p>
+            <p><span class="font-medium">{{ $t('expectedAnswer') }}</span> {{ CQ_TYPE_HINTS[localType]!.answer }}</p>
           </div>
         </div>
       </div>
       <div>
         <label for="cq_reference" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
-          Reference (Fundstelle) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+          {{ $t('referenceFundstelle') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
         </label>
         <div class="mt-2">
           <input type="text" id="cq_reference"
                  :disabled="!canEdit"
                  v-model="localReference"
-                 placeholder="e.g. S. 138."
+                 :placeholder="$t('eGS138')"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"/>
         </div>
       </div>
@@ -187,13 +187,13 @@ fetchTerms()
 
     <div class="mt-4">
       <label for="cq_anchor" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
-        Anchor (Beleganker) <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        {{ $t('anchorBeleganker') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
       </label>
       <div class="mt-2">
         <textarea id="cq_anchor" rows="2"
                   :disabled="!canEdit"
                   v-model="localAnchor"
-                  placeholder="Source text or evidence from which the CQ was extracted..."
+                  :placeholder="$t('sourceTextOrEvidenceFromWhichTheCQWasExtracted')"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
         ></textarea>
       </div>
@@ -201,34 +201,34 @@ fetchTerms()
 
     <div class="mt-4">
       <label for="cq_example_answer" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">
-        Example Answer <span class="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
+        {{ $t('exampleAnswer') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span>
       </label>
       <div class="mt-2">
         <textarea id="cq_example_answer" rows="2"
                   :disabled="!canEdit"
                   v-model="localExampleAnswer"
-                  placeholder="Sample or example answer..."
+                  :placeholder="$t('sampleOrExampleAnswer')"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
         ></textarea>
       </div>
     </div>
 
-    <h3 class="mt-10 mb-5 text-xl">Term Annotations</h3>
+    <h3 class="mt-10 mb-5 text-xl">{{ $t('termAnnotations') }}</h3>
 
     <div v-for="element in annotations"
          class="items-center rounded-md my-4 px-2 py-1 mx-auto font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-ray-500/10">
-      Term:
+      {{ $t('term') }}
       <RouterLink class="font-bold underline decoration-blue-500 decoration-2 text-blue-500"
                   :to="'/terms/'+props.projectId+'/'+element.term.id"
                   :title="element.term.definition ?? undefined">
         {{ element.term.content }}
       </RouterLink>
-      , Passage: {{ element.content }}
+      {{ $t('passage') }} {{ element.content }}
       <button type="button"
               v-if="props.canEdit"
               class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20 float-right"
               @click="TermDataService.remove(element.term.id, element.id, props.id).then(() => {$emit('fetchCompetencyQuestion')})">
-        <span class="sr-only">Remove</span>
+        <span class="sr-only">{{ $t('remove') }}</span>
         <svg viewBox="0 0 14 14"
              class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
           <path d="M4 4l6 6m0-6l-6 6"/>
@@ -239,7 +239,7 @@ fetchTerms()
     <div class="flex mt-5" v-if="props.canEdit">
       <div class="grow mr-5">
         <label for="search" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">
-          Add term to question
+          {{ $t('addTermToQuestion') }}
         </label>
         <div class="relative mt-2 flex items-center">
           <Combobox v-model="term" class="w-5/6">
@@ -250,7 +250,7 @@ fetchTerms()
                 <ComboboxInput
                     class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     :displayValue="(t: unknown) => (t as TermT)?.content ?? ''"
-                    placeholder="Term"
+                    :placeholder="$t('term2')"
                     @input="onComboboxInput($event)"
                     @keydown.tab.prevent="passage?.focus()"
                 />
@@ -304,7 +304,7 @@ fetchTerms()
                   </ComboboxOption>
                   <ComboboxOption v-if="query" :value="newTermOption">
                     <li class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900">
-                      Create term "{{ query }}"
+                      {{ $t('createTerm') }}{{ query }}"
                     </li>
                   </ComboboxOption>
                 </ComboboxOptions>
@@ -312,24 +312,24 @@ fetchTerms()
             </div>
           </Combobox>
           <input type="text" ref="passage"
-                 placeholder="Passage"
+                 :placeholder="$t('passage2')"
                  v-model="addPassageInput"
                  @keyup.enter="insertTermPassagePair();"
                  class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
           <div class="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
             <kbd class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
-              ↵ ENTER
+              {{ $t('eNTER') }}
             </kbd>
           </div>
         </div>
         <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2" v-if="term && !('id' in term)">
           <input type="text"
                  v-model="newTermDefinition"
-                 placeholder="Definition (optional)"
+                 :placeholder="$t('definitionOptional')"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
           <input type="text"
                  v-model="newTermConceptIri"
-                 placeholder="Concept IRI (optional)"
+                 :placeholder="$t('conceptIRIOptional')"
                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
         </div>
       </div>
@@ -344,7 +344,7 @@ fetchTerms()
 
     <div class="mt-6">
       <label for="sparqlQuery"
-             class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">SPARQL Query</label>
+             class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('sPARQLQuery') }}</label>
       <div class="mt-2">
         <SparqlEditor v-if="canEdit"
                       v-model="localSparqlQuery"
@@ -353,7 +353,7 @@ fetchTerms()
                       :model-value="props.sparqlQuery"
                       :readonly="true"
         />
-        <p v-else class="text-sm text-gray-400 dark:text-gray-500 italic">No SPARQL query defined.</p>
+        <p v-else class="text-sm text-gray-400 dark:text-gray-500 italic">{{ $t('noSPARQLQueryDefined') }}</p>
       </div>
     </div>
   </div>
@@ -363,15 +363,15 @@ fetchTerms()
         type="button"
         class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-      Save
+      {{ $t('save') }}
     </button>
     <div class="mr-5" v-if="$props.id">
-      <SubmitButtonWithCallback agree-button-text="Delete the question"
-                                title="Are you sure you want to delete the question?"
-                                detail="This action is permanent. All comments, ratings and consolidations will be deleted."
+      <SubmitButtonWithCallback :agree-button-text="$t('deleteTheQuestion')"
+                                :title="$t('areYouSureYouWantToDeleteTheQuestion')"
+                                :detail="$t('thisActionIsPermanentAllCommentsRatingsAndConsolidationsWillBeDeleted')"
                                 @modalsuccessclose="CompetencyQuestionDataService.delete(props.id); $router.push('/questions/');">
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-        Delete
+        {{ $t('delete') }}
       </SubmitButtonWithCallback>
     </div>
   </div>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import {ref, watch} from "vue";
@@ -26,9 +28,9 @@ async function fetchTerms() {
 
   if (!getProject.value.id) {
     messagePopupData.value.uxresponse = {
-      title: "No project selected",
+      title: t('noProjectSelected'),
       messageType: "warning",
-      text: "Please select a project in the navigation bar on the left first.",
+      text: t('pleaseSelectAProjectInTheNavigationBarOnTheLeftFirst'),
       detail: ""
     };
     messagePopupData.value.open = true;
@@ -62,15 +64,15 @@ watch(getProject, (_, __) => {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div class="w-full">
-    <DetailPageHeader title="Glossary" :project="getProject.name">
+    <DetailPageHeader :title="$t('glossary')" :project="getProject.name">
       <template #meta>
-        <span class="text-gray-500 dark:text-gray-400">New terms can be added via a Competency Question detail view.</span>
+        <span class="text-gray-500 dark:text-gray-400">{{ $t('newTermsCanBeAddedViaACompetencyQuestionDetailView') }}</span>
       </template>
     </DetailPageHeader>
 
     <div v-if="terms">
       <div v-if="terms.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        There are no terms yet!
+        {{ $t('thereAreNoTermsYet') }}
       </div>
 
       <TermListItem v-for="term in terms.data" :key="term.id" :term="term"/>

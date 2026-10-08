@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
@@ -11,8 +12,8 @@ class ProjectDataService {
             })
             .catch(reason => {
                 return {
-                    title: "Oops! An error occurred...",
-                    text: "... while updating the project. Debugging info can be found in the console.",
+                    title: t('errorOccurred'),
+                    text: t('errorUpdatingTheProject'),
                     detail: reason,
                     messageType: "error"
                 };
@@ -28,8 +29,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing managers. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingManagers'),
                 detail: reason,
                 messageType: "error"
             };
@@ -43,8 +44,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing engineers. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingEngineers'),
                 detail: reason,
                 messageType: "error"
             };
@@ -58,8 +59,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing managers. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingManagers'),
                 detail: reason,
                 messageType: "error"
             };
@@ -73,8 +74,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while removing engineers. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingEngineers'),
                 detail: reason,
                 messageType: "error"
             };
@@ -86,8 +87,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving projects. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingProjects'),
                 detail: reason,
                 messageType: "error"
             };
@@ -99,8 +100,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingProject'),
                 detail: reason,
                 messageType: "error"
             };
@@ -116,8 +117,8 @@ class ProjectDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding the project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingTheProject'),
                 detail: reason,
                 messageType: "error"
             };
@@ -129,8 +130,8 @@ class ProjectDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheProject'),
                 detail: reason,
                 messageType: "error"
             }

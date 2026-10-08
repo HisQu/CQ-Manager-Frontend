@@ -42,7 +42,7 @@ const summary = computed(() => {
       <button v-if="model.length"
               type="button"
               class="absolute inset-y-0 right-7 flex items-center px-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-              :aria-label="`Clear ${label} filter`"
+              :aria-label="$t('clearFilter', { label })"
               @click="model = []">
         <XMarkIcon class="h-4 w-4" aria-hidden="true" />
       </button>

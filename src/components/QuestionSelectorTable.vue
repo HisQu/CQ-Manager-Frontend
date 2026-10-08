@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '../i18n'
+
 import {defineComponent, PropType, ref} from 'vue'
 import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from "@headlessui/vue";
 import {ArrowTopRightOnSquareIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon, ChevronUpIcon} from "@heroicons/vue/20/solid";
@@ -52,7 +54,7 @@ export default defineComponent({
       selectedIds: [...this.initialSelectedIds] as string[],
       selectedFilterGroup: (this.initialGroup?.id
         ? this.initialGroup
-        : { id: '', name: 'All groups' }) as GroupOption,
+        : { id: '', get name() { return t('allGroups') } }) as GroupOption,
       filterText: store.cqSearchQuery,
       selectedTopicIds: [...store.cqSelectedTopicIds] as string[],
       // The CQs that were sources when the table opened stay pinned, even after they are unchecked.
@@ -61,11 +63,11 @@ export default defineComponent({
       sort: { ...DEFAULT_CQ_SORT } as CqSort,
       // Sortable columns; the sort control next to the filters offers the remaining fields.
       columns: [
-        { field: 'catalogue', label: 'ID', class: 'px-3' },
-        { field: 'question', label: 'Question', class: 'pr-3' },
-        { field: 'group', label: 'Group', class: 'px-3' },
-        { field: 'author', label: 'Author', class: 'px-3' },
-        { field: 'consolidations', label: 'Consolidations', class: 'px-3' },
+        { field: 'catalogue', get label() { return t('iD') }, class: 'px-3' },
+        { field: 'question', get label() { return t('question') }, class: 'pr-3' },
+        { field: 'group', get label() { return t('group') }, class: 'px-3' },
+        { field: 'author', get label() { return t('author') }, class: 'px-3' },
+        { field: 'consolidations', get label() { return t('consolidations') }, class: 'px-3' },
       ] as { field: CqSortField; label: string; class: string }[],
     }
   },
@@ -181,15 +183,15 @@ export default defineComponent({
         <div class="flex-1 min-w-0">
           <slot name="header">
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Select questions using the checkbox at the front.
-              <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
+              {{ $t('selectQuestionsUsingTheCheckboxAtTheFront') }}
+              <span class="dark:text-blue-300 text-blue-600">{{ $t('blue2') }}</span> {{ $t('rowsAreAlreadyPartOfAnotherConsolidation') }}
             </p>
           </slot>
         </div>
         <div class="flex items-center gap-3 flex-shrink-0 ml-4">
           <span v-if="selectable && selectedIds.length > 0"
                 class="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-400/10 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:text-indigo-400 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
-            {{ selectedIds.length }} selected
+            {{ selectedIds.length }} {{ $t('selected') }}
           </span>
           <button v-if="selectable && $slots.default && selectedIds.length > 0"
                   type="button"
@@ -205,7 +207,7 @@ export default defineComponent({
         <input
           v-model="filterText"
           type="text"
-          placeholder="Search questions…"
+          :placeholder="$t('searchQuestions')"
           class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
         />
       </div>
@@ -239,7 +241,7 @@ export default defineComponent({
       </div>
 
       <div v-if="filtersOpen" class="mt-3 space-y-3">
-        <FilterMultiSelect v-if="catalogueOptions.length" class="max-w-sm" label="Catalogue" placeholder="All catalogues"
+        <FilterMultiSelect v-if="catalogueOptions.length" class="max-w-sm" :label="$t('catalogue')" :placeholder="$t('allCatalogues')"
                            v-model="selectedTopicIds" :options="catalogueOptions" />
         <CqFilterPanel v-model="filters" :author-options="authorOptions" :tag-options="tagOptions" />
       </div>
@@ -270,13 +272,13 @@ export default defineComponent({
                 </span>
               </button>
             </th>
-            <th scope="col" class="relative py-3 pl-3 pr-5"><span class="sr-only">Open</span></th>
+            <th scope="col" class="relative py-3 pl-3 pr-5"><span class="sr-only">{{ $t('open') }}</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
           <tr v-if="filteredCqs.length === 0">
             <td :colspan="selectable ? 7 : 6" class="py-10 text-center text-sm text-gray-400 dark:text-gray-500">
-              No questions available.
+              {{ $t('noQuestionsAvailable') }}
             </td>
           </tr>
           <template v-for="row in rows" :key="row.key">
@@ -321,9 +323,9 @@ export default defineComponent({
               </td>
               <td class="py-3.5 pl-3 pr-5 text-right text-sm">
                 <RouterLink :to="`/questions/${row.cq!.id}`"
-                            :title="`Open ${row.cq!.cqCatalogueIdentifier ?? 'this CQ'}`"
+                            :title="$t('openQuestion', { question: row.cq!.cqCatalogueIdentifier ?? $t('thisCQ') })"
                             class="inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-md bg-white dark:bg-gray-800 px-2.5 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700">
-                  Open CQ
+                  {{ $t('openCQ') }}
                   <ArrowTopRightOnSquareIcon class="h-4 w-4" aria-hidden="true" />
                 </RouterLink>
               </td>

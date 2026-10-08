@@ -13,7 +13,7 @@ import CommentDataService from "../services/CommentDataService.ts";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
 import {useStore} from "../store.ts";
 import TagSelector from "../components/TagSelector.vue";
-import {isUncatalogued} from "../utils/catalogues.ts";
+import {isUncatalogued, catalogueName} from "../utils/catalogues.ts";
 
 const props = defineProps(['id'])
 
@@ -119,13 +119,13 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
       :catalogue-identifier="cq.data.cqCatalogueIdentifier ?? undefined"
       :catalogue-name="cq.data.topic?.name">
       <template #meta>
-        By <span class="font-medium text-gray-700 dark:text-gray-200">{{ cq.data.author.name }}</span>
+        {{ $t('by') }} <span class="font-medium text-gray-700 dark:text-gray-200">{{ cq.data.author.name }}</span>
         <span class="mx-1.5 text-gray-300 dark:text-gray-600">·</span>
         <span class="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
           v{{ cq.data.versionNumber }}
         </span>
         <span v-if="cq.data.consolidations.length > 0" class="ml-1.5 inline-flex items-center rounded-md bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30">
-          {{ cq.data.consolidations.length }} consolidation{{ cq.data.consolidations.length !== 1 ? 's' : '' }}
+          {{ $t('consolidationCount', cq.data.consolidations.length) }}
         </span>
       </template>
       <template #actions>
@@ -135,7 +135,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
                        @afterRating="fetchCompetencyQuestion()"/>
         <Popover class="relative">
           <PopoverButton class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 focus:outline-none">
-            Show ratings
+            {{ $t('showRatings') }}
           </PopoverButton>
           <transition enter-active-class="transition ease-out duration-200"
                       enter-from-class="opacity-0 translate-y-1"
@@ -146,7 +146,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
             <PopoverPanel class="absolute right-0 z-20 mt-2 w-72 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-900/10 dark:ring-white/10">
               <div class="p-3">
                 <p v-if="cq.data.ratings.length === 0"
-                   class="text-sm text-gray-500 dark:text-gray-400 px-2 py-1">No ratings yet.</p>
+                   class="text-sm text-gray-500 dark:text-gray-400 px-2 py-1">{{ $t('noRatingsYet') }}</p>
                 <div v-for="item in cq.data.ratings" :key="item.id"
                      class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <span class="text-sm text-gray-600 dark:text-gray-300 truncate mr-4">{{ item.author.name }}</span>
@@ -163,16 +163,16 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
 
     <!-- Catalogue assignment -->
     <div class="mb-8">
-      <h2 class="text-base font-semibold dark:text-white mb-3">Catalogue</h2>
+      <h2 class="text-base font-semibold dark:text-white mb-3">{{ $t('catalogue') }}</h2>
 
       <!-- Current assignment badge -->
       <div v-if="cq.data.topic" class="flex items-center gap-2 mb-3">
         <span class="inline-flex items-center justify-center rounded-md bg-indigo-100 dark:bg-indigo-400/20 px-2.5 py-0.5 text-sm font-bold text-indigo-700 dark:text-indigo-300 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
           {{ cq.data.topic.identifier }}
         </span>
-        <span :class="['text-sm text-gray-700 dark:text-gray-300', isUncatalogued(cq.data.topic) ? 'italic' : '']">{{ cq.data.topic.name }}</span>
+        <span :class="['text-sm text-gray-700 dark:text-gray-300', isUncatalogued(cq.data.topic) ? 'italic' : '']">{{ catalogueName(cq.data.topic) }}</span>
       </div>
-      <p v-else class="text-sm text-gray-500 dark:text-gray-400 mb-3">Not assigned to a catalogue.</p>
+      <p v-else class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ $t('notAssignedToACatalogue') }}</p>
 
       <!-- Reassignment controls (only when editable) -->
       <div v-if="canEdit" class="flex items-center gap-3 flex-wrap">
@@ -181,7 +181,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
             <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
               <span class="flex items-center gap-1.5 truncate">
                 <span v-if="selectedTopic?.identifier" class="font-semibold text-indigo-600 dark:text-indigo-400">{{ selectedTopic.identifier }}</span>
-                <span>{{ selectedTopic?.name ?? 'Select a catalogue…' }}</span>
+                <span>{{ selectedTopic?.name ?? $t('selectACatalogue') }}</span>
               </span>
               <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -192,7 +192,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
                 <ListboxOption as="template" v-for="t in topics" :key="t.id" :value="t" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate flex items-center gap-1.5', isUncatalogued(t) ? 'italic' : '']">
-                      <span class="font-bold not-italic">{{ t.identifier }}</span>{{ t.name }}
+                      <span class="font-bold not-italic">{{ t.identifier }}</span>{{ catalogueName(t) }}
                     </span>
                     <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
                       <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -215,14 +215,14 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
           ]"
           @click="saveCatalogueAssignment"
         >
-          {{ isUncatalogued(cq.data.topic) ? 'Assign' : (isUncatalogued(selectedTopic) ? 'Remove' : 'Change') }}
+          {{ isUncatalogued(cq.data.topic) ? $t('assign') : (isUncatalogued(selectedTopic) ? $t('remove') : $t('change')) }}
         </button>
       </div>
     </div>
 
     <!-- Tags -->
     <div class="mb-8">
-      <h2 class="text-base font-semibold dark:text-white mb-3">Tags</h2>
+      <h2 class="text-base font-semibold dark:text-white mb-3">{{ $t('tags') }}</h2>
       <TagSelector v-model="tags"
                    class="max-w-xl"
                    :project-id="cq.data.group.project.id"
@@ -249,7 +249,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     <!-- Consolidations -->
     <template v-if="cq.data.consolidations.length > 0">
       <h2 class="mt-12 mb-3 text-lg font-semibold dark:text-white">
-        Consolidations
+        {{ $t('consolidations') }}
         <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.consolidations.length }}</span>
       </h2>
       <div class="space-y-2">
@@ -258,20 +258,20 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
           class="block rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-400/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-400/30">
-              {{ cons.noSourceQuestions }} source question{{ cons.noSourceQuestions !== 1 ? 's' : '' }}
+              {{ $t('sourceQuestionCount', cons.noSourceQuestions) }}
             </span>
             <span v-if="cons.targetQuestion?.id === cq.data.id"
                   class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-400/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/30">
-              Target
+              {{ $t('target') }}
             </span>
             <span v-else
                   class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/20">
-              Source
+              {{ $t('source') }}
             </span>
           </div>
           <p v-if="cons.targetQuestion && cons.targetQuestion.id !== cq.data.id"
              class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            <span class="text-xs text-gray-400 dark:text-gray-500 mr-1">Target:</span>{{ cons.targetQuestion.question }}
+            <span class="text-xs text-gray-400 dark:text-gray-500 mr-1">{{ $t('target2') }}</span>{{ cons.targetQuestion.question }}
           </p>
         </RouterLink>
       </div>
@@ -279,7 +279,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
 
     <!-- Version history -->
     <template v-if="cq.data.versionNumber > 1">
-      <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">Version history</h2>
+      <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h2>
       <div class="space-y-2">
         <p v-for="v in cq.data.versions" class="text-sm dark:text-gray-300">
           <span class="font-medium">{{ v.editor.name }}</span>
@@ -291,7 +291,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
 
     <!-- Comments -->
     <h2 class="mt-12 mb-3 text-lg font-semibold dark:text-white">
-      Comments
+      {{ $t('comments') }}
       <span class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">{{ cq.data.comments.length }}</span>
     </h2>
     <CommentComponent :question-id="cq.data.id" :comments="cq.data.comments" @refresh="fetchCompetencyQuestion()"/>
