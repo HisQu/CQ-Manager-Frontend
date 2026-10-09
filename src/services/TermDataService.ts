@@ -56,6 +56,26 @@ class TermDataService {
             };
         });
     }
+
+    async updateAnnotation(project_id: string, question_id: string, passage_id: string, annotation: AnnotationT): Promise<AxiosResponse<AnnotationOccurrenceT> | UXResponse> {
+        return http.put<AnnotationOccurrenceT>(`/terms/${project_id}/${question_id}/${passage_id}`, {
+            term: annotation.term,
+            passage: annotation.passage,
+            start: annotation.start,
+            end: annotation.end,
+            definition: annotation.definition ?? null,
+            conceptIri: annotation.conceptIri ?? null,
+        }, { headers: authHeader() }).then(response => {
+            return response;
+        }).catch(reason => {
+            return {
+                title: "Oops! An error occurred...",
+                text: "... while updating the annotation. Debugging info can be found in the console.",
+                detail: reason,
+                messageType: "error"
+            };
+        });
+    }
     
 
     async update(project_id: string, term_id: string, content: string, definition?: string | null, conceptIri?: string | null): Promise<AxiosResponse<any, TermT> | UXResponse> {

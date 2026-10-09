@@ -43,6 +43,7 @@ const query = ref("");
 const newTermDefinition = ref("");
 const newTermConceptIri = ref("");
 const pendingSelection = ref<{start: number; end: number; content: string} | null>(null);
+const editingAnnotation = ref<AnnotationInCQT | null>(null);
 const saving = ref(false);
 const messagePopupData = ref({
   uxresponse: {
@@ -134,7 +135,14 @@ function captureTextSelection() {
 
 function selectTerm(value: TermT | {content: string} | null) {
   term.value = value;
-  if (value && !("id" in value)) query.value = value.content;
+  if (value) {
+    query.value = "id" in value ? "" : value.content;
+    newTermDefinition.value = "id" in value ? value.definition ?? "" : "";
+    newTermConceptIri.value = "id" in value ? value.conceptIri ?? "" : "";
+  } else {
+    newTermDefinition.value = "";
+    newTermConceptIri.value = "";
+  }
 }
 
 function displayTerm(value: unknown): string {
@@ -144,23 +152,37 @@ function displayTerm(value: unknown): string {
 }
 
 function updateQuery(event: Event) {
-  query.value = (event.target as HTMLInputElement).value;
+  const value = (event.target as HTMLInputElement).value;
+  query.value = value;
+  if (term.value && "id" in term.value && value !== term.value.content) {
+    term.value = null;
+    newTermDefinition.value = "";
+    newTermConceptIri.value = "";
+  }
 }
 
-async function addAnnotation() {
+async function saveAnnotation() {
   if (!props.canEdit || !pendingSelection.value || !term.value?.content || saving.value) return;
-  const isNewTerm = !("id" in term.value);
   saving.value = true;
-  const response = await TermDataService.add(props.questionId, [{
+  const annotation: AnnotationT = {
     term: term.value.content,
     passage: pendingSelection.value.content,
     start: pendingSelection.value.start,
     end: pendingSelection.value.end,
-    ...(isNewTerm ? {
-      definition: newTermDefinition.value || null,
-      conceptIri: newTermConceptIri.value || null,
-    } : {}),
-  }]);
+    definition: newTermDefinition.value || null,
+    conceptIri: newTermConceptIri.value || null,
+  };
+  let response;
+  if (editingAnnotation.value) {
+    response = await TermDataService.updateAnnotation(
+      props.projectId,
+      props.questionId,
+      editingAnnotation.value.id,
+      annotation,
+    );
+  } else {
+    response = await TermDataService.add(props.questionId, [annotation]);
+  }
   saving.value = false;
 
   if ("messageType" in response) {
@@ -174,18 +196,41 @@ async function addAnnotation() {
   emit("updated");
 }
 
+function editAnnotation(annotation: AnnotationInCQT) {
+  if (!props.canEdit) return;
+  editingAnnotation.value = annotation;
+  pendingSelection.value = {
+    start: annotation.start,
+    end: annotation.end,
+    content: annotation.content,
+  };
+  term.value = terms.value.find((item) => item.id === annotation.term.id) ?? {
+    id: annotation.term.id,
+    content: annotation.term.content,
+    projectId: props.projectId,
+    definition: annotation.term.definition ?? null,
+    conceptIri: annotation.term.conceptIri ?? null,
+  };
+  query.value = annotation.term.content;
+  newTermDefinition.value = annotation.term.definition ?? "";
+  newTermConceptIri.value = annotation.term.conceptIri ?? "";
+  window.getSelection()?.removeAllRanges();
+}
+
 async function removeAnnotation(annotation: AnnotationInCQT) {
   if (!props.canEdit) return;
   const response = await TermDataService.remove(annotation.id, props.questionId);
   if ("messageType" in response) {
     showMessage(response);
   } else {
+    if (editingAnnotation.value?.id === annotation.id) closeSelection();
     emit("updated");
   }
 }
 
 function closeSelection() {
   pendingSelection.value = null;
+  editingAnnotation.value = null;
   term.value = null;
   query.value = "";
   newTermDefinition.value = "";
@@ -234,7 +279,7 @@ function barStyle(annotation: AnnotationView) {
                 @close="messagePopupData.open = false" />
 
   <p class="mb-2 text-sm text-gray-600 dark:text-gray-300">
-    <template v-if="canEdit">Select part of the question to annotate it.</template>
+    <template v-if="canEdit">Select text to annotate it. Click an annotation bar to edit it, or right-click the bar to remove it.</template>
     <template v-else>Term annotations for this question.</template>
   </p>
 
@@ -254,10 +299,11 @@ function barStyle(annotation: AnnotationView) {
                   type="button"
                   class="annotation-bar"
                   :style="barStyle(annotation)"
-                  :title="`Remove annotation: ${annotation.term.content}`"
-                  :aria-label="`Remove annotation: ${annotation.term.content}`"
+                  :title="`Edit annotation: ${annotation.term.content} (right-click to remove)`"
+                  :aria-label="`Edit annotation: ${annotation.term.content}`"
                   @mouseup.stop
-                  @click.stop="removeAnnotation(annotation)">
+                  @click.stop="editAnnotation(annotation)"
+                  @contextmenu.prevent.stop="removeAnnotation(annotation)">
             <span v-if="segmentHasLabelAnchor(segment, annotation)"
                   class="annotation-label"
                   :title="annotation.term.content">{{ shortLabel(annotation.term.content, annotation.content) }}</span>
@@ -275,7 +321,9 @@ function barStyle(annotation: AnnotationView) {
   <div v-if="pendingSelection && canEdit" class="mt-3 rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/30">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="min-w-0 grow text-sm text-gray-700 dark:text-gray-200">
-        Selected: <span class="font-medium" :title="pendingSelection.content">“{{ pendingSelection.content }}”</span>
+        <template v-if="editingAnnotation">Edit annotation:</template>
+        <template v-else>Selected:</template>
+        <span class="font-medium" :title="pendingSelection.content"> “{{ pendingSelection.content }}”</span>
       </p>
       <button type="button" class="rounded p-1 text-gray-500 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cancel annotation" @click="closeSelection">
         <XMarkIcon class="h-4 w-4" />
@@ -291,7 +339,7 @@ function barStyle(annotation: AnnotationView) {
               :display-value="displayTerm"
               placeholder="Choose or create a term"
               @input="updateQuery"
-              @keydown.enter.prevent="addAnnotation" />
+              @keydown.enter.prevent="saveAnnotation" />
             <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
             </ComboboxButton>
@@ -314,16 +362,21 @@ function barStyle(annotation: AnnotationView) {
             </TransitionRoot>
           </div>
         </Combobox>
-        <div v-if="term && !('id' in term)" class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div v-if="(term?.content || query).trim().length > 0" class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <input v-model="newTermDefinition" type="text" placeholder="Definition (optional)"
                  class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
           <input v-model="newTermConceptIri" type="text" placeholder="Concept IRI (optional)"
                  class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
         </div>
       </div>
-      <button type="button" :disabled="!term || saving"
-              class="inline-flex shrink-0 items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-              @click="addAnnotation">Add annotation</button>
+      <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+        <button type="button" :disabled="!term || saving"
+                class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                @click="saveAnnotation">{{ editingAnnotation ? 'Save changes' : 'Add annotation' }}</button>
+        <button v-if="editingAnnotation" type="button" :disabled="saving"
+                class="inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                @click="removeAnnotation(editingAnnotation)">Remove annotation</button>
+      </div>
     </div>
   </div>
 </template>
