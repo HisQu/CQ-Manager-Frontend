@@ -25,6 +25,10 @@ const commentsPaneOpen = computed(() => hasCommentsPane.value && commentsPaneDoc
 const forceNavbarCollapsed = computed(() => commentsPaneOpen.value && !canExpandBothPanes.value);
 const navbarCollapsed = computed(() => sidebarCollapsed.value || forceNavbarCollapsed.value);
 
+// Views kept alive while other pages are visited, so returning to them is instant and keeps their scroll position.
+// Emptied on logout, which drops the cached views and their data.
+const keptAliveViews = computed(() => isLoggedIn.value ? ['CompetencyQuestionDashboardView'] : []);
+
 function expandNavbar() {
   if (!canExpandBothPanes.value) commentsPaneExpanded.value = false;
 }
@@ -45,9 +49,15 @@ const showNavbar = computed(() =>  {
         <div v-if="route.path !== '/'" class="flex justify-end mb-4">
           <LanguageSelector />
         </div>
-        <Suspense>
-          <RouterView :key="$route.fullPath" />
-        </Suspense>
+        <RouterView v-slot="{ Component, route: viewRoute }">
+          <template v-if="Component">
+            <KeepAlive :include="keptAliveViews">
+              <Suspense>
+                <component :is="Component" :key="viewRoute.fullPath" />
+              </Suspense>
+            </KeepAlive>
+          </template>
+        </RouterView>
       </div>
     </main>
   </div>
