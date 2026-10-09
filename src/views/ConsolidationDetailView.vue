@@ -157,15 +157,29 @@ async function saveResultQuestion() {
   const rq = consolidation.value?.targetQuestion;
   if (!rq) return;
 
+  const currentQuestion = await CompetencyQuestionDataService.getOne(rq.id);
+  if ("messageType" in currentQuestion) {
+    showError(currentQuestion);
+    return;
+  }
+  const invalidatesAnnotations = currentQuestion.data.annotations.some((annotation) =>
+    resultQuestionText.value.slice(annotation.start, annotation.end) !== annotation.content,
+  );
+  const discardAnnotations = invalidatesAnnotations
+    ? window.confirm("Changing this question text will invalidate its existing term annotations. Save the question and delete all of its annotations?")
+    : false;
+  if (invalidatesAnnotations && !discardAnnotations) return;
+
   savingResultQuestion.value = true;
   const response = await CompetencyQuestionDataService.change(
-    resultQuestionText.value, [], rq.id, undefined, undefined,
+    resultQuestionText.value, rq.id, undefined, undefined,
     {
       reference: resultQuestionReference.value,
       anchor: resultQuestionAnchor.value,
       exampleAnswer: resultQuestionExampleAnswer.value,
       type: resultQuestionType.value,
-    }
+    },
+    discardAnnotations,
   );
   savingResultQuestion.value = false;
 

@@ -69,8 +69,8 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getOne(question_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/${question_uuid}`, { headers: authHeader() }).then(response => {
+    async getOne(question_uuid: string): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
+        return http.get<CompetencyQuestionT>(`/questions/${question_uuid}`, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -117,24 +117,24 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async change(question: string, annotations: AnnotationT[], question_uuid: string, sparqlQuery?: string | null, comment?: string | null, meta?: {
+    async change(question: string, question_uuid: string, sparqlQuery?: string | null, comment?: string | null, meta?: {
         reference?: string | null,
         anchor?: string | null,
         exampleAnswer?: string | null,
         type?: CQType | null,
-    }): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
-        return http.put<DeleteResponse>(`/questions/${question_uuid}`, {
+    }, discardAnnotations = false): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
+        return http.put<CompetencyQuestionT>(`/questions/${question_uuid}`, {
             question: question,
-            annotations: annotations,
             sparqlQuery: sparqlQuery ?? null,
             comment: comment ?? null,
+            discardAnnotations,
             ...(meta ?? {}),
         }, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
                 title: "Oops! An error occurred...",
-                text: "... while deleting the competency question. Debugging info can be found in the console.",
+                text: "... while updating the competency question. Debugging info can be found in the console.",
                 detail: reason,
                 messageType: "error"
             }

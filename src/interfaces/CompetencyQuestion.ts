@@ -17,7 +17,9 @@ type CompetencyQuestionT = {
     author: UserT,
     noConsolidations: number,
     consolidations: ConsolidationT[],
-    annotations: Array<AnnotationT>,
+    annotations: Array<AnnotationInCQT>,
+    permissionsGroupMember?: boolean,
+    permissionsProjectManager?: boolean,
     versions: {
         editor: {
             name: string,

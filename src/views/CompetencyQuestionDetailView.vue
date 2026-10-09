@@ -72,10 +72,15 @@ async function saveCatalogueAssignment() {
   }
 }
 
-function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
+function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type, discardAnnotations }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null, discardAnnotations?: boolean }) {
   comment.value = newComment;
-  CompetencyQuestionDataService.change(question, [], props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(() => {
-    fetchCompetencyQuestion()
+  CompetencyQuestionDataService.change(question, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }, discardAnnotations).then(response => {
+    if ("messageType" in response) {
+      messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
+      messagePopupData.value.open = true;
+    } else {
+      fetchCompetencyQuestion()
+    }
   })
 }
 </script>

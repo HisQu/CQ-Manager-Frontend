@@ -42,8 +42,8 @@ class TermDataService {
             };
         });
     }
-    async add(question_id: string, annotations: AnnotationT[]): Promise<AxiosResponse<any, GroupFullT> | UXResponse> {
-        return http.put<DeleteResponse>(`/terms/add/${question_id}`, {
+    async add(question_id: string, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationOccurrenceT[]> | UXResponse> {
+        return http.put<AnnotationOccurrenceT[]>(`/terms/add/${question_id}`, {
             annotations: annotations
         }, { headers: authHeader() }).then(response => {
             return response;
@@ -84,9 +84,8 @@ class TermDataService {
         });
     }
 
-    async remove(term_id: string, passage_id: string, question_id: string): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
-        return http.put<DeleteResponse>(`/terms/remove/${question_id}`,{
-            termIds: [term_id],
+    async remove(passage_id: string, question_id: string): Promise<AxiosResponse<AnnotationOccurrenceT[]> | UXResponse> {
+        return http.put<AnnotationOccurrenceT[]>(`/terms/remove/${question_id}`,{
             passageIds: [passage_id],
         },{
             headers: authHeader(),

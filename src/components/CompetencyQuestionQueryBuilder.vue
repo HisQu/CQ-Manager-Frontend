@@ -1,36 +1,29 @@
 <script setup lang="ts">
-import {computed, defineProps, nextTick, reactive, ref, toRefs, watch} from "vue";
-import {ArrowDownOnSquareIcon, CheckCircleIcon, TrashIcon, ChevronUpDownIcon, CheckIcon} from "@heroicons/vue/24/solid";
+import {computed, ref, toRefs, watch} from "vue";
+import {ArrowDownOnSquareIcon, TrashIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
-import TermDataService from "../services/TermDataService.ts";
-import MessagePopup from "./MessagePopup.vue";
 import SparqlEditor from "./SparqlEditor.vue";
-import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-  TransitionRoot
-} from "@headlessui/vue";
-
-const addPassageInput = ref("");
-
-const messagePopupData = ref({
-  uxresponse: {
-    title: "",
-    messageType: "" as UXResponse["messageType"],
-    text: "",
-    detail: "",
-  },
-  open: false
-})
+import TermAnnotationSpanEditor from "./TermAnnotationSpanEditor.vue";
 
 import { CQ_TYPES, CQ_TYPE_LABELS, CQ_TYPE_HINTS } from '../constants/cqTypes.ts'
 
-const props = defineProps(['question', 'sparqlQuery', 'comment', 'reference', 'anchor', 'exampleAnswer', 'type', 'annotations', 'canEdit', 'groupId', 'id', 'projectId'])
+const props = defineProps<{
+  question: string;
+  sparqlQuery?: string | null;
+  comment?: string | null;
+  reference?: string | null;
+  anchor?: string | null;
+  exampleAnswer?: string | null;
+  type?: CQType | null;
+  annotations?: AnnotationInCQT[];
+  canEdit: boolean;
+  groupId?: string;
+  id?: string;
+  projectId: string;
+}>()
 const {annotations} = toRefs(props)
+const annotationItems = computed(() => annotations.value ?? [])
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 
 const localQuestion = ref<string>(props.question ?? '')
@@ -40,6 +33,7 @@ const localReference = ref<string | null>(props.reference ?? null)
 const localAnchor = ref<string | null>(props.anchor ?? null)
 const localExampleAnswer = ref<string | null>(props.exampleAnswer ?? null)
 const localType = ref<CQType | null>(props.type ?? null)
+const questionTextChanged = computed(() => localQuestion.value !== (props.question ?? ''))
 
 watch(() => props.question, (val) => { localQuestion.value = val ?? '' })
 watch(() => props.sparqlQuery, (val) => { localSparqlQuery.value = val ?? '' })
@@ -49,88 +43,33 @@ watch(() => props.anchor, (val) => { localAnchor.value = val ?? null })
 watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? null })
 watch(() => props.type, (val) => { localType.value = val ?? null })
 
-const passage = ref<HTMLInputElement | null>(null);
+function saveQuestion() {
+  const invalidAnnotations = annotationItems.value.some((annotation) =>
+    localQuestion.value.slice(annotation.start, annotation.end) !== annotation.content,
+  );
+  let discardAnnotations = false;
 
-const terms = ref<TermT[]>();
-const term = ref<TermT | { content: string } | null>(null)
-const query = ref('')
-const newTermOption = reactive({ content: '' })
-const newTermDefinition = ref('')
-const newTermConceptIri = ref('')
-let termIsSelected = false;
-watch(query, (q) => { if (!termIsSelected) newTermOption.content = q; }, { immediate: true })
-watch(term, (newTerm) => {
-  if (newTerm) {
-    termIsSelected = true;
-    nextTick(() => passage.value?.focus());
+  if (invalidAnnotations) {
+    discardAnnotations = window.confirm(
+      "Changing this question text will invalidate its existing term annotations. Save the question and delete all of its annotations?",
+    );
+    if (!discardAnnotations) return;
   }
-}, { flush: 'sync' })
-const filteredTerms = computed(() =>
-    terms.value === undefined ? [] :
-        query.value === ''
-            ? terms?.value
-            : terms.value.filter((e) => {
-              return e.content.toLowerCase().includes(query.value.toLowerCase())
-            })
-)
 
-function onComboboxInput(event: Event) {
-  query.value = (event.target as HTMLInputElement).value;
-  termIsSelected = false;
+  emits('saveCompetencyQuestion', {
+    question: localQuestion.value,
+    sparqlQuery: localSparqlQuery.value || null,
+    comment: localComment.value,
+    reference: localReference.value,
+    anchor: localAnchor.value,
+    exampleAnswer: localExampleAnswer.value,
+    type: localType.value,
+    discardAnnotations,
+  });
 }
-
-function insertTermPassagePair() {
-  if (!term.value?.content) return;
-  const isNewTerm = !('id' in term.value);
-  TermDataService.add(props.id, [{
-    term: term.value.content,
-    passage: addPassageInput.value,
-    ...(isNewTerm ? {
-      definition: newTermDefinition.value || null,
-      conceptIri: newTermConceptIri.value || null,
-    } : {})
-  }]).then(response => {
-    if ("messageType" in response) {
-      messagePopupData.value.uxresponse = {
-        ...messagePopupData.value.uxresponse,
-        ...response
-      };
-      messagePopupData.value.open = true;
-
-    } else {
-      emits('fetchCompetencyQuestion');
-      term.value = null;
-      addPassageInput.value = '';
-      newTermDefinition.value = '';
-      newTermConceptIri.value = '';
-      termIsSelected = false;
-      query.value = '';
-    }
-  })
-}
-
-function fetchTerms() {
-  TermDataService.getAllForOneProject(props.projectId).then(response => {
-    if ("messageType" in response) {
-      messagePopupData.value.uxresponse = {
-        ...messagePopupData.value.uxresponse,
-        ...response
-      };
-      messagePopupData.value.open = true;
-
-    } else {
-      terms.value = response.data;
-    }
-  })
-}
-
-fetchTerms()
 </script>
 
 <template>
-  <MessagePopup :uxresponse="messagePopupData.uxresponse"
-                :open="messagePopupData.open"
-                @close="messagePopupData.open = false;"/>
   <div>
     <label for="question"
            class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">Question</label>
@@ -213,134 +152,19 @@ fetchTerms()
       </div>
     </div>
 
-    <h3 class="mt-10 mb-5 text-xl">Term Annotations</h3>
-
-    <div v-for="element in annotations"
-         class="items-center rounded-md my-4 px-2 py-1 mx-auto font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-ray-500/10">
-      Term:
-      <RouterLink class="font-bold underline decoration-blue-500 decoration-2 text-blue-500"
-                  :to="'/terms/'+props.projectId+'/'+element.term.id"
-                  :title="element.term.definition ?? undefined">
-        {{ element.term.content }}
-      </RouterLink>
-      , Passage: {{ element.content }}
-      <button type="button"
-              v-if="props.canEdit"
-              class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20 float-right"
-              @click="TermDataService.remove(element.term.id, element.id, props.id).then(() => {$emit('fetchCompetencyQuestion')})">
-        <span class="sr-only">Remove</span>
-        <svg viewBox="0 0 14 14"
-             class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-          <path d="M4 4l6 6m0-6l-6 6"/>
-        </svg>
-        <span class="absolute -inset-1"/>
-      </button>
-    </div>
-    <div class="flex mt-5" v-if="props.canEdit">
-      <div class="grow mr-5">
-        <label for="search" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">
-          Add term to question
-        </label>
-        <div class="relative mt-2 flex items-center">
-          <Combobox v-model="term" class="w-5/6">
-            <div class="relative mr-5">
-              <div
-                  class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300 sm:text-sm"
-              >
-                <ComboboxInput
-                    class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    :displayValue="(t: unknown) => (t as TermT)?.content ?? ''"
-                    placeholder="Term"
-                    @input="onComboboxInput($event)"
-                    @keydown.tab.prevent="passage?.focus()"
-                />
-                <ComboboxButton
-                    class="absolute inset-y-0 right-0 flex items-center pr-2"
-                    :tabindex="-1"
-                >
-                  <ChevronUpDownIcon
-                      class="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                  />
-                </ComboboxButton>
-              </div>
-              <TransitionRoot
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                  @after-leave="query = ''"
-              >
-                <ComboboxOptions
-                    class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
-                >
-                  <ComboboxOption
-                      v-for="term in filteredTerms"
-                      as="template"
-                      :key="term.id"
-                      :value="term"
-                      v-slot="{ selected, active }"
-                  >
-                    <li
-                        class="relative cursor-default select-none py-2 pl-10 pr-4"
-                        :class="{
-                  'bg-indigo-600 text-white': active,
-                  'text-gray-900': !active,
-                }"
-                    >
-                <span
-                    class="block truncate"
-                    :class="{ 'font-medium': selected, 'font-normal': !selected }"
-                >
-                  {{ term.content }}
-                </span>
-                      <span
-                          v-if="selected"
-                          class="absolute inset-y-0 left-0 flex items-center pl-3"
-                          :class="{ 'text-white': active, 'text-indigo-600': !active }"
-                      >
-                  <CheckIcon class="h-5 w-5" aria-hidden="true"/>
-                </span>
-                    </li>
-                  </ComboboxOption>
-                  <ComboboxOption v-if="query" :value="newTermOption">
-                    <li class="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900">
-                      Create term "{{ query }}"
-                    </li>
-                  </ComboboxOption>
-                </ComboboxOptions>
-              </TransitionRoot>
-            </div>
-          </Combobox>
-          <input type="text" ref="passage"
-                 placeholder="Passage"
-                 v-model="addPassageInput"
-                 @keyup.enter="insertTermPassagePair();"
-                 class="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-          <div class="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-            <kbd class="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
-              ↵ ENTER
-            </kbd>
-          </div>
-        </div>
-        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2" v-if="term && !('id' in term)">
-          <input type="text"
-                 v-model="newTermDefinition"
-                 placeholder="Definition (optional)"
-                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-          <input type="text"
-                 v-model="newTermConceptIri"
-                 placeholder="Concept IRI (optional)"
-                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-        </div>
-      </div>
-      <div class="mt-auto">
-        <button type="button"
-                @click="insertTermPassagePair();"
-                class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          <CheckCircleIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-        </button>
-      </div>
-    </div>
+    <section v-if="props.id" class="mt-10">
+      <h3 class="mb-3 text-xl">Term Annotations</h3>
+      <p v-if="questionTextChanged && props.canEdit" class="mb-2 text-sm text-amber-700 dark:text-amber-300">
+        Save the question text before adding or changing annotations.
+      </p>
+      <TermAnnotationSpanEditor
+        :text="localQuestion"
+        :annotations="annotationItems"
+        :can-edit="props.canEdit && !questionTextChanged"
+        :question-id="props.id"
+        :project-id="props.projectId"
+        @updated="$emit('fetchCompetencyQuestion')" />
+    </section>
 
     <div class="mt-6">
       <label for="sparqlQuery"
@@ -359,7 +183,7 @@ fetchTerms()
   </div>
   <div v-if="canEdit" class="mt-5 flex flex-row-reverse">
     <button
-        @click="$emit('saveCompetencyQuestion', { question: localQuestion, sparqlQuery: localSparqlQuery || null, comment: localComment, reference: localReference, anchor: localAnchor, exampleAnswer: localExampleAnswer, type: localType })"
+        @click="saveQuestion"
         type="button"
         class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
@@ -369,7 +193,7 @@ fetchTerms()
       <SubmitButtonWithCallback agree-button-text="Delete the question"
                                 title="Are you sure you want to delete the question?"
                                 detail="This action is permanent. All comments, ratings and consolidations will be deleted."
-                                @modalsuccessclose="CompetencyQuestionDataService.delete(props.id); $router.push('/questions/');">
+                                @modalsuccessclose="CompetencyQuestionDataService.delete(props.id ?? ''); $router.push('/questions/');">
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
         Delete
       </SubmitButtonWithCallback>
