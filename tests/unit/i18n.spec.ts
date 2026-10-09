@@ -27,7 +27,7 @@ describe('internationalization', () => {
     await nextTick()
     expect(label.value).toBe('Mit Kommentaren')
     expect(CQ_FILTER_OPTIONS.discussion[1].value).toBe('with')
-    expect(CQ_TYPE_LABELS.RQ).toBe('RQ – Literatur')
+    expect(CQ_TYPE_LABELS.RQ).toBe('Literatur')
   })
 
   it('uses German plural forms and interpolates counts', () => {

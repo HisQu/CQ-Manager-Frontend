@@ -3,6 +3,14 @@ import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
 
+// Sends the ETag of the list the caller already shows; the backend answers an unchanged list with an empty 304.
+function conditionalConfig(etag?: string) {
+    return {
+        headers: etag ? {...authHeader(), 'If-None-Match': etag} : authHeader(),
+        validateStatus: (status: number) => (status >= 200 && status < 300) || status === 304,
+    };
+}
+
 class CompetencyQuestionDataService {
     async getAll(): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
         return http.get<CompetencyQuestionT[]>(`/questions/`, { headers: authHeader() }).then(response => {
@@ -17,8 +25,8 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getAllForOneGroup(group_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, { headers: authHeader() }).then(response => {
+    async getAllForOneGroup(group_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -30,9 +38,9 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getAllForOneProject(project_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+    async getAllForOneProject(project_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
         const url = project_uuid !== "" ? `/questions/by_project/${project_uuid}` : `/questions`;
-        return http.get<CompetencyQuestionT[]>(url, {headers: authHeader()}).then(response => {
+        return http.get<CompetencyQuestionT[]>(url, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -44,8 +52,8 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getUnifiedForProject(project_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_project/${project_uuid}/unified`, {headers: authHeader()}).then(response => {
+    async getUnifiedForProject(project_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_project/${project_uuid}/unified`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -57,8 +65,8 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getUnifiedForGroup(group_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}/unified`, {headers: authHeader()}).then(response => {
+    async getUnifiedForGroup(group_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}/unified`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {

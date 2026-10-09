@@ -12,12 +12,12 @@ import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQuer
 import GroupDataService from "../services/GroupDataService.ts";
 import TagSelector from "../components/TagSelector.vue";
 import {useStore} from "../store.ts"
-import { CQ_TYPES, CQ_TYPE_LABELS, CQ_TYPE_HINTS } from '../constants/cqTypes.ts';
+import CqTypeSelect from "../components/CqTypeSelect.vue";
 
 export default defineComponent({
   name: "CompetencyQuestionCreateView",
   components: {
-    TagSelector, CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
+    TagSelector, CqTypeSelect, CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
 
   data() {
     return {
@@ -41,9 +41,6 @@ export default defineComponent({
         type: null as CQType | null,
         tags: [] as TagReducedT[],
       },
-      cqTypes: CQ_TYPES,
-      cqTypeLabels: CQ_TYPE_LABELS,
-      cqTypeHints: CQ_TYPE_HINTS,
       store: useStore(),
     }
   },
@@ -166,20 +163,7 @@ export default defineComponent({
     </div>
 
     <div class="my-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-      <div>
-        <label for="cq_type" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('type') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span></label>
-        <div class="mt-2">
-          <select v-model="cq.type" id="cq_type" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-            <option :value="null">—</option>
-            <option v-for="t in cqTypes" :key="t" :value="t">{{ cqTypeLabels[t] ?? t }}</option>
-          </select>
-          <div v-if="cq.type && cqTypeHints[cq.type]" class="mt-1.5 rounded-md bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
-            <p><span class="font-medium">{{ $t('purpose') }}</span> {{ cqTypeHints[cq.type]!.purpose }}</p>
-            <p><span class="font-medium">{{ $t('mustInclude') }}</span> {{ cqTypeHints[cq.type]!.mustInclude }}</p>
-            <p><span class="font-medium">{{ $t('expectedAnswer') }}</span> {{ cqTypeHints[cq.type]!.answer }}</p>
-          </div>
-        </div>
-      </div>
+      <CqTypeSelect v-model="cq.type" />
       <div>
         <label for="cq_reference" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('referenceFundstelle') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('optional') }}</span></label>
         <div class="mt-2">

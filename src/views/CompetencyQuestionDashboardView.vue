@@ -15,12 +15,16 @@ import FilterMultiSelect from "../components/FilterMultiSelect.vue";
 import {sortCqs} from "../utils/cqSort.ts";
 import {matchesCqSearch, tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
 import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
-import {ref, computed, watch} from "vue";
+import {ref, computed, watch, onActivated, onDeactivated} from "vue";
+import {onBeforeRouteLeave} from "vue-router";
 import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Switch, SwitchGroup, SwitchLabel} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
 import {isUncatalogued, UNCATALOGUED_IDENTIFIER, catalogueName} from "../utils/catalogues.ts";
+
+// App.vue keeps this view alive by name while other pages are visited.
+defineOptions({ name: 'CompetencyQuestionDashboardView' })
 
 const useStore1 = useStore()
 const {
@@ -166,30 +170,67 @@ watch(unifiedView, () => {
   fetchCompetencyQuestion();
 })
 
-async function fetchCompetencyQuestion() {
+// The ETag of the shown CQs. A list with the same ETag has the same content, so it is safe to send for any list.
+let cqsEtag: string | undefined;
+let latestRequest = 0;
+
+async function fetchCompetencyQuestion(silent = false) {
+  const etag = cqsEtag;
+  const request = ++latestRequest;
+
   let serviceCall;
   if (selectedGroup.value?.id) {
     serviceCall = unifiedView.value
-      ? CompetencyQuestionDataService.getUnifiedForGroup(selectedGroup.value.id)
-      : CompetencyQuestionDataService.getAllForOneGroup(selectedGroup.value.id);
+      ? CompetencyQuestionDataService.getUnifiedForGroup(selectedGroup.value.id, etag)
+      : CompetencyQuestionDataService.getAllForOneGroup(selectedGroup.value.id, etag);
   } else if (unifiedView.value) {
-    serviceCall = CompetencyQuestionDataService.getUnifiedForProject(getProject.value.id);
+    serviceCall = CompetencyQuestionDataService.getUnifiedForProject(getProject.value.id, etag);
   } else {
-    serviceCall = CompetencyQuestionDataService.getAllForOneProject(getProject.value.id);
+    serviceCall = CompetencyQuestionDataService.getAllForOneProject(getProject.value.id, etag);
   }
 
   serviceCall.then(response => {
+    // A newer request, e.g. after switching the group, supersedes this one.
+    if (request !== latestRequest) return;
     if ("messageType" in response) {
+      if (silent) return;
       messagePopupData.value.uxresponse = {
         ...messagePopupData.value.uxresponse,
         ...response
       };
       messagePopupData.value.open = true;
-    } else {
+    } else if (response.status !== 304) {
       cqs.value = response;
+      cqsEtag = response.headers.etag;
     }
   });
 }
+
+// While the view is shown, the CQs are refreshed on return from another page, when the browser tab becomes
+// visible again and periodically. Unchanged lists are answered with 304 and keep the rendered list as is.
+const REFRESH_INTERVAL_MS = 30_000;
+let refreshTimer: number | undefined;
+let savedScrollY = 0;
+
+function refreshInBackground() {
+  if (cqs.value && document.visibilityState === 'visible') fetchCompetencyQuestion(true);
+}
+
+onBeforeRouteLeave(() => {
+  savedScrollY = window.scrollY;
+})
+
+onActivated(() => {
+  window.scrollTo({ top: savedScrollY });
+  refreshInBackground();
+  refreshTimer = window.setInterval(refreshInBackground, REFRESH_INTERVAL_MS);
+  document.addEventListener('visibilitychange', refreshInBackground);
+})
+
+onDeactivated(() => {
+  window.clearInterval(refreshTimer);
+  document.removeEventListener('visibilitychange', refreshInBackground);
+})
 </script>
 
 <template>
