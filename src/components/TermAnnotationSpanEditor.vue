@@ -168,6 +168,9 @@ async function addAnnotation() {
     return;
   }
   closeSelection();
+  // A newly created term is project-wide. Refresh the suggestions immediately
+  // so it can be reused for the next span without leaving this question view.
+  await fetchTerms();
   emit("updated");
 }
 
