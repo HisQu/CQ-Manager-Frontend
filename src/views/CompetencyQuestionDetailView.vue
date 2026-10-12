@@ -9,8 +9,10 @@ import {CheckIcon, ChevronUpDownIcon} from "@heroicons/vue/20/solid";
 import StarComponent from "../components/StarComponent.vue";
 import CommentComponent from "../components/CommentComponent.vue";
 import CompetencyQuestionQueryBuilder from "../components/CompetencyQuestionQueryBuilder.vue";
+import {useStore} from "../store.ts";
 
 const props = defineProps(['id'])
+const store = useStore();
 
 const messagePopupData = ref({
   uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
@@ -83,6 +85,20 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     }
   })
 }
+
+function goToProjectQuestions() {
+  const project = cq.value.data.group.project;
+  store.project = {
+    id: project.id,
+    name: project.name,
+    description: project.description ?? "",
+    noManagers: project.noManagers,
+    noEngineers: project.noEngineers,
+    noGroups: project.noGroups,
+    noConsolidations: project.noConsolidations,
+    totalMembers: project.totalMembers,
+  };
+}
 </script>
 
 <template>
@@ -95,7 +111,9 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     <DetailPageHeader
       :title="cq.data.question"
       :project="cq.data.group.project.name"
+      :project-id="cq.data.group.project.id"
       :group="cq.data.group.name"
+      @project-click="goToProjectQuestions"
       :catalogue-identifier="cq.data.cqCatalogueIdentifier ?? undefined"
       :catalogue-name="cq.data.topic?.name">
       <template #meta>
