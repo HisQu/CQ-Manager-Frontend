@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import { ref, computed } from "vue";
 import { useStore } from "../store.ts";
 import MessagePopup from "../components/MessagePopup.vue";
@@ -28,9 +30,9 @@ const saving = ref(false);
 async function changePassword() {
   if (newPassword.value !== confirmPassword.value) {
     messagePopupData.value.uxresponse = {
-      title: "Passwords do not match",
+      title: t('passwordsDoNotMatch'),
       messageType: "warning",
-      text: "The new password and confirmation password must be identical.",
+      text: t('theNewPasswordAndConfirmationPasswordMustBeIdentical'),
       detail: "",
     };
     messagePopupData.value.open = true;
@@ -49,9 +51,9 @@ async function changePassword() {
     newPassword.value = "";
     confirmPassword.value = "";
     messagePopupData.value.uxresponse = {
-      title: "Password changed",
+      title: t('passwordChanged'),
       messageType: "success",
-      text: "Your password has been updated successfully.",
+      text: t('yourPasswordHasBeenUpdatedSuccessfully'),
       detail: "",
     };
     messagePopupData.value.open = true;
@@ -68,7 +70,7 @@ async function changePassword() {
 
     <!-- User info -->
     <div>
-      <h1 class="text-2xl font-bold dark:text-white text-gray-900 mb-6">Profile</h1>
+      <h1 class="text-2xl font-bold dark:text-white text-gray-900 mb-6">{{ $t('profile') }}</h1>
       <div class="flex items-center gap-x-5">
         <img :src="avatarUrl" referrerpolicy="no-referrer"
              class="h-16 w-16 rounded-full flex-shrink-0"
@@ -79,13 +81,13 @@ async function changePassword() {
             <span v-if="user.isSystemAdmin"
                   class="inline-flex items-center gap-x-1 rounded-md bg-indigo-50 dark:bg-indigo-400/10 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:text-indigo-400 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
               <ShieldCheckIcon class="h-3 w-3" />
-              System Admin
+              {{ $t('systemAdmin') }}
             </span>
           </div>
           <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ user.email }}</p>
           <a href="https://www.libravatar.org/" target="_blank" rel="noopener noreferrer"
              class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mt-1 inline-block">
-            Set profile picture on Libravatar
+            {{ $t('setProfilePictureOnLibravatar') }}
           </a>
         </div>
       </div>
@@ -93,11 +95,11 @@ async function changePassword() {
 
     <!-- Change password -->
     <div>
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-5">Change Password</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-5">{{ $t('changePassword2') }}</h2>
       <form class="space-y-5" @submit.prevent="changePassword">
         <div>
           <label for="current-password" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-            Current password
+            {{ $t('currentPassword') }}
           </label>
           <input id="current-password"
                  type="password"
@@ -109,7 +111,7 @@ async function changePassword() {
 
         <div>
           <label for="new-password" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-            New password
+            {{ $t('newPassword') }}
           </label>
           <input id="new-password"
                  type="password"
@@ -121,7 +123,7 @@ async function changePassword() {
 
         <div>
           <label for="confirm-password" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-            Confirm new password
+            {{ $t('confirmNewPassword') }}
           </label>
           <input id="confirm-password"
                  type="password"
@@ -136,7 +138,7 @@ async function changePassword() {
                   :disabled="saving"
                   class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
             <KeyIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-            {{ saving ? 'Saving...' : 'Change Password' }}
+            {{ saving ? 'Saving...' : $t('changePassword2') }}
           </button>
         </div>
       </form>

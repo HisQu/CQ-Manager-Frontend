@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
@@ -15,8 +16,8 @@ class UserDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving users. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingUsers'),
                 detail: reason,
                 messageType: "error"
             };
@@ -28,8 +29,8 @@ class UserDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the user. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheUser'),
                 detail: reason,
                 messageType: "error"
             };
@@ -41,8 +42,8 @@ class UserDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while creating the user. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorCreatingTheUser'),
                 detail: reason,
                 messageType: "error"
             };
@@ -54,8 +55,8 @@ class UserDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while updating the user. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorUpdatingTheUser'),
                 detail: reason,
                 messageType: "error"
             };
@@ -68,8 +69,8 @@ class UserDataService {
         }).catch(reason => {
             const apiDetail: string | undefined = reason?.response?.data?.detail;
             return {
-                title: "Could not delete user",
-                text: apiDetail ?? "An error occurred while deleting the user.",
+                title: t('deleteUserError'),
+                text: apiDetail ?? t('deleteUserErrorText'),
                 detail: "",
                 messageType: "error"
             };
@@ -82,8 +83,8 @@ class UserDataService {
         }).catch(reason => {
             const apiDetail: string | undefined = reason?.response?.data?.detail;
             return {
-                title: "Could not change password",
-                text: apiDetail ?? "An error occurred while changing your password.",
+                title: t('changePasswordError'),
+                text: apiDetail ?? t('changePasswordErrorText'),
                 detail: reason,
                 messageType: "error"
             };
@@ -95,8 +96,8 @@ class UserDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while verifying the user. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorVerifyingTheUser'),
                 detail: reason,
                 messageType: "error"
             };

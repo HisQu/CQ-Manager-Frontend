@@ -7,7 +7,7 @@ export default defineComponent({
 </script>
 
 <template>
-  ReportsView
+  {{ $t('reportsView') }}
 </template>
 
 <style scoped>

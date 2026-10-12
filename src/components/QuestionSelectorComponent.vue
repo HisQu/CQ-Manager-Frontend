@@ -25,9 +25,9 @@ export default defineComponent({
 
 <template>
   <div class="mt-8 flow-root">
-    <h3 class="text-xl">Question Selector</h3>
+    <h3 class="text-xl">{{ $t('questionSelector') }}</h3>
     <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 mb-5">
-      Select questions using the checkbox at the front. The <span class="dark:text-blue-300 text-blue-600">blue</span> entries are already consolidated questions.
+      {{ $t('selectQuestionsUsingTheCheckboxAtTheFrontThe') }} <span class="dark:text-blue-300 text-blue-600">{{ $t('blue') }}</span> {{ $t('entriesAreAlreadyConsolidatedQuestions') }}
     </p>
     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -44,11 +44,11 @@ export default defineComponent({
               <th scope="col" class="relative px-7 sm:w-12 sm:px-6">
                 <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" :checked="indeterminate || selectedQuestions.length === cqs.length" :indeterminate="indeterminate" @change="selectedQuestions = ($event.target as HTMLInputElement).checked ? cqs.map((p) => p.id as string) : []" />
               </th>
-              <th scope="col" class="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Question</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Group</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Author</th>
+              <th scope="col" class="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('question') }}</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('group') }}</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('author') }}</th>
               <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
-                <span class="sr-only">Edit</span>
+                <span class="sr-only">{{ $t('edit') }}</span>
               </th>
             </tr>
             </thead>
@@ -69,7 +69,7 @@ export default defineComponent({
               </td>
               <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
                 <RouterLink :to="`/questions/${cq.id}`" class="text-indigo-600 hover:text-indigo-900">
-                  Edit<span class="sr-only">, {{ cq.question }}</span>
+                  {{ $t('edit') }}<span class="sr-only">, {{ cq.question }}</span>
                 </RouterLink>
               </td>
             </tr>

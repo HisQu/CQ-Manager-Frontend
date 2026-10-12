@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
@@ -7,8 +8,8 @@ class TopicDataService {
         return http.get<TopicT[]>(`/topics/${project_uuid}`, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while retrieving catalogues. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingCatalogues'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -18,8 +19,8 @@ class TopicDataService {
         return http.get<TopicT>(`/topics/${project_uuid}/${topic_uuid}`, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -32,8 +33,8 @@ class TopicDataService {
         }, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while creating the catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorCreatingTheCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -43,8 +44,8 @@ class TopicDataService {
         return http.put<TopicT>(`/topics/${project_uuid}/${topic_uuid}`, { name }, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while updating the catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorUpdatingTheCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -54,8 +55,8 @@ class TopicDataService {
         return http.post(`/topics/${project_uuid}/${topic_uuid}/questions/${question_uuid}`, {}, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while assigning the CQ to the catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAssigningTheCqToTheCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -65,8 +66,8 @@ class TopicDataService {
         return http.put(`/topics/${project_uuid}/${topic_uuid}/questions/${question_uuid}`, {}, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while changing the CQ's catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorChangingTheCqSCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));
@@ -76,8 +77,8 @@ class TopicDataService {
         return http.delete(`/topics/${project_uuid}/questions/${question_uuid}`, { headers: authHeader() })
             .then(r => r)
             .catch(reason => ({
-                title: "Oops! An error occurred...",
-                text: "... while removing the CQ from its catalogue. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRemovingTheCqFromItsCatalogue'),
                 detail: reason,
                 messageType: "error" as const,
             }));

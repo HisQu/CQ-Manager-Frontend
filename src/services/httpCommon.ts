@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import axios from "axios";
 
 console.log('[httpCommon] VITE_API_URL =', import.meta.env.VITE_API_URL);
@@ -9,7 +10,8 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(response => {
-    if (response.headers) {
+    // Empty bodies (e.g. 204 No Content) are strings and cannot carry the permission flags.
+    if (response.headers && response.data !== null && typeof response.data === 'object') {
         const isTrue = (v: string | undefined) => v?.toLowerCase() === 'true';
         try {
             response.data.permissionsGroupMember = isTrue(response.headers['permissions-group-member']);
@@ -19,8 +21,8 @@ axiosInstance.interceptors.response.use(response => {
         }
         catch (e) {
             return Promise.reject({
-                title: "Permission headers error",
-                text: "Could not read permission headers from the server response.",
+                title: t('permissionHeadersError'),
+                text: t('permissionHeadersErrorText'),
                 detail: String(e),
                 messageType: "error"
             } satisfies UXResponse);

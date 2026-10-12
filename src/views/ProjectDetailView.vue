@@ -5,11 +5,14 @@ import EmailChipsInput from "../components/EmailChipsInput.vue";
 import { ArrowDownOnSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import ProjectDataService from "../services/ProjectDataService.ts";
 import UserDataService from "../services/UserDataService.ts";
+import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
+import CQListItem from "../components/CQListItem.vue";
+import {useStore} from "../store.ts";
 
 
 export default {
   name: "ProjectDetailView",
-  components: { MessagePopup, ArrowDownOnSquareIcon, SubmitButtonWithCallback, TrashIcon, EmailChipsInput },
+  components: { MessagePopup, ArrowDownOnSquareIcon, SubmitButtonWithCallback, TrashIcon, EmailChipsInput, CQListItem },
   props: {
     id: { type: String, required: true }
   },
@@ -28,6 +31,8 @@ export default {
       managers: [] as { id: string; email: string; name: string }[],
       engineers: [] as { id: string; email: string; name: string }[],
       allUsers: [] as { email: string; name: string }[],
+      isSystemAdmin: useStore().getUser.isSystemAdmin,
+      deletedQuestions: [] as CompetencyQuestionReducedT[],
     }
   },
   methods: {
@@ -54,6 +59,18 @@ export default {
       } else {
         this.$router.push('/projects/');
       }
+    },
+    async fetchDeletedQuestions() {
+      const response = await CompetencyQuestionDataService.getDeletedForProject(this.id);
+      if ("messageType" in response) {
+        this.messagePopupData.uxresponse = { ...this.messagePopupData.uxresponse, ...response };
+        this.messagePopupData.open = true;
+      } else {
+        this.deletedQuestions = response.data;
+      }
+    },
+    formatDate(date: string) {
+      return new Date(date).toLocaleString(this.$i18n.locale);
     },
     deleteProject() {
       ProjectDataService.delete(this.id);
@@ -100,6 +117,7 @@ export default {
   },
   mounted() {
     this.fetchProject();
+    if (this.isSystemAdmin) this.fetchDeletedQuestions();
     UserDataService.getAll().then(response => {
       if (!('messageType' in response)) this.allUsers = response.data;
     });
@@ -112,13 +130,13 @@ export default {
 
   <div v-if="name" class="w-full">
     <h1 class="text-2xl font-semibold dark:text-white">{{ name }}</h1>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Project</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('project2') }}</p>
 
     <hr class="my-6 border-gray-200 dark:border-gray-700"/>
 
     <div class="mb-6">
       <label for="project_name" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">
-        Project title
+        {{ $t('projectTitle') }}
       </label>
       <input
           type="text"
@@ -133,7 +151,7 @@ export default {
       <EmailChipsInput
           :members="managers"
           :suggestions="allUsers"
-          label="Project managers"
+          :label="$t('projectManagers')"
           input-id="project_managers"
           @add="addManager"
           @remove="removeManager"
@@ -144,7 +162,7 @@ export default {
       <EmailChipsInput
           :members="engineers"
           :suggestions="allUsers"
-          label="Ontology engineers"
+          :label="$t('ontologyEngineers2')"
           input-id="project_engineers"
           @add="addEngineer"
           @remove="removeEngineer"
@@ -153,13 +171,13 @@ export default {
 
     <div class="flex items-center justify-between">
       <SubmitButtonWithCallback
-          agree-button-text="Delete the project"
-          title="Are you sure you want to delete the project?"
-          detail="This action is permanent."
+          :agree-button-text="$t('deleteTheProject')"
+          :title="$t('areYouSureYouWantToDeleteTheProject')"
+          :detail="$t('thisActionIsPermanent')"
           @modalsuccessclose="deleteProject"
       >
         <TrashIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Delete
+        {{ $t('delete') }}
       </SubmitButtonWithCallback>
 
       <button
@@ -168,8 +186,20 @@ export default {
           @click="saveProject"
       >
         <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-        Save
+        {{ $t('save') }}
       </button>
     </div>
+
+    <!-- Deleted CQs are kept for provenance, only system admins can see them. -->
+    <template v-if="isSystemAdmin">
+      <h2 class="mt-12 mb-3 text-lg font-semibold dark:text-white">{{ $t('deletedCompetencyQuestions') }}</h2>
+      <div v-if="deletedQuestions.length > 0" class="space-y-1">
+        <div v-for="question in deletedQuestions" :key="question.id">
+          <CQListItem :cq="question" :project-id="id"/>
+          <p class="px-3 text-xs text-red-600 dark:text-red-400">{{ $t('deletedOn', { date: formatDate(question.deletedAt!) }) }}</p>
+        </div>
+      </div>
+      <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noDeletedCompetencyQuestions') }}</p>
+    </template>
   </div>
 </template>

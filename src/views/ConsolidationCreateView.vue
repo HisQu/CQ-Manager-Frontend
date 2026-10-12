@@ -1,4 +1,6 @@
 <script lang="ts">
+import { t } from '../i18n'
+
 import {defineComponent} from 'vue'
 import MessagePopup from "../components/MessagePopup.vue";
 import {ExclamationCircleIcon, CheckIcon, ChevronUpDownIcon, ArrowDownOnSquareIcon} from '@heroicons/vue/20/solid'
@@ -67,11 +69,11 @@ export default defineComponent({
     async fetchGroups() {
       const response = await GroupDataService.getAllForOneProject(this.store.project.id);
       if (!("messageType" in response)) {
-        this.groups = [{ id: '', name: 'All groups' }, ...response.data.map((g: any) => ({ id: g.id, name: g.name }))];
+        this.groups = [{ id: '', get name() { return t('allGroups') } }, ...response.data.map((g: any) => ({ id: g.id, name: g.name }))];
         // If stored group isn't valid, clear it
         const stored = this.store.cqSelectedGroup;
         if (stored.id && !this.groups.find(g => g.id === stored.id)) {
-          this.resultGroup = { id: '', name: 'All groups' };
+          this.resultGroup = { id: '', get name() { return t('allGroups') } };
         }
       }
     },
@@ -135,9 +137,9 @@ export default defineComponent({
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;"/>
 
-    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Create Consolidation</h1>
+    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $t('createConsolidation') }}</h1>
     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-      Combine multiple competency questions into one result question for
+      {{ $t('combineMultipleCompetencyQuestionsIntoOneResultQuestionFor') }}
       <RouterLink :to="'/projects/' + store.project.id"
                   class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
         {{ store.project.name }}
@@ -154,10 +156,10 @@ export default defineComponent({
         @selectionChanged="selectedQuestions = $event"
         @groupChanged="onTableGroupChanged">
         <template #header>
-          <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Source Questions</h2>
+          <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $t('sourceQuestions') }}</h2>
           <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Select the questions to consolidate.
-            <span class="dark:text-blue-300 text-blue-600">Blue</span> rows are already part of another consolidation.
+            {{ $t('selectTheQuestionsToConsolidate') }}
+            <span class="dark:text-blue-300 text-blue-600">{{ $t('blue2') }}</span> {{ $t('rowsAreAlreadyPartOfAnotherConsolidation') }}
           </p>
         </template>
       </QuestionSelectorTable>
@@ -168,9 +170,9 @@ export default defineComponent({
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Result Question</h2>
+              <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $t('resultQuestion') }}</h2>
               <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                The consolidated question that will represent the selected sources.
+                {{ $t('theConsolidatedQuestionThatWillRepresentTheSelectedSources') }}
               </p>
             </div>
             <span class="flex rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 overflow-hidden text-xs select-none">
@@ -178,13 +180,13 @@ export default defineComponent({
                       :class="['px-3 py-1.5 font-medium transition-colors', !useExistingCq
                         ? 'bg-indigo-600 text-white'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700']">
-                New
+                {{ $t('new') }}
               </button>
               <button @click="useExistingCq = true"
                       :class="['px-3 py-1.5 font-medium transition-colors', useExistingCq
                         ? 'bg-indigo-600 text-white'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700']">
-                Existing CQ
+                {{ $t('existingCQ') }}
               </button>
             </span>
           </div>
@@ -195,7 +197,7 @@ export default defineComponent({
           <!-- Group selector for new result question -->
           <div v-if="!useExistingCq && groups.length > 1">
             <Listbox v-model="resultGroup">
-              <ListboxLabel class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Target group</ListboxLabel>
+              <ListboxLabel class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('targetGroup') }}</ListboxLabel>
               <div class="relative">
                 <ListboxButton
                   class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left text-sm shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-inset dark:bg-gray-800"
@@ -203,7 +205,7 @@ export default defineComponent({
                     ? 'ring-red-300 focus:ring-red-500 text-gray-900 dark:text-gray-100'
                     : 'ring-gray-300 dark:ring-gray-600 focus:ring-indigo-600 text-gray-900 dark:text-gray-100'">
                   <span :class="['block truncate', resultGroup.id ? '' : 'text-gray-400']">
-                    {{ resultGroup.id ? resultGroup.name : 'Select a group…' }}
+                    {{ resultGroup.id ? resultGroup.name : $t('selectAGroup') }}
                   </span>
                   <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
@@ -228,7 +230,7 @@ export default defineComponent({
           <!-- New question text -->
           <div v-if="!useExistingCq" class="relative">
             <input type="text" v-model="newQuestionText"
-                   placeholder="Enter the consolidated question text..."
+                   :placeholder="$t('enterTheConsolidatedQuestionText')"
                    class="block w-full rounded-md border-0 py-2 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
                    :class="resultQuestionError
                      ? 'ring-red-300 focus:ring-red-500'
@@ -243,7 +245,7 @@ export default defineComponent({
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Type <span class="font-normal text-gray-400">(optional)</span>
+                  {{ $t('type') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
                 </label>
                 <select v-model="newQuestionType"
                         class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600">
@@ -253,27 +255,27 @@ export default defineComponent({
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Reference (Fundstelle) <span class="font-normal text-gray-400">(optional)</span>
+                  {{ $t('referenceFundstelle') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
                 </label>
                 <input type="text" v-model="newQuestionReference"
-                       placeholder="e.g. S. 138."
+                       :placeholder="$t('eGS138')"
                        class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
               </div>
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Anchor (Beleganker) <span class="font-normal text-gray-400">(optional)</span>
+                {{ $t('anchorBeleganker') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
               </label>
               <textarea v-model="newQuestionAnchor" rows="2"
-                        placeholder="Source text or evidence from which the CQ was extracted..."
+                        :placeholder="$t('sourceTextOrEvidenceFromWhichTheCQWasExtracted')"
                         class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Example Answer <span class="font-normal text-gray-400">(optional)</span>
+                {{ $t('exampleAnswer') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
               </label>
               <textarea v-model="newQuestionExampleAnswer" rows="2"
-                        placeholder="Sample or example answer..."
+                        :placeholder="$t('sampleOrExampleAnswer')"
                         class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"/>
             </div>
           </template>
@@ -284,7 +286,7 @@ export default defineComponent({
               <ComboboxInput
                 :displayValue="(cq: any) => cq?.question ?? ''"
                 @change="resultCqQuery = $event.target.value"
-                placeholder="Search for an existing CQ…"
+                :placeholder="$t('searchForAnExistingCQ')"
                 class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset"
                 :class="resultQuestionError
                   ? 'ring-red-300 focus:ring-red-500'
@@ -310,7 +312,7 @@ export default defineComponent({
           </Combobox>
 
           <p v-if="resultQuestionError" class="text-xs text-red-600 dark:text-red-400">
-            {{ useExistingCq ? 'Please select a CQ.' : !resultGroup.id ? 'Please select a group and enter a question.' : 'Please enter a question.' }}
+            {{ useExistingCq ? $t('pleaseSelectACQ') : !resultGroup.id ? $t('pleaseSelectAGroupAndEnterAQuestion') : $t('pleaseEnterAQuestion') }}
           </p>
         </div>
       </div>
@@ -319,14 +321,14 @@ export default defineComponent({
       <div class="flex items-center justify-between pt-2 pb-8">
         <RouterLink to="/questions"
                     class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-          Cancel
+          {{ $t('cancel') }}
         </RouterLink>
         <button type="button"
                 @click="save"
                 :disabled="saving"
                 class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
           <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-          {{ saving ? 'Creating...' : 'Create Consolidation' }}
+          {{ saving ? 'Creating...' : $t('createConsolidation') }}
         </button>
       </div>
 

@@ -1,31 +1,32 @@
+import { t } from '../i18n'
 export const CQ_TYPES: CQType[] = [
   "RQ", "SCQ", "VCQ", "FCQ", "RCQ", "aRCQ", "efRCQ", "drRCQ", "rpRCQ", "MpCQ",
 ]
 
 export const CQ_TYPE_LABELS: Record<CQType, string> = {
-  RQ:    'RQ – Literature',
-  SCQ:   'SCQ – Scoping',
-  VCQ:   'VCQ – Validation',
-  FCQ:   'FCQ – Foundational',
-  RCQ:   'RCQ – Relationship',
-  aRCQ:  'aRCQ – arity',
-  efRCQ: 'efRCQ – elementary',
-  drRCQ: 'drRCQ - domain+range',
-  rpRCQ: 'rpRCQ – relation property',
-  MpCQ:  'MpCQ – Metaproperty',
+  get RQ() { return t('rQLiterature') },
+  get SCQ() { return t('sCQScoping') },
+  get VCQ() { return t('vCQValidation') },
+  get FCQ() { return t('fCQFoundational') },
+  get RCQ() { return t('rCQRelationship') },
+  get aRCQ() { return t('aRCQArity') },
+  get efRCQ() { return t('efRCQElementary') },
+  get drRCQ() { return t('drRCQDomainRange') },
+  get rpRCQ() { return t('rpRCQRelationProperty') },
+  get MpCQ() { return t('mpCQMetaproperty') },
 }
 
 type CQTypeHint = { purpose: string; mustInclude: string; answer: string }
 
 export const CQ_TYPE_HINTS: Partial<Record<CQType, CQTypeHint>> = {
-  RQ:    { purpose: 'Research question from literature about a domain',                              mustInclude: '>=1 domain entity, subject domain',                                                                                                             answer: 'Non-empty content set' },
-  SCQ:   { purpose: 'Demarcate subject domain',                                                      mustInclude: '>=1 domain entity, subject domain, target ontology',                                                                                           answer: 'Non-empty content set' },
-  VCQ:   { purpose: 'Verify content coverage',                                                       mustInclude: '>=1 domain entity; query logic must fit within the ontology logic',                                                                            answer: 'Content or yes/no; must be formalisable' },
-  FCQ:   { purpose: 'Align domain entity to a foundational ontology',                                mustInclude: 'Reference to an FO entity or its property',                                                                                                    answer: 'yes / no / not applicable' },
-  RCQ:   { purpose: 'Characterise a relationship arity, participants, or relational properties',     mustInclude: 'Exactly one relationship; subtype determines what else is required',                                                                           answer: 'Number (aRCQ), class names (drRCQ), property name (rpRCQ)' },
-  aRCQ:  { purpose: 'Ask for the arity of a relationship',                                           mustInclude: 'Exactly one relationship',                                                                                                                      answer: 'A number (note: OWL constrains all object properties to binary, making this trivial in OWL contexts)' },
-  efRCQ: { purpose: 'Ask whether the relationship is elementary (cannot be rephrased without losing information)', mustInclude: 'Exactly one relationship',                                                                                                       answer: 'yes / no' },
-  drRCQ: { purpose: 'Name the domain and range classes of the relationship',                         mustInclude: 'Exactly one relationship',                                                                                                                      answer: 'Class names (verify these have universal, not merely local, scope)' },
-  rpRCQ: { purpose: 'Name exactly one relational property of the relationship',                      mustInclude: 'Exactly one relationship; one property from {transitivity, reflexivity, irreflexivity, symmetry, asymmetry, antisymmetry, acyclicity, intransitivity}', answer: 'yes / no (confirm the property is expressible in your representation language)' },
-  MpCQ:  { purpose: 'Classify an entity ontological nature',                                         mustInclude: 'Exactly one metameta-property (rigidity, identity, unity, dependence)',                                                                        answer: 'A metaproperty value (e.g., rigid, anti-rigid, telic)' },
+  RQ:    { get purpose() { return t('researchQuestionFromLiteratureAboutADomain') },                              get mustInclude() { return t('1DomainEntitySubjectDomain') },                                                                                                             get answer() { return t('nonEmptyContentSet') } },
+  SCQ:   { get purpose() { return t('demarcateSubjectDomain') },                                                      get mustInclude() { return t('1DomainEntitySubjectDomainTargetOntology') },                                                                                           get answer() { return t('nonEmptyContentSet') } },
+  VCQ:   { get purpose() { return t('verifyContentCoverage') },                                                       get mustInclude() { return t('1DomainEntityQueryLogicMustFitWithinTheOntologyLogic') },                                                                            get answer() { return t('contentOrYesNoMustBeFormalisable') } },
+  FCQ:   { get purpose() { return t('alignDomainEntityToAFoundationalOntology') },                                get mustInclude() { return t('referenceToAnFOEntityOrItsProperty') },                                                                                                    get answer() { return t('yesNoNotApplicable') } },
+  RCQ:   { get purpose() { return t('characteriseARelationshipArityParticipantsOrRelationalProperties') },     get mustInclude() { return t('exactlyOneRelationshipSubtypeDeterminesWhatElseIsRequired') },                                                                           get answer() { return t('numberARCQClassNamesDrRCQPropertyNameRpRCQ') } },
+  aRCQ:  { get purpose() { return t('askForTheArityOfARelationship') },                                           get mustInclude() { return t('exactlyOneRelationship') },                                                                                                                      get answer() { return t('aNumberNoteOWLConstrainsAllObjectPropertiesToBinaryMakingThisTrivialInOWLContexts') } },
+  efRCQ: { get purpose() { return t('askWhetherTheRelationshipIsElementaryCannotBeRephrasedWithoutLosingInformation') }, get mustInclude() { return t('exactlyOneRelationship') },                                                                                                       get answer() { return t('yesNo') } },
+  drRCQ: { get purpose() { return t('nameTheDomainAndRangeClassesOfTheRelationship') },                         get mustInclude() { return t('exactlyOneRelationship') },                                                                                                                      get answer() { return t('classNamesVerifyTheseHaveUniversalNotMerelyLocalScope') } },
+  rpRCQ: { get purpose() { return t('nameExactlyOneRelationalPropertyOfTheRelationship') },                      get mustInclude() { return t('exactlyOneRelationshipOnePropertyFromTransitivityReflexivityIrreflexivitySymmetryAsym') }, get answer() { return t('yesNoConfirmThePropertyIsExpressibleInYourRepresentationLanguage') } },
+  MpCQ:  { get purpose() { return t('classifyAnEntityOntologicalNature') },                                         get mustInclude() { return t('exactlyOneMetametaPropertyRigidityIdentityUnityDependence') },                                                                        get answer() { return t('aMetapropertyValueEGRigidAntiRigidTelic') } },
 }

@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import { AxiosResponse } from "axios";
@@ -11,8 +12,8 @@ class GroupDataService {
                 return response;
             }).catch(reason => {
                 return {
-                    title: "Oops! An error occurred...",
-                    text: "... while updating the group. Debugging info can be found in the console.",
+                    title: t('errorOccurred'),
+                    text: t('errorUpdatingTheGroup'),
                     detail: reason,
                     messageType: "error"
                 };
@@ -23,15 +24,15 @@ class GroupDataService {
         return http.put<GroupT>(`/groups/${project_id}/${group_id}/members/add`, { emails: members }, { headers: authHeader() })
             .then(() => {
                 return {
-                    title: "Added group member",
-                    text: "Successfully added group member",
+                    title: t('addedGroupMember'),
+                    text: t('addedGroupMemberSuccess'),
                     detail: "",
                     messageType: "success" as const,
                 }
             }).catch(reason => {
                 return {
-                    title: "Oops! An error occurred...",
-                    text: "... while adding members to the group. Debugging info can be found in the console.",
+                    title: t('errorOccurred'),
+                    text: t('errorAddingMembersToTheGroup'),
                     detail: reason,
                     messageType: "error"
                 };
@@ -42,15 +43,15 @@ class GroupDataService {
         return http.put<GroupT>(`/groups/${project_id}/${group_id}/members/remove`, { ids: memberIds }, { headers: authHeader() })
             .then(() => {
                 return {
-                    title: "Removed group member",
-                    text: "Successfully removed group member",
+                    title: t('removedGroupMember'),
+                    text: t('removedGroupMemberSuccess'),
                     detail: "",
                     messageType: "success" as const,
                 }
             }).catch(() => {
                 return {
-                    title: "Could not remove group member",
-                    text: "An error occurred while removing the group member.",
+                    title: t('removeGroupMemberError'),
+                    text: t('removeGroupMemberErrorText'),
                     detail: "",
                     messageType: "error" as const,
                 }
@@ -62,8 +63,8 @@ class GroupDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving groups. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingGroups'),
                 detail: reason,
                 messageType: "error"
             };
@@ -75,8 +76,8 @@ class GroupDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving groups. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingGroups'),
                 detail: reason,
                 messageType: "error"
             };
@@ -88,8 +89,8 @@ class GroupDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving groups. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingGroups'),
                 detail: reason,
                 messageType: "error"
             };
@@ -101,8 +102,8 @@ class GroupDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving group. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingGroup'),
                 detail: reason,
                 messageType: "error"
             };
@@ -116,8 +117,8 @@ class GroupDataService {
             return response;
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding the group. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingTheGroup'),
                 detail: reason,
                 messageType: "error"
             };
@@ -130,8 +131,8 @@ class GroupDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the group. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorDeletingTheGroup'),
                 detail: reason,
                 messageType: "error"
             }

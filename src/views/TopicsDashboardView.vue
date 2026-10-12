@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '../i18n'
+
 import TopicListItem from "../components/TopicListItem.vue";
 import TopicDataService from "../services/TopicDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
@@ -26,9 +28,9 @@ const topics = ref<{ data: TopicT[] } | null>(null);
 async function fetchTopics() {
   if (!getProject.value.id) {
     messagePopupData.value.uxresponse = {
-      title: "No project selected",
+      title: t('noProjectSelected'),
       messageType: "warning",
-      text: "Please select a project in the navigation bar on the left first.",
+      text: t('pleaseSelectAProjectInTheNavigationBarOnTheLeftFirst'),
       detail: "",
     };
     messagePopupData.value.open = true;
@@ -53,11 +55,11 @@ watch(getProject, () => fetchTopics());
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;" />
   <div class="w-full">
-    <DetailPageHeader title="Catalogues" :project="getProject.name">
+    <DetailPageHeader :title="$t('catalogues')" :project="getProject.name">
       <template #actions>
         <RouterLink to="/catalogues/add"
                     class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Add
+          {{ $t('add') }}
           <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
         </RouterLink>
       </template>
@@ -65,7 +67,7 @@ watch(getProject, () => fetchTopics());
 
     <div v-if="topics">
       <div v-if="topics.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        There are no catalogues yet!
+        {{ $t('thereAreNoCataloguesYet') }}
       </div>
       <TopicListItem v-for="topic in topics.data" :key="topic.id" :topic="topic" />
     </div>

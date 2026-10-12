@@ -31,7 +31,7 @@ export default defineComponent({
       <div class="grid grid-cols-2">
         <h3 class="font-bold dark:text-white">{{ name }}</h3>
         <div class="inline-block text-right">
-          <span>Group Members: {{ members }}</span>
+          <span>{{ $t('groupMembers') }} {{ members }}</span>
         </div>
       </div>
       <p class="text-sm text-gray-500 dark:text-gray-400">{{ project?.name }}</p>

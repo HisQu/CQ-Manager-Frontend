@@ -52,10 +52,10 @@ fetchGroups()
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false;"/>
   <div class="w-full">
-    <DetailPageHeader title="Groups" :project="getProject.name">
+    <DetailPageHeader :title="$t('groups')" :project="getProject.name">
       <template #actions>
         <RouterLink to="/groups/add/" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-          Add
+          {{ $t('add') }}
           <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true"/>
         </RouterLink>
       </template>
@@ -66,13 +66,13 @@ fetchGroups()
           <span aria-hidden="true" :class="[onlyShowMyGroups ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
         </Switch>
         <SwitchLabel as="span" class="ml-3 text-sm">
-          <span class="font-medium text-gray-900 dark:text-gray-200">Only show my groups</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200">{{ $t('onlyShowMyGroups') }}</span>
         </SwitchLabel>
       </SwitchGroup>
     </div>
     <div v-if="groups">
       <div v-if="groups.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        {{ onlyShowMyGroups ? 'You are not part of any groups.' : 'There are no groups.' }}
+        {{ onlyShowMyGroups ? $t('youAreNotPartOfAnyGroups') : $t('thereAreNoGroups') }}
       </div>
       <GroupListItem v-for="group in groups.data"
                      :project="group.project"

@@ -1,6 +1,15 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
+
+// Sends the ETag of the list the caller already shows; the backend answers an unchanged list with an empty 304.
+function conditionalConfig(etag?: string) {
+    return {
+        headers: etag ? {...authHeader(), 'If-None-Match': etag, 'X-ETag-Cache': 'true'} : authHeader(),
+        validateStatus: (status: number) => (status >= 200 && status < 300) || status === 304,
+    };
+}
 
 class CompetencyQuestionDataService {
     async getAll(): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
@@ -8,61 +17,61 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
         });
     }
 
-    async getAllForOneGroup(group_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, { headers: authHeader() }).then(response => {
+    async getAllForOneGroup(group_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse>  {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
         });
     }
 
-    async getAllForOneProject(project_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+    async getAllForOneProject(project_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
         const url = project_uuid !== "" ? `/questions/by_project/${project_uuid}` : `/questions`;
-        return http.get<CompetencyQuestionT[]>(url, {headers: authHeader()}).then(response => {
+        return http.get<CompetencyQuestionT[]>(url, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while getting the groups for this project. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorGettingTheGroupsForThisProject'),
                 detail: reason,
                 messageType: "error"
             }
         });
     }
 
-    async getUnifiedForProject(project_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_project/${project_uuid}/unified`, {headers: authHeader()}).then(response => {
+    async getUnifiedForProject(project_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_project/${project_uuid}/unified`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving unified competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingUnifiedCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
         });
     }
 
-    async getUnifiedForGroup(group_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}/unified`, {headers: authHeader()}).then(response => {
+    async getUnifiedForGroup(group_uuid: string, etag?: string): Promise<AxiosResponse<any, CompetencyQuestionT[]> | UXResponse> {
+        return http.get<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}/unified`, conditionalConfig(etag)).then(response => {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving unified competency questions for this group. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingUnifiedCompetencyQuestionsForThisGroup'),
                 detail: reason,
                 messageType: "error"
             }
@@ -74,8 +83,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -87,6 +96,7 @@ class CompetencyQuestionDataService {
         anchor?: string | null,
         exampleAnswer?: string | null,
         type?: CQType | null,
+        tagIds?: string[],
     }): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
         return http.post<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, {
             question: question,
@@ -96,8 +106,34 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while adding the competency questions. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorAddingTheCompetencyQuestions'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
+    async getHistory(question_uuid: string): Promise<AxiosResponse<QuestionEventT[]> | UXResponse> {
+        return http.get<QuestionEventT[]>(`/questions/${question_uuid}/history`, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheHistory'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
+    async getDeletedForProject(project_uuid: string): Promise<AxiosResponse<CompetencyQuestionReducedT[]> | UXResponse> {
+        return http.get<CompetencyQuestionReducedT[]>(`/questions/by_project/${project_uuid}/deleted`, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorRetrievingDeletedCompetencyQuestions'),
                 detail: reason,
                 messageType: "error"
             }
@@ -109,8 +145,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while deleting the competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorUpdatingTheCompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }

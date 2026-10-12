@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import http from "./httpCommon";
 import authHeader from "./authHeader";
 import {AxiosResponse} from "axios";
@@ -8,8 +9,8 @@ class CommentDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while retrieving the comments for a competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorRetrievingTheCommentsForACompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }
@@ -25,8 +26,22 @@ class CommentDataService {
             return response
         }).catch(reason => {
             return {
-                title: "Oops! An error occurred...",
-                text: "... while commenting on a competency question. Debugging info can be found in the console.",
+                title: t('errorOccurred'),
+                text: t('errorCommentingOnACompetencyQuestion'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
+
+    /** Marks all current comments of a competency question as read by the logged-in user. */
+    async markRead(questionId: string): Promise<AxiosResponse<void> | UXResponse> {
+        return http.post<void>(`/comments/${questionId}/read`, null, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorMarkingTheCommentsOfACompetencyQuestionAsRead'),
                 detail: reason,
                 messageType: "error"
             }

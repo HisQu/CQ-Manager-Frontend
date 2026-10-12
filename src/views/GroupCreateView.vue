@@ -89,11 +89,11 @@ export default defineComponent({
                   :open="messagePopupData.open"
                   @close="messagePopupData.open = false;"/>
     <h1 class="text-2xl">
-      Add  group
+      {{ $t('addGroup') }}
     </h1>
 
     <Listbox as="div" v-model="selectedProject">
-      <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Assigned to project:</ListboxLabel>
+      <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">{{ $t('assignedToProject') }}</ListboxLabel>
       <div class="relative mt-2">
         <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
           <span class="block truncate">{{ selectedProject.name }}</span>
@@ -118,7 +118,7 @@ export default defineComponent({
     </Listbox>
     
     <div class="my-5">
-      <label for="group" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">Type in group name:</label>
+      <label for="group" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('typeInGroupName') }}</label>
       <div class="mt-2">
         <textarea v-model="add.group" rows="1" name="group" id="group" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
       </div>
@@ -129,21 +129,21 @@ export default defineComponent({
       <EmailChipsInput
         :members="members"
         :suggestions="allUsers"
-        label="Assign group member:"
+        :label="$t('assignGroupMember')"
         input-id="group-members"
-        placeholder="Enter email and press Enter"
+        :placeholder="$t('enterEmailAndPressEnter')"
         @add="addMember"
         @remove="removeMember"
       />
     </div>
     <div class="button-container">
         <SaveButtonWithCallback class="mt-4"
-                                agree-button-text="Save this group?"
-                                title="Are you sure you want to add this group?"
-                                detail="Check for typos."
+                                :agree-button-text="$t('saveThisGroup')"
+                                :title="$t('areYouSureYouWantToAddThisGroup')"
+                                :detail="$t('checkForTypos')"
                                 @modalsuccessclose="save()">
             <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-            Save
+            {{ $t('save') }}
         </SaveButtonWithCallback>
     </div>
   </div> 

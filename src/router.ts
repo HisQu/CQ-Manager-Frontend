@@ -115,6 +115,11 @@ const routes =  [
         props: true
     },
     {
+        path: "/tags",
+        name: "tags",
+        component: () => import("./views/TagsDashboardView.vue")
+    },
+    {
         path: "/about",
         name: "about",
         component: () => import("./views/AboutView.vue")

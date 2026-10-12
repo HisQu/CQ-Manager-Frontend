@@ -136,7 +136,8 @@ describe('ConsolidationDetailView – permissions', () => {
     const wrapper = await mountDetailView()
 
     expect(hasSaveButton(wrapper)).toBe(true)
-    expect(wrapper.findAll('tbody input[type="checkbox"]')).toHaveLength(3)
+    // The source on top plus all three CQs in the list.
+    expect(wrapper.findAll('tbody input[type="checkbox"]')).toHaveLength(4)
   })
 
   it('lets a system admin edit the source questions without project permissions', async () => {
@@ -162,12 +163,12 @@ describe('ConsolidationDetailView – group preselection', () => {
     vi.mocked(CompetencyQuestionDataService.getAllForOneProject).mockResolvedValue(ok([cqA, cqB, cqC]) as any)
   })
 
-  it('preselects the group chosen on the CQ dashboard when editing', async () => {
+  it('preselects the group chosen on the CQ dashboard when editing, keeping the sources on top', async () => {
     useStore().cqSelectedGroup = { id: group2.id, name: group2.name }
     mockConsolidation({ permissionsProjectEngineer: true }, cqA)
     const wrapper = await mountDetailView()
 
-    expect(visibleQuestions(wrapper)).toEqual(['Candidate C?'])
+    expect(visibleQuestions(wrapper)).toEqual(['Source A?', 'Candidate C?'])
   })
 
   it('does not filter the read-only list by the dashboard group', async () => {

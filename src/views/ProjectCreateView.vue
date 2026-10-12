@@ -85,12 +85,12 @@ export default{
   </div>
 
   <h1 class="text-2xl">
-    Add new project
+    {{ $t('addNewProject') }}
   </h1>
 
   <div class="my-5">
     <label for="project" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-3">
-      Type in project title:
+      {{ $t('typeInProjectTitle') }}
     </label>
     <div class="mt-2">
       <textarea v-model="projectTitle" rows="1" name="project_name" id="project"
@@ -103,9 +103,9 @@ export default{
       <EmailChipsInput
         :members="projectManagers"
         :suggestions="allUsers"
-        label="Assign project manager:"
+        :label="$t('assignProjectManager')"
         input-id="project-managers"
-        placeholder="Enter email and press Enter"
+        :placeholder="$t('enterEmailAndPressEnter')"
         @add="addProjectManager"
         @remove="removeProjectManager"
       />
@@ -114,21 +114,21 @@ export default{
       <EmailChipsInput
         :members="engineers"
         :suggestions="allUsers"
-        label="Assign engineer:"
+        :label="$t('assignEngineer')"
         input-id="engineers"
-        placeholder="Enter email and press Enter"
+        :placeholder="$t('enterEmailAndPressEnter')"
         @add="addEngineer"
         @remove="removeEngineer"
       />
     </div>
     <div class="button-container">
       <SaveButtonWithCallback class="mt-4"
-                              agree-button-text="Save this project?"
-                              title="Are you sure you want to add this project?"
-                              detail="Check for typos."
+                              :agree-button-text="$t('saveThisProject')"
+                              :title="$t('areYouSureYouWantToAddThisProject')"
+                              :detail="$t('checkForTypos')"
                               @modalsuccessclose="save()">
         <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
-        Save
+        {{ $t('save') }}
       </SaveButtonWithCallback>
     </div>
   </div>

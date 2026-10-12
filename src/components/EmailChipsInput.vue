@@ -94,7 +94,7 @@ function handlePaste(e: ClipboardEvent) {
         {{ member.email }}
         <button @click.stop="emit('remove', member)" type="button"
                 class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-indigo-600/20 dark:hover:bg-indigo-400/20">
-          <span class="sr-only">Remove</span>
+          <span class="sr-only">{{ $t('remove') }}</span>
           <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-indigo-700/50 dark:stroke-indigo-300/70 group-hover:stroke-indigo-700 dark:group-hover:stroke-indigo-200">
             <path d="M4 4l6 6m0-6l-6 6" />
           </svg>
@@ -110,7 +110,7 @@ function handlePaste(e: ClipboardEvent) {
              @keydown.esc="handleEscape"
              @input="handleInput"
              @paste="handlePaste"
-             :placeholder="members.length === 0 ? (placeholder ?? 'Enter email and press Enter') : ''"
+             :placeholder="members.length === 0 ? (placeholder ?? $t('enterEmailAndPressEnter')) : ''"
              class="flex-1 min-w-40 border-0 bg-transparent py-0 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-0"
       />
     </div>

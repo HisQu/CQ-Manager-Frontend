@@ -55,15 +55,14 @@ export default defineComponent({
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <Logo class="mx-auto text-5xl h-14"/>
       <h2 class="mt-10 text-center text-xl font-bold leading-9 tracking-tight dark:text-gray-300 text-gray-900">
-        Sign in to your account
+        {{ $t('signInToYourAccount') }}
       </h2>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="login">
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Email
-            address</label>
+          <label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">{{ $t('emailAddress') }}</label>
           <div class="mt-2">
             <input id="email" v-model="email" name="email" type="email" autocomplete="email" :required="true"
                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
@@ -73,7 +72,7 @@ export default defineComponent({
         <div>
           <div class="flex items-center justify-between">
             <label for="password"
-                   class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Password</label>
+                   class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">{{ $t('password') }}</label>
           </div>
           <div class="mt-2">
             <input id="password" v-model="password" name="password" type="password" autocomplete="current-password"
@@ -87,7 +86,7 @@ export default defineComponent({
                   class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6
                     text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2
                     focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Sign in
+            {{ $t('signIn') }}
           </button>
         </div>
       </form>

@@ -11,6 +11,17 @@ the first layer is the name of the backend branch our branches are compatible wi
 Our branch `feature-detail-view` which is compatible with the backend branch `add-comments`
 will be named `backend-add-comments/feature-detail-view`. 
 
+Pull requests are merged using **squash and merge**. Fetch the remote before starting
+new work and create independent branches from the updated target branch (normally
+`origin/main`). A merged feature branch still contains its original commits, which
+are not ancestors of the squash commit; reusing that branch can bring already-merged
+commits into a new PR and cause conflicts.
+
+For dependent branches, rebase only the remaining work onto the updated target
+branch after the parent PR is squash-merged. Check the PR's commit list and diff
+against its intended base before pushing. Use `--force-with-lease` when pushing an
+authorized history rewrite.
+
 ## Recommended Environment Setup
 
 Put a `.env`-file in the frontend `src` directory.
@@ -52,3 +63,30 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
    2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+
+## Internationalization
+
+The frontend supports English (`en`) and German (`de`) through Vue I18n. The language
+selector is available on the landing page and every application page. The first
+visit uses the first supported browser language, falling back to English. A user's
+selection is saved in local storage as `cq-manager-locale` and also updates the
+HTML `lang` attribute.
+
+The term “Competency Questions” (singular “Competency Question”) remains in English
+in every locale, including German.
+
+Translations live in `src/locales/en.json` and `src/locales/de.json`. Add the same
+message key to both files, then use `$t('key')` in templates or `useI18n()` in
+component setup. Services and shared descriptors can import `t` from `src/i18n.ts`.
+Use getters or computed values for translated labels so they update when the
+language changes. Use named interpolation for complete sentences and Vue I18n
+plural messages for counts; do not append English plural suffixes.
+
+User-authored questions, names, comments, tags, and backend-provided validation
+details retain their original text. Frontend messages and the built-in
+uncatalogued label are translated. Exports use translated field headings while
+preserving the underlying data.
+
+Run `npm test`, `npx vue-tsc --noEmit`, and `npm run build` to validate changes.
+The i18n tests check locale selection, persistence, dictionary parity, message
+syntax, plural forms, and switching language without clearing form input.

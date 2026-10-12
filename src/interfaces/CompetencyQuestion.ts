@@ -26,8 +26,10 @@ type CompetencyQuestionT = {
             id: string,
         },
         questionString: string,
+        sparqlQuery: string | null,
+        exampleAnswer: string | null,
         versionNumber: number
-    },
+    }[],
     group: GroupT,
     comment: string | null,
     reference: string | null,
@@ -35,7 +37,10 @@ type CompetencyQuestionT = {
     exampleAnswer: string | null,
     type: CQType | null,
     topic: TopicReducedT | null,
+    tags: TagReducedT[],
     cqCatalogueIdentifier: string | null,
+    /** Set when the CQ was deleted; only system admins can still fetch it. */
+    deletedAt: string | null,
 }
 
 type CompetencyQuestionReducedT = {
@@ -59,13 +64,23 @@ type CompetencyQuestionReducedT = {
     exampleAnswer?: string | null,
     type?: CQType | null,
     topic?: TopicReducedT | null,
+    tags?: TagReducedT[],
     cqCatalogueIdentifier?: string | null,
     noComments?: number,
     createdAt?: string | null,
     updatedAt?: string | null,
     lastCommentAt?: string | null,
+    /** Comments by others the logged-in user has not seen yet. */
+    noUnreadComments?: number,
+    /** The latest comment, only while it is unread by the logged-in user. */
+    lastComment?: {
+        comment: string,
+        author: string | null,
+        createdAt: string,
+    } | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidation?: CQConsolidationEntryT | null,
+    deletedAt?: string | null,
 }
 
 type CompetencyQuestionReferenceT = {
