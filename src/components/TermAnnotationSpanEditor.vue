@@ -244,13 +244,16 @@ function laneFor(annotation: AnnotationInCQT): number {
   return laneById.value.get(annotation.id) ?? 0;
 }
 
+/**
+For a given segment and an annotation, determine whether the labelanchor (midpoint of the annotation) is in this segment. 
+This is done by comparing the midpoint with the stored start and end of the segment. 
+ */
 function segmentHasLabelAnchor(segment: AnnotationTextSegment<AnnotationView>, annotation: AnnotationView): boolean {
   const anchor = (annotation.start + annotation.end) / 2;
   return anchor >= segment.start && anchor < segment.end;
 }
 
-
-// position the label anchor at the midpoint of the whole annotation (i.e. multiple words separated by whitespace))
+/** Given a segment and an annotation, compute the position of the label anchor (midpoint of the annotation) relative to this segment. */
 function labelAnchorStyle(segment: AnnotationTextSegment<AnnotationView>, annotation: AnnotationView) {
   const anchor = (annotation.start + annotation.end) / 2;
   const segmentLength = segment.end - segment.start;
@@ -258,10 +261,12 @@ function labelAnchorStyle(segment: AnnotationTextSegment<AnnotationView>, annota
   return {left: `${position}%`};
 }
 
-// simple shortning heuristic: 
-// if the label fits in the selected text, use it as-is. Else, if it has multiple words, 
-// use the first letter of each word. Else, truncate to the length of the selected text.
-// Only the character counts are considered, not the actual pixel width. 
+/**  
+ Simple shortning heuristic: 
+ if the label fits in the selected text, use it as-is. Else, if it has multiple words, 
+ use the first letter of each word. Else, truncate to the length of the selected text.
+ Only the character counts are considered, not the actual pixel width. 
+ */
 function shortLabel(label: string, selectedText: string): string {
   const cleanLabel = label.trim() || "Term";
   const available = Math.max(1, Array.from(selectedText.trim()).length);

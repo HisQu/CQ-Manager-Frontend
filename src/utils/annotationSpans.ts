@@ -18,7 +18,7 @@ export interface AnnotationSpanLane<T extends AnnotationSpanLike> {
   lane: number;
 }
 
-/** Split text at annotation boundaries and record every span covering each segment. */
+/** Split text at annotation boundaries (start/end offsets) and divide the question at each one. */
 export function buildAnnotationTextSegments<T extends AnnotationSpanLike>(
   text: string,
   annotations: readonly T[],
@@ -64,6 +64,8 @@ export function assignAnnotationSpanLanes<T extends AnnotationSpanLike>(
   const placed: Array<AnnotationSpanLane<T>> = [];
   const laneById = new Map<string, number>();
 
+  // for overlapping lanes the largest span gets placed first (nearest to the text), 
+  // and the smaller spans are placed in the next available lane above it. 
   ordered.forEach((annotation) => {
     const overlappingLanes = placed
       .filter((item) => spansOverlap(annotation, item.annotation))
@@ -79,7 +81,7 @@ export function assignAnnotationSpanLanes<T extends AnnotationSpanLike>(
   }));
 }
 
-/** Split boundary segments into whitespace-preserving chunks for inline bar layout. */
+/** Split the given segments into smaller segments at whitespace boundaries so that only one word is in each segment. */
 export function splitAnnotationTextSegments<T extends AnnotationSpanLike>(
   segments: Array<AnnotationTextSegment<T>>,
 ): Array<AnnotationTextSegment<T>> {

@@ -44,8 +44,8 @@ watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? nu
 watch(() => props.type, (val) => { localType.value = val ?? null })
 
 function saveQuestion() {
-  // on updating a question, check if existing annoations become invalid by comparing 
-  // the annotationtext with the current start and end positions in the question updated
+  // on updating a question, check if existing annoations become invalid by checking if the annotationtext 
+  // is still the same as the text in the question at the stored annotation start/end positions. 
   const invalidAnnotations = annotationItems.value.some((annotation) =>
     localQuestion.value.slice(annotation.start, annotation.end) !== annotation.content,
   );
