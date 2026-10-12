@@ -22,6 +22,7 @@ const {expanded: commentsPaneExpanded, docked: commentsPaneDocked} = inject(cqCo
 
 const props = defineProps(['id'])
 const { locale } = useI18n();
+const store = useStore();
 
 const messagePopupData = ref({
   uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
