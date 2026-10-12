@@ -113,6 +113,7 @@ function getSourceTextOffset(container: HTMLElement, targetNode: Node, targetOff
   return null;
 }
 
+// on mouseup, capture the selected text by its start and end and store it in pendingSelection
 function captureTextSelection() {
   if (!props.canEdit || !textContainer.value) return;
   const selection = window.getSelection();
@@ -191,8 +192,8 @@ async function saveAnnotation() {
     return;
   }
   closeSelection();
-  // A newly created term is project-wide. Refresh the suggestions immediately
-  // so it can be reused for the next span without leaving this question view.
+  // a newly created term is project-wide. Refresh the suggestions immediately
+  // so it can be reused for the next span without leaving this view
   await fetchTerms();
   emit("updated");
 }
@@ -248,6 +249,8 @@ function segmentHasLabelAnchor(segment: AnnotationTextSegment<AnnotationView>, a
   return anchor >= segment.start && anchor < segment.end;
 }
 
+
+// position the label anchor at the midpoint of the whole annotation (i.e. multiple words separated by whitespace))
 function labelAnchorStyle(segment: AnnotationTextSegment<AnnotationView>, annotation: AnnotationView) {
   const anchor = (annotation.start + annotation.end) / 2;
   const segmentLength = segment.end - segment.start;
@@ -255,6 +258,10 @@ function labelAnchorStyle(segment: AnnotationTextSegment<AnnotationView>, annota
   return {left: `${position}%`};
 }
 
+// simple shortning heuristic: 
+// if the label fits in the selected text, use it as-is. Else, if it has multiple words, 
+// use the first letter of each word. Else, truncate to the length of the selected text.
+// Only the character counts are considered, not the actual pixel width. 
 function shortLabel(label: string, selectedText: string): string {
   const cleanLabel = label.trim() || "Term";
   const available = Math.max(1, Array.from(selectedText.trim()).length);

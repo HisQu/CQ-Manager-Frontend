@@ -44,6 +44,8 @@ watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? nu
 watch(() => props.type, (val) => { localType.value = val ?? null })
 
 function saveQuestion() {
+  // on updating a question, check if existing annoations become invalid by comparing 
+  // the annotationtext with the current start and end positions in the question updated
   const invalidAnnotations = annotationItems.value.some((annotation) =>
     localQuestion.value.slice(annotation.start, annotation.end) !== annotation.content,
   );
@@ -100,7 +102,7 @@ function saveQuestion() {
                   :disabled="!canEdit"
                   v-model="localType"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400">
-            <option :value="null">—</option>
+            <option :value="null">-</option>
             <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ CQ_TYPE_LABELS[t] ?? t }}</option>
           </select>
           <div v-if="localType && CQ_TYPE_HINTS[localType]" class="mt-1.5 rounded-md bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
