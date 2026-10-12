@@ -3,6 +3,7 @@ import {computed, ref, watch} from "vue";
 import {
   CheckIcon,
   ChevronUpDownIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
 import {
@@ -247,9 +248,16 @@ function segmentHasLabelAnchor(segment: AnnotationTextSegment<AnnotationView>, a
   return anchor >= segment.start && anchor < segment.end;
 }
 
+function labelAnchorStyle(segment: AnnotationTextSegment<AnnotationView>, annotation: AnnotationView) {
+  const anchor = (annotation.start + annotation.end) / 2;
+  const segmentLength = segment.end - segment.start;
+  const position = segmentLength > 0 ? ((anchor - segment.start) / segmentLength) * 100 : 50;
+  return {left: `${position}%`};
+}
+
 function shortLabel(label: string, selectedText: string): string {
   const cleanLabel = label.trim() || "Term";
-  const available = Math.max(1, Math.min(4, Array.from(selectedText.trim()).length));
+  const available = Math.max(1, Array.from(selectedText.trim()).length);
   if (Array.from(cleanLabel).length <= available) return cleanLabel;
   const words = cleanLabel.replace(/[()]/g, " ").split(/[\s_-]+/).filter(Boolean);
   if (words.length > 1) return words.map((part) => part[0]).join("").toUpperCase().slice(0, available);
@@ -306,11 +314,13 @@ function barStyle(annotation: AnnotationView) {
                   @contextmenu.prevent.stop="removeAnnotation(annotation)">
             <span v-if="segmentHasLabelAnchor(segment, annotation)"
                   class="annotation-label"
+                  :style="labelAnchorStyle(segment, annotation)"
                   :title="annotation.term.content">{{ shortLabel(annotation.term.content, annotation.content) }}</span>
           </button>
           <span v-else class="annotation-bar" :style="barStyle(annotation)" aria-hidden="true">
             <span v-if="segmentHasLabelAnchor(segment, annotation)"
                   class="annotation-label"
+                  :style="labelAnchorStyle(segment, annotation)"
                   :title="annotation.term.content">{{ shortLabel(annotation.term.content, annotation.content) }}</span>
           </span>
         </template>
@@ -369,13 +379,17 @@ function barStyle(annotation: AnnotationView) {
                  class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
         </div>
       </div>
-      <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+      <div class="flex shrink-0 items-center gap-2">
         <button type="button" :disabled="!term || saving"
                 class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                 @click="saveAnnotation">{{ editingAnnotation ? 'Save changes' : 'Add annotation' }}</button>
         <button v-if="editingAnnotation" type="button" :disabled="saving"
-                class="inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950/40"
-                @click="removeAnnotation(editingAnnotation)">Remove annotation</button>
+                class="inline-flex h-10 w-10 items-center justify-center rounded-md text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                title="Remove annotation"
+                aria-label="Remove annotation"
+                @click="removeAnnotation(editingAnnotation)">
+          <TrashIcon class="h-5 w-5" aria-hidden="true" />
+        </button>
       </div>
     </div>
   </div>
