@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import {ChevronRightIcon} from "@heroicons/vue/20/solid";
 
+const emit = defineEmits<{
+  projectClick: [];
+}>();
+
 defineProps<{
   title: string;
   project?: string;
+  projectId?: string;
   group?: string;
   catalogueIdentifier?: string;
   catalogueName?: string;
@@ -16,7 +21,13 @@ defineProps<{
 
       <!-- Breadcrumb badges -->
       <div v-if="project || group" class="flex items-center gap-1.5 flex-wrap mb-2">
-        <span v-if="project"
+        <RouterLink v-if="project && projectId"
+              to="/questions"
+              @click="emit('projectClick')"
+              class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30 dark:hover:bg-indigo-400/20">
+          {{ project }}
+        </RouterLink>
+        <span v-else-if="project"
               class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30">
           {{ project }}
         </span>
