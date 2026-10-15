@@ -42,6 +42,8 @@
   "termAnnotationsForQuestion": "Term annotations for this question.",
   "annotationsMustBeRecreated": "This question version has no copied annotations. Create new annotations for this text.",
   "editAnnotation": "Edit annotation",
+  "viewAnnotation": "Annotation details",
+  "closeAnnotationDetails": "Close annotation details",
   "rightClickToRemove": "right-click to remove",
   "selected": "Selected",
   "applyChanges": "Apply changes",

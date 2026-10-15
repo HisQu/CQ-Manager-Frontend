@@ -51,6 +51,7 @@ const newTermDefinition = ref("");
 const newTermConceptIri = ref("");
 const pendingSelection = ref<{start: number; end: number; content: string} | null>(null);
 const editingAnnotationId = ref<string | null>(null);
+const viewingAnnotation = ref<AnnotationInCQT | null>(null);
 const saving = ref(false);
 const messagePopupData = ref({
   uxresponse: {
@@ -87,6 +88,7 @@ const hasStagedChanges = computed(() => {
 watch(() => [props.selectedRevisionId, props.selectedAnnotationVersionId], () => {
   isEditing.value = false;
   stagedAnnotations.value = [];
+  viewingAnnotation.value = null;
   closeSelection();
 });
 
@@ -166,6 +168,7 @@ function captureTextSelection() {
   const normalizedEnd = Math.max(start, end);
   const content = activeText.value.slice(normalizedStart, normalizedEnd);
   if (!content.trim()) return;
+  viewingAnnotation.value = null;
   pendingSelection.value = {start: normalizedStart, end: normalizedEnd, content};
   term.value = null;
   query.value = "";
@@ -238,6 +241,7 @@ async function saveAnnotation() {
 
 function editAnnotation(annotation: AnnotationInCQT) {
   if (!isEditing.value || !canEditSelected.value) return;
+  viewingAnnotation.value = null;
   editingAnnotationId.value = annotation.id;
   pendingSelection.value = {
     start: annotation.start,
@@ -257,6 +261,21 @@ function editAnnotation(annotation: AnnotationInCQT) {
   window.getSelection()?.removeAllRanges();
 }
 
+function activateAnnotation(annotation: AnnotationInCQT) {
+  if (isEditing.value) {
+    editAnnotation(annotation);
+  } else {
+    viewingAnnotation.value = annotation;
+  }
+}
+
+function handleAnnotationContextMenu(event: MouseEvent, annotation: AnnotationInCQT) {
+  if (!isEditing.value) return;
+  event.preventDefault();
+  event.stopPropagation();
+  removeAnnotation(annotation);
+}
+
 function removeAnnotation(annotation: AnnotationInCQT) {
   if (!isEditing.value || !canEditSelected.value) return;
   stagedAnnotations.value = stagedAnnotations.value.filter((item) => item.id !== annotation.id);
@@ -265,6 +284,7 @@ function removeAnnotation(annotation: AnnotationInCQT) {
 
 function beginEditing() {
   if (!canEditSelected.value) return;
+  viewingAnnotation.value = null;
   stagedAnnotations.value = [...(selectedAnnotationVersion.value?.annotations ?? [])].map((annotation) => ({...annotation, term: {...annotation.term}}));
   isEditing.value = true;
 }
@@ -403,29 +423,46 @@ function barStyle(annotation: AnnotationView) {
               class="annotation-source"
               :style="sourceStyle(segment)">{{ segment.text }}</span>
         <template v-for="annotation in segment.annotations" :key="annotation.id">
-          <button v-if="isEditing"
+          <button
                   type="button"
                   class="annotation-bar"
                   :style="barStyle(annotation)"
-                  :title="`${$t('editAnnotation')}: ${annotation.term.content} (${$t('rightClickToRemove')})`"
-                  :aria-label="`${$t('editAnnotation')}: ${annotation.term.content}`"
+                  :title="isEditing ? `${$t('editAnnotation')}: ${annotation.term.content} (${$t('rightClickToRemove')})` : `${$t('viewAnnotation')}: ${annotation.term.content}`"
+                  :aria-label="`${isEditing ? $t('editAnnotation') : $t('viewAnnotation')}: ${annotation.term.content}`"
                   @mouseup.stop
-                  @click.stop="editAnnotation(annotation)"
-                  @contextmenu.prevent.stop="removeAnnotation(annotation)">
+                  @click.stop="activateAnnotation(annotation)"
+                  @contextmenu="handleAnnotationContextMenu($event, annotation)">
             <span v-if="segmentHasLabelAnchor(segment, annotation)"
                   class="annotation-label"
                   :style="labelAnchorStyle(segment, annotation)"
                   :title="annotation.term.content">{{ shortLabel(annotation.term.content, annotation.content) }}</span>
           </button>
-          <span v-else class="annotation-bar" :style="barStyle(annotation)" aria-hidden="true">
-            <span v-if="segmentHasLabelAnchor(segment, annotation)"
-                  class="annotation-label"
-                  :style="labelAnchorStyle(segment, annotation)"
-                  :title="annotation.term.content">{{ shortLabel(annotation.term.content, annotation.content) }}</span>
-          </span>
         </template>
       </span>
     </template>
+  </div>
+
+  <div v-if="viewingAnnotation && !isEditing" class="mt-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+    <div class="mb-2 flex items-center justify-between gap-3">
+      <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $t('viewAnnotation') }}</h3>
+      <button type="button" class="rounded p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700" :aria-label="$t('closeAnnotationDetails')" :title="$t('closeAnnotationDetails')" @click="viewingAnnotation = null">
+        <XMarkIcon class="h-4 w-4" />
+      </button>
+    </div>
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+      <div>
+        <dt class="font-medium text-gray-500 dark:text-gray-400">{{ $t('term2') }}</dt>
+        <dd class="text-gray-800 dark:text-gray-100">{{ viewingAnnotation.term.content || '—' }}</dd>
+      </div>
+      <div>
+        <dt class="font-medium text-gray-500 dark:text-gray-400">{{ $t('definition') }}</dt>
+        <dd class="text-gray-800 dark:text-gray-100">{{ viewingAnnotation.term.definition || '—' }}</dd>
+      </div>
+      <div>
+        <dt class="font-medium text-gray-500 dark:text-gray-400">{{ $t('conceptIRI') }}</dt>
+        <dd class="break-all text-gray-800 dark:text-gray-100">{{ viewingAnnotation.term.conceptIri || '—' }}</dd>
+      </div>
+    </dl>
   </div>
 
   <div v-if="pendingSelection && isEditing" class="mt-3 rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/30">

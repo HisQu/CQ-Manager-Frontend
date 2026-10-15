@@ -42,6 +42,8 @@
   "termAnnotationsForQuestion": "Begriff-Annotationen für diese Frage.",
   "annotationsMustBeRecreated": "Für diese Frageversion wurden keine Annotationen übernommen. Erstellen Sie neue Annotationen für diesen Text.",
   "editAnnotation": "Annotation bearbeiten",
+  "viewAnnotation": "Annotationsdetails",
+  "closeAnnotationDetails": "Annotationsdetails schließen",
   "rightClickToRemove": "mit Rechtsklick entfernen",
   "selected": "Ausgewählt",
   "applyChanges": "Änderungen übernehmen",
