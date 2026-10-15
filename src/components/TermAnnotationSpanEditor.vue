@@ -74,6 +74,7 @@ const activeText = computed(() => currentRevision.value && !props.questionTextCh
   ? props.text
   : (selectedRevision.value?.questionString ?? props.text));
 const activeAnnotations = computed(() => isEditing.value ? stagedAnnotations.value : (selectedAnnotationVersion.value?.annotations ?? props.annotations));
+// only allow editing if the user has edit permissions, the selected revision and annotation version are the latest, and the question text has not changed
 const canEditSelected = computed(() => props.canEdit && currentRevision.value && currentAnnotationVersion.value && !props.questionTextChanged);
 const hasStagedChanges = computed(() => {
   const normalize = (annotations: AnnotationInCQT[]) => annotations.map(({content, start, end, term: annotationTerm}) => ({
