@@ -18,6 +18,7 @@ type CompetencyQuestionT = {
     noConsolidations: number,
     consolidations: ConsolidationT[],
     annotations: Array<AnnotationInCQT>,
+    revisions: QuestionRevisionT[],
     permissionsGroupMember?: boolean,
     permissionsProjectManager?: boolean,
     versions: {

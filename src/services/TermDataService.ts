@@ -43,39 +43,25 @@ class TermDataService {
             };
         });
     }
-    async add(question_id: string, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationOccurrenceT[]> | UXResponse> {
-        return http.put<AnnotationOccurrenceT[]>(`/terms/add/${question_id}`, {
-            annotations: annotations
-        }, { headers: authHeader() }).then(response => {
-            return response;
-        }).catch(reason => {
-            return {
-                title: t('errorOccurred'),
-                text: t('errorAddingTheTerm'),
-                detail: reason,
-                messageType: "error"
-            };
-        });
+    async createTerm(project_id: string, content: string, definition?: string | null, conceptIri?: string | null): Promise<AxiosResponse<TermT> | UXResponse> {
+        return http.post<TermT>(`/terms/project/${project_id}`, {content, definition: definition ?? null, conceptIri: conceptIri ?? null}, { headers: authHeader() }).then(response => response).catch(reason => ({
+            title: t('errorOccurred'),
+            text: t('errorAddingTheTerm'),
+            detail: reason,
+            messageType: "error" as const,
+        }));
     }
 
-    async updateAnnotation(project_id: string, question_id: string, passage_id: string, annotation: AnnotationT): Promise<AxiosResponse<AnnotationOccurrenceT> | UXResponse> {
-        return http.put<AnnotationOccurrenceT>(`/terms/${project_id}/${question_id}/${passage_id}`, {
-            term: annotation.term,
-            passage: annotation.passage,
-            start: annotation.start,
-            end: annotation.end,
-            definition: annotation.definition ?? null,
-            conceptIri: annotation.conceptIri ?? null,
-        }, { headers: authHeader() }).then(response => {
-            return response;
-        }).catch(reason => {
-            return {
-                title: "Oops! An error occurred...",
-                text: "... while updating the annotation. Debugging info can be found in the console.",
-                detail: reason,
-                messageType: "error"
-            };
-        });
+    async saveAnnotationVersion(question_id: string, revision_id: string, base_annotation_version_id: string, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationVersionSaveT> | UXResponse> {
+        return http.put<AnnotationVersionSaveT>(`/terms/question/${question_id}/revisions/${revision_id}/annotations`, {
+            baseAnnotationVersionId: base_annotation_version_id,
+            annotations,
+        }, { headers: authHeader() }).then(response => response).catch(reason => ({
+            title: t('errorOccurred'),
+            text: t('errorSavingAnnotations'),
+            detail: reason,
+            messageType: "error" as const,
+        }));
     }
     
 
@@ -105,22 +91,6 @@ class TermDataService {
         });
     }
 
-    async remove(passage_id: string, question_id: string): Promise<AxiosResponse<AnnotationOccurrenceT[]> | UXResponse> {
-        return http.put<AnnotationOccurrenceT[]>(`/terms/remove/${question_id}`,{
-            passageIds: [passage_id],
-        },{
-            headers: authHeader(),
-        }).then(response => {
-            return response
-        }).catch(reason => {
-            return {
-                title: t('errorOccurred'),
-                text: t('errorRemovingTheTerm'),
-                detail: reason,
-                messageType: "error"
-            }
-        });
-    }
 }
 
 export default new TermDataService();

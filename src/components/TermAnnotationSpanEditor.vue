@@ -3,7 +3,7 @@ import {computed, ref, watch} from "vue";
 import {
   CheckIcon,
   ChevronUpDownIcon,
-  TrashIcon,
+  PencilIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
 import {
@@ -30,7 +30,9 @@ type AnnotationView = AnnotationInCQT & AnnotationSpanLike;
 const props = defineProps<{
   text: string;
   annotations: AnnotationInCQT[];
+  revisions: QuestionRevisionT[];
   canEdit: boolean;
+  questionTextChanged: boolean;
   questionId: string;
   projectId: string;
 }>();
@@ -39,12 +41,16 @@ const emit = defineEmits<{updated: []}>();
 
 const textContainer = ref<HTMLElement | null>(null);
 const terms = ref<TermT[]>([]);
+const selectedRevisionId = ref("");
+const selectedAnnotationVersionId = ref("");
+const isEditing = ref(false);
+const stagedAnnotations = ref<AnnotationInCQT[]>([]);
 const term = ref<TermT | {content: string} | null>(null);
 const query = ref("");
 const newTermDefinition = ref("");
 const newTermConceptIri = ref("");
 const pendingSelection = ref<{start: number; end: number; content: string} | null>(null);
-const editingAnnotation = ref<AnnotationInCQT | null>(null);
+const editingAnnotationId = ref<string | null>(null);
 const saving = ref(false);
 const messagePopupData = ref({
   uxresponse: {
@@ -56,18 +62,56 @@ const messagePopupData = ref({
   open: false,
 });
 const newTermOption = computed(() => ({content: query.value.trim()}));
+const latestRevision = computed(() => [...props.revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0]);
+const selectedRevision = computed(() => props.revisions.find(({id}) => id === selectedRevisionId.value) ?? latestRevision.value);
+const currentRevision = computed(() => Boolean(selectedRevision.value && selectedRevision.value.id === latestRevision.value?.id));
+const selectedAnnotationVersions = computed(() => [...(selectedRevision.value?.annotationVersions ?? [])].sort((a, b) => a.versionNumber - b.versionNumber));
+const latestAnnotationVersion = computed(() => selectedAnnotationVersions.value[selectedAnnotationVersions.value.length - 1]);
+const selectedAnnotationVersion = computed(() => selectedAnnotationVersions.value.find(({id}) => id === selectedAnnotationVersionId.value) ?? latestAnnotationVersion.value);
+const currentAnnotationVersion = computed(() => Boolean(selectedAnnotationVersion.value && selectedAnnotationVersion.value.id === latestAnnotationVersion.value?.id));
+const activeText = computed(() => currentRevision.value && !props.questionTextChanged
+  ? props.text
+  : (selectedRevision.value?.questionString ?? props.text));
+const activeAnnotations = computed(() => isEditing.value ? stagedAnnotations.value : (selectedAnnotationVersion.value?.annotations ?? props.annotations));
+const canEditSelected = computed(() => props.canEdit && currentRevision.value && currentAnnotationVersion.value && !props.questionTextChanged);
+const hasStagedChanges = computed(() => {
+  const normalize = (annotations: AnnotationInCQT[]) => annotations.map(({content, start, end, term: annotationTerm}) => ({
+    content, start, end,
+    term: annotationTerm.content,
+    definition: annotationTerm.definition ?? null,
+    conceptIri: annotationTerm.conceptIri ?? null,
+  })).sort((left, right) => left.start - right.start || left.end - right.end || left.term.localeCompare(right.term));
+  return JSON.stringify(normalize(stagedAnnotations.value)) !== JSON.stringify(normalize(selectedAnnotationVersion.value?.annotations ?? []));
+});
 
-const validAnnotations = computed<AnnotationView[]>(() => props.annotations.filter((annotation) =>
+watch(() => props.revisions, (revisions) => {
+  const newest = [...revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0];
+  if (!newest) return;
+  selectedRevisionId.value = newest.id;
+  const annotations = [...(newest.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0];
+  selectedAnnotationVersionId.value = annotations?.id ?? "";
+  isEditing.value = false;
+  stagedAnnotations.value = [];
+}, {immediate: true, deep: true});
+
+watch(selectedRevisionId, (id) => {
+  const revision = props.revisions.find((item) => item.id === id);
+  const newest = [...(revision?.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0];
+  selectedAnnotationVersionId.value = newest?.id ?? "";
+  closeSelection();
+});
+
+const validAnnotations = computed<AnnotationView[]>(() => activeAnnotations.value.filter((annotation) =>
   annotation.start >= 0
   && annotation.end > annotation.start
-  && annotation.end <= props.text.length
-  && props.text.slice(annotation.start, annotation.end) === annotation.content,
+  && annotation.end <= activeText.value.length
+  && activeText.value.slice(annotation.start, annotation.end) === annotation.content,
 ));
 const lanes = computed(() => assignAnnotationSpanLanes(validAnnotations.value));
 const laneById = computed(() => new Map(lanes.value.map(({annotation, lane}) => [annotation.id, lane])));
 const maxLane = computed(() => lanes.value.reduce((max, item) => Math.max(max, item.lane), -1));
 const displaySegments = computed(() => {
-  const raw = buildAnnotationTextSegments(props.text, validAnnotations.value);
+  const raw = buildAnnotationTextSegments(activeText.value, validAnnotations.value);
   return splitAnnotationTextSegments(raw);
 });
 const filteredTerms = computed(() => {
@@ -76,10 +120,13 @@ const filteredTerms = computed(() => {
 });
 
 watch(() => [props.projectId, props.canEdit] as const, fetchTerms, {immediate: true});
-watch(() => props.canEdit, (canEdit) => {
-  if (!canEdit) closeSelection();
+watch(() => [props.canEdit, canEditSelected.value] as const, ([canEdit, enabled]) => {
+  if (!canEdit || !enabled) {
+    isEditing.value = false;
+    closeSelection();
+  }
 });
-watch(() => props.text, () => {
+watch(() => [props.text, selectedAnnotationVersionId.value] as const, () => {
   if (pendingSelection.value) closeSelection();
 });
 
@@ -115,7 +162,7 @@ function getSourceTextOffset(container: HTMLElement, targetNode: Node, targetOff
 
 // on mouseup, capture the selected text by its start and end and store it in pendingSelection
 function captureTextSelection() {
-  if (!props.canEdit || !textContainer.value) return;
+  if (!isEditing.value || !canEditSelected.value || !textContainer.value) return;
   const selection = window.getSelection();
   if (!selection || selection.isCollapsed || selection.rangeCount === 0) return;
   const range = selection.getRangeAt(0);
@@ -128,7 +175,7 @@ function captureTextSelection() {
 
   const normalizedStart = Math.min(start, end);
   const normalizedEnd = Math.max(start, end);
-  const content = props.text.slice(normalizedStart, normalizedEnd);
+  const content = activeText.value.slice(normalizedStart, normalizedEnd);
   if (!content.trim()) return;
   pendingSelection.value = {start: normalizedStart, end: normalizedEnd, content};
   term.value = null;
@@ -164,43 +211,45 @@ function updateQuery(event: Event) {
 }
 
 async function saveAnnotation() {
-  if (!props.canEdit || !pendingSelection.value || !term.value?.content || saving.value) return;
+  if (!isEditing.value || !pendingSelection.value || !term.value?.content || saving.value) return;
   saving.value = true;
-  const annotation: AnnotationT = {
-    term: term.value.content,
-    passage: pendingSelection.value.content,
+  let selectedTerm: TermT;
+  if ("id" in term.value) {
+    selectedTerm = term.value;
+  } else {
+    const termResponse = await TermDataService.createTerm(props.projectId, term.value.content, newTermDefinition.value || null, newTermConceptIri.value || null);
+    if ("messageType" in termResponse) {
+      saving.value = false;
+      showMessage(termResponse);
+      return;
+    }
+    selectedTerm = termResponse.data;
+    terms.value = [selectedTerm, ...terms.value.filter(({id}) => id !== selectedTerm.id)];
+  }
+  const annotation: AnnotationInCQT = {
+    id: editingAnnotationId.value ?? crypto.randomUUID(),
+    content: pendingSelection.value.content,
     start: pendingSelection.value.start,
     end: pendingSelection.value.end,
-    definition: newTermDefinition.value || null,
-    conceptIri: newTermConceptIri.value || null,
+    term: {
+      id: selectedTerm.id,
+      content: selectedTerm.content,
+      definition: newTermDefinition.value || null,
+      conceptIri: newTermConceptIri.value || null,
+    },
   };
-  let response;
-  if (editingAnnotation.value) {
-    response = await TermDataService.updateAnnotation(
-      props.projectId,
-      props.questionId,
-      editingAnnotation.value.id,
-      annotation,
-    );
+  if (editingAnnotationId.value) {
+    stagedAnnotations.value = stagedAnnotations.value.map((item) => item.id === editingAnnotationId.value ? annotation : item);
   } else {
-    response = await TermDataService.add(props.questionId, [annotation]);
+    stagedAnnotations.value = [...stagedAnnotations.value, annotation];
   }
   saving.value = false;
-
-  if ("messageType" in response) {
-    showMessage(response);
-    return;
-  }
   closeSelection();
-  // a newly created term is project-wide. Refresh the suggestions immediately
-  // so it can be reused for the next span without leaving this view
-  await fetchTerms();
-  emit("updated");
 }
 
 function editAnnotation(annotation: AnnotationInCQT) {
-  if (!props.canEdit) return;
-  editingAnnotation.value = annotation;
+  if (!isEditing.value || !canEditSelected.value) return;
+  editingAnnotationId.value = annotation.id;
   pendingSelection.value = {
     start: annotation.start,
     end: annotation.end,
@@ -219,20 +268,51 @@ function editAnnotation(annotation: AnnotationInCQT) {
   window.getSelection()?.removeAllRanges();
 }
 
-async function removeAnnotation(annotation: AnnotationInCQT) {
-  if (!props.canEdit) return;
-  const response = await TermDataService.remove(annotation.id, props.questionId);
+function removeAnnotation(annotation: AnnotationInCQT) {
+  if (!isEditing.value || !canEditSelected.value) return;
+  stagedAnnotations.value = stagedAnnotations.value.filter((item) => item.id !== annotation.id);
+  if (editingAnnotationId.value === annotation.id) closeSelection();
+}
+
+function beginEditing() {
+  if (!canEditSelected.value) return;
+  stagedAnnotations.value = [...(selectedAnnotationVersion.value?.annotations ?? [])].map((annotation) => ({...annotation, term: {...annotation.term}}));
+  isEditing.value = true;
+}
+
+function discardChanges() {
+  stagedAnnotations.value = [];
+  isEditing.value = false;
+  closeSelection();
+}
+
+async function saveChanges() {
+  const base = latestAnnotationVersion.value;
+  const revision = selectedRevision.value;
+  if (!isEditing.value || !hasStagedChanges.value || !base || !revision || saving.value) return;
+  saving.value = true;
+  const annotations: AnnotationT[] = stagedAnnotations.value.map((item) => ({
+    term: item.term.content,
+    passage: item.content,
+    start: item.start,
+    end: item.end,
+    definition: item.term.definition ?? null,
+    conceptIri: item.term.conceptIri ?? null,
+  }));
+  const response = await TermDataService.saveAnnotationVersion(props.questionId, revision.id, base.id, annotations);
+  saving.value = false;
   if ("messageType" in response) {
     showMessage(response);
-  } else {
-    if (editingAnnotation.value?.id === annotation.id) closeSelection();
-    emit("updated");
+    return;
   }
+  isEditing.value = false;
+  closeSelection();
+  emit("updated");
 }
 
 function closeSelection() {
   pendingSelection.value = null;
-  editingAnnotation.value = null;
+  editingAnnotationId.value = null;
   term.value = null;
   query.value = "";
   newTermDefinition.value = "";
@@ -298,9 +378,53 @@ function barStyle(annotation: AnnotationView) {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false" />
 
+  <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
+    <div class="flex flex-wrap gap-3">
+      <label class="text-xs font-medium text-gray-600 dark:text-gray-300">
+        {{ $t('questionVersion') }}
+        <span class="relative mt-1 block">
+          <select v-model="selectedRevisionId" :disabled="isEditing"
+                  class="min-w-36 appearance-none rounded-md border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600">
+            <option v-for="revision in [...revisions].sort((a, b) => b.versionNumber - a.versionNumber)" :key="revision.id" :value="revision.id">
+              v{{ revision.versionNumber }}{{ revision.id === latestRevision?.id ? ` (${$t('latest')})` : '' }}
+            </option>
+          </select>
+          <ChevronUpDownIcon class="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
+        </span>
+      </label>
+      <label class="text-xs font-medium text-gray-600 dark:text-gray-300">
+        {{ $t('annotationVersion') }}
+        <span class="relative mt-1 block">
+          <select v-model="selectedAnnotationVersionId" :disabled="isEditing || selectedAnnotationVersions.length === 0"
+                  class="min-w-36 appearance-none rounded-md border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600">
+            <option v-for="version in [...selectedAnnotationVersions].reverse()" :key="version.id" :value="version.id">
+              v{{ version.versionNumber }}{{ version.id === latestAnnotationVersion?.id ? ` (${$t('latest')})` : '' }}
+            </option>
+          </select>
+          <ChevronUpDownIcon class="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
+        </span>
+      </label>
+    </div>
+    <div v-if="canEditSelected" class="flex items-center gap-2">
+      <template v-if="isEditing">
+        <button type="button" :disabled="saving || !hasStagedChanges" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" :aria-label="$t('saveAnnotations')" :title="$t('saveAnnotations')" @click="saveChanges">
+          <CheckIcon class="h-4 w-4" /> {{ $t('save') }}
+        </button>
+        <button type="button" :disabled="saving" class="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700" :aria-label="$t('discardChanges')" :title="$t('discardChanges')" @click="discardChanges">
+          <XMarkIcon class="h-4 w-4" /> {{ $t('discard') }}
+        </button>
+      </template>
+      <button v-else type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" @click="beginEditing">
+        <PencilIcon class="h-4 w-4" /> {{ $t('edit') }}
+      </button>
+    </div>
+  </div>
   <p class="mb-2 text-sm text-gray-600 dark:text-gray-300">
-    <template v-if="canEdit">Select text to annotate it. Click an annotation bar to edit it, or right-click the bar to remove it.</template>
-    <template v-else>Term annotations for this question.</template>
+    <template v-if="isEditing">Select text to annotate. Changes are staged until you save or discard.</template>
+    <template v-else>{{ $t('termAnnotationsForQuestion') }}</template>
+  </p>
+  <p v-if="selectedAnnotationVersion?.copyStatus === 'needs_annotation'" class="mb-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+    {{ $t('annotationsMustBeRecreated') }}
   </p>
 
   <div ref="textContainer"
@@ -315,12 +439,12 @@ function barStyle(annotation: AnnotationView) {
               class="annotation-source"
               :style="sourceStyle(segment)">{{ segment.text }}</span>
         <template v-for="annotation in segment.annotations" :key="annotation.id">
-          <button v-if="canEdit"
+          <button v-if="isEditing"
                   type="button"
                   class="annotation-bar"
                   :style="barStyle(annotation)"
-                  :title="`Edit annotation: ${annotation.term.content} (right-click to remove)`"
-                  :aria-label="`Edit annotation: ${annotation.term.content}`"
+                  :title="`${$t('editAnnotation')}: ${annotation.term.content} (${$t('rightClickToRemove')})`"
+                  :aria-label="`${$t('editAnnotation')}: ${annotation.term.content}`"
                   @mouseup.stop
                   @click.stop="editAnnotation(annotation)"
                   @contextmenu.prevent.stop="removeAnnotation(annotation)">
@@ -340,11 +464,11 @@ function barStyle(annotation: AnnotationView) {
     </template>
   </div>
 
-  <div v-if="pendingSelection && canEdit" class="mt-3 rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/30">
+  <div v-if="pendingSelection && isEditing" class="mt-3 rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/30">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="min-w-0 grow text-sm text-gray-700 dark:text-gray-200">
-        <template v-if="editingAnnotation">Edit annotation:</template>
-        <template v-else>Selected:</template>
+        <template v-if="editingAnnotationId">{{ $t('editAnnotation') }}:</template>
+        <template v-else>{{ $t('selected') }}:</template>
         <span class="font-medium" :title="pendingSelection.content"> “{{ pendingSelection.content }}”</span>
       </p>
       <button type="button" class="rounded p-1 text-gray-500 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cancel annotation" @click="closeSelection">
@@ -392,16 +516,9 @@ function barStyle(annotation: AnnotationView) {
         </div>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <button type="button" :disabled="!term || saving"
+      <button type="button" :disabled="!term || saving"
                 class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-                @click="saveAnnotation">{{ editingAnnotation ? 'Save changes' : 'Add annotation' }}</button>
-        <button v-if="editingAnnotation" type="button" :disabled="saving"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-md text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950/40"
-                title="Remove annotation"
-                aria-label="Remove annotation"
-                @click="removeAnnotation(editingAnnotation)">
-          <TrashIcon class="h-5 w-5" aria-hidden="true" />
-        </button>
+                @click="saveAnnotation">{{ editingAnnotationId ? $t('applyChanges') : $t('addAnnotation') }}</button>
       </div>
     </div>
   </div>

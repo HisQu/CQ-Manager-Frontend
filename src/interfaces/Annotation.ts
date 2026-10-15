@@ -20,11 +20,36 @@ type AnnotationInCQT = {
     id: string // this is the question-specific annotation occurrence id
 }
 
-type AnnotationOccurrenceT = {
+type AnnotationVersionT = {
     id: string,
-    questionId: string,
-    termId: string,
-    content: string,
-    start: number,
-    end: number,
+    versionNumber: number,
+    copyStatus: string,
+    editor: {id: string, email: string, name: string},
+    annotations: AnnotationInCQT[],
+}
+
+type AnnotationVersionSaveT = {
+    id: string,
+    questionVersionId: string,
+    versionNumber: number,
+    copyStatus: string,
+    editorId: string,
+    annotations: Array<{
+        id: string,
+        annotationVersionId: string,
+        content: string,
+        start: number,
+        end: number,
+        termId: string,
+    }>,
+}
+
+type QuestionRevisionT = {
+    id: string,
+    questionString: string,
+    sparqlQuery: string | null,
+    exampleAnswer: string | null,
+    versionNumber: number,
+    editor: {id: string, email: string, name: string},
+    annotationVersions: AnnotationVersionT[],
 }

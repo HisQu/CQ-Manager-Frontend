@@ -6,6 +6,7 @@ import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
 import SparqlEditor from "./SparqlEditor.vue";
 import TermAnnotationSpanEditor from "./TermAnnotationSpanEditor.vue";
 import CqTypeSelect from "./CqTypeSelect.vue";
+import {t} from "../i18n";
 
 
 const props = defineProps<{
@@ -17,6 +18,7 @@ const props = defineProps<{
   exampleAnswer?: string | null;
   type?: CQType | null;
   annotations?: AnnotationInCQT[];
+  revisions?: QuestionRevisionT[];
   canEdit: boolean;
   groupId?: string;
   id?: string;
@@ -53,7 +55,7 @@ function saveQuestion() {
 
   if (invalidAnnotations) {
     discardAnnotations = window.confirm(
-      "Changing this question text will invalidate its existing term annotations. Save the question and delete all of its annotations?",
+      t("questionAnnotationsNeedRecreationConfirm"),
     );
     if (!discardAnnotations) return;
   }
@@ -144,6 +146,8 @@ function saveQuestion() {
       <TermAnnotationSpanEditor
         :text="localQuestion"
         :annotations="annotationItems"
+        :revisions="props.revisions ?? []"
+        :question-text-changed="questionTextChanged"
         :can-edit="props.canEdit && !questionTextChanged"
         :question-id="props.id"
         :project-id="props.projectId"

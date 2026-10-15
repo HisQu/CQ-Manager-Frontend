@@ -284,6 +284,7 @@ function goToProjectQuestions() {
                                     :id="cq.data.id"
                                     :project-id="cq.data.group.project.id"
                                     :annotations="cq.data.annotations"
+                                    :revisions="cq.data.revisions"
                                     :canEdit="canEdit"/>
 
     <!-- Consolidations -->
