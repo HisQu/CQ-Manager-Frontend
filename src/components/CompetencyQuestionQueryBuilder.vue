@@ -31,7 +31,7 @@ const annotationSection = ref<HTMLElement | null>(null)
 const selectedRevisionId = ref("")
 const selectedAnnotationVersionId = ref("")
 const expandedRevisionIds = ref<string[]>([])
-const orderedRevisions = computed(() => [...(props.revisions ?? [])].sort((a, b) => a.versionNumber - b.versionNumber))
+const orderedRevisions = computed(() => [...(props.revisions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber))
 
 watch(() => props.revisions, (revisions = []) => {
   const newestRevision = [...revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0]
@@ -204,7 +204,7 @@ function saveQuestion() {
 
     <section v-if="props.id && orderedRevisions.length" class="mt-8">
       <h3 class="mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h3>
-      <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+      <div class="divide-y divide-gray-200 dark:divide-gray-700">
         <div v-for="revision in orderedRevisions" :key="revision.id">
           <div class="flex items-start gap-2 px-3 py-2.5">
             <button type="button"
@@ -220,6 +220,7 @@ function saveQuestion() {
                   v{{ revision.versionNumber }}
                 </span>
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ revision.editor.name }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('historyRevised') }}</span>
               </div>
               <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ revision.questionString }}</p>
               <p v-if="revision.exampleAnswer" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -228,18 +229,19 @@ function saveQuestion() {
               <pre v-if="revision.sparqlQuery" class="mt-1 overflow-x-auto rounded bg-white/70 p-2 text-xs text-gray-600 dark:bg-gray-900/40 dark:text-gray-400">{{ revision.sparqlQuery }}</pre>
             </div>
           </div>
-          <div v-if="isRevisionExpanded(revision.id)" class="border-t border-gray-100 bg-gray-50/70 py-1 pl-11 pr-3 dark:border-gray-700 dark:bg-gray-800/40">
+          <div v-if="isRevisionExpanded(revision.id)" class="py-1 pl-11 pr-3">
             <button v-for="annotationVersion in [...(revision.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)"
                     :key="annotationVersion.id"
                     type="button"
-                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-white dark:hover:bg-gray-700"
+                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
                     :class="selectedAnnotationVersionId === annotationVersion.id ? 'font-semibold text-indigo-700 dark:text-indigo-300' : 'text-gray-600 dark:text-gray-300'"
                     :aria-pressed="selectedAnnotationVersionId === annotationVersion.id"
                     @click="selectAnnotationVersion(revision, annotationVersion)">
               <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 dark:bg-indigo-400/10 dark:text-indigo-300 dark:ring-indigo-400/30">
                 v{{ annotationVersion.versionNumber }}
               </span>
-              <span class="ml-auto text-xs text-gray-500 dark:text-gray-400">{{ annotationVersion.editor.name }}</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ annotationVersion.editor.name }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('historyAnnotationRevised') }}</span>
             </button>
             <p v-if="!(revision.annotationVersions ?? []).length" class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">{{ $t('noAnnotationVersions') }}</p>
           </div>

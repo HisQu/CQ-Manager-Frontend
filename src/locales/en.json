@@ -517,6 +517,7 @@
   "changeLog": "Change log",
   "historyCreated": "created the CQ",
   "historyRevised": "revised the CQ",
+  "historyAnnotationRevised": "revised the annotation",
   "historyTagAdded": "added the tag “{tag}”",
   "historyTagRemoved": "removed the tag “{tag}”",
   "historyCatalogueAssigned": "assigned the catalogue identifier {identifier}",

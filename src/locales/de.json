@@ -517,6 +517,7 @@
   "changeLog": "Änderungsprotokoll",
   "historyCreated": "hat die CQ erstellt",
   "historyRevised": "hat die CQ überarbeitet",
+  "historyAnnotationRevised": "hat die Annotation überarbeitet",
   "historyTagAdded": "hat das Tag „{tag}“ hinzugefügt",
   "historyTagRemoved": "hat das Tag „{tag}“ entfernt",
   "historyCatalogueAssigned": "hat die Katalogkennung {identifier} vergeben",
