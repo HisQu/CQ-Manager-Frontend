@@ -318,22 +318,6 @@ function goToProjectQuestions() {
       </div>
     </template>
 
-    <!-- Version history -->
-    <template v-if="cq.data.versionNumber > 1">
-      <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h2>
-      <div class="space-y-2">
-        <div v-for="v in cq.data.versions" class="text-sm dark:text-gray-300">
-          <span class="font-medium">{{ v.editor.name }}</span>
-          <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">v{{ v.versionNumber }}</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ v.questionString }}</span>
-          <p v-if="v.exampleAnswer" class="ml-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-            <span class="font-medium">{{ $t('exampleAnswer') }}:</span> {{ v.exampleAnswer }}
-          </p>
-          <pre v-if="v.sparqlQuery" class="ml-2 mt-1 overflow-x-auto rounded bg-gray-50 p-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{ v.sparqlQuery }}</pre>
-        </div>
-      </div>
-    </template>
-
     <!-- Provenance log -->
     <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('changeLog') }}</h2>
     <QuestionHistory ref="history" :question-id="cq.data.id" @error="showError"/>

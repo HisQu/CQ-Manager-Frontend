@@ -31,6 +31,8 @@ const props = defineProps<{
   text: string;
   annotations: AnnotationInCQT[];
   revisions: QuestionRevisionT[];
+  selectedRevisionId: string;
+  selectedAnnotationVersionId: string;
   canEdit: boolean;
   questionTextChanged: boolean;
   questionId: string;
@@ -41,8 +43,6 @@ const emit = defineEmits<{updated: []}>();
 
 const textContainer = ref<HTMLElement | null>(null);
 const terms = ref<TermT[]>([]);
-const selectedRevisionId = ref("");
-const selectedAnnotationVersionId = ref("");
 const isEditing = ref(false);
 const stagedAnnotations = ref<AnnotationInCQT[]>([]);
 const term = ref<TermT | {content: string} | null>(null);
@@ -63,11 +63,11 @@ const messagePopupData = ref({
 });
 const newTermOption = computed(() => ({content: query.value.trim()}));
 const latestRevision = computed(() => [...props.revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0]);
-const selectedRevision = computed(() => props.revisions.find(({id}) => id === selectedRevisionId.value) ?? latestRevision.value);
+const selectedRevision = computed(() => props.revisions.find(({id}) => id === props.selectedRevisionId) ?? latestRevision.value);
 const currentRevision = computed(() => Boolean(selectedRevision.value && selectedRevision.value.id === latestRevision.value?.id));
 const selectedAnnotationVersions = computed(() => [...(selectedRevision.value?.annotationVersions ?? [])].sort((a, b) => a.versionNumber - b.versionNumber));
 const latestAnnotationVersion = computed(() => selectedAnnotationVersions.value[selectedAnnotationVersions.value.length - 1]);
-const selectedAnnotationVersion = computed(() => selectedAnnotationVersions.value.find(({id}) => id === selectedAnnotationVersionId.value) ?? latestAnnotationVersion.value);
+const selectedAnnotationVersion = computed(() => selectedAnnotationVersions.value.find(({id}) => id === props.selectedAnnotationVersionId) ?? latestAnnotationVersion.value);
 const currentAnnotationVersion = computed(() => Boolean(selectedAnnotationVersion.value && selectedAnnotationVersion.value.id === latestAnnotationVersion.value?.id));
 const activeText = computed(() => currentRevision.value && !props.questionTextChanged
   ? props.text
@@ -84,20 +84,9 @@ const hasStagedChanges = computed(() => {
   return JSON.stringify(normalize(stagedAnnotations.value)) !== JSON.stringify(normalize(selectedAnnotationVersion.value?.annotations ?? []));
 });
 
-watch(() => props.revisions, (revisions) => {
-  const newest = [...revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0];
-  if (!newest) return;
-  selectedRevisionId.value = newest.id;
-  const annotations = [...(newest.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0];
-  selectedAnnotationVersionId.value = annotations?.id ?? "";
+watch(() => [props.selectedRevisionId, props.selectedAnnotationVersionId], () => {
   isEditing.value = false;
   stagedAnnotations.value = [];
-}, {immediate: true, deep: true});
-
-watch(selectedRevisionId, (id) => {
-  const revision = props.revisions.find((item) => item.id === id);
-  const newest = [...(revision?.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0];
-  selectedAnnotationVersionId.value = newest?.id ?? "";
   closeSelection();
 });
 
@@ -126,7 +115,7 @@ watch(() => [props.canEdit, canEditSelected.value] as const, ([canEdit, enabled]
     closeSelection();
   }
 });
-watch(() => [props.text, selectedAnnotationVersionId.value] as const, () => {
+watch(() => [props.text, props.selectedAnnotationVersionId] as const, () => {
   if (pendingSelection.value) closeSelection();
 });
 
@@ -378,33 +367,7 @@ function barStyle(annotation: AnnotationView) {
                 :open="messagePopupData.open"
                 @close="messagePopupData.open = false" />
 
-  <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
-    <div class="flex flex-wrap gap-3">
-      <label class="text-xs font-medium text-gray-600 dark:text-gray-300">
-        {{ $t('questionVersion') }}
-        <span class="relative mt-1 block">
-          <select v-model="selectedRevisionId" :disabled="isEditing"
-                  class="min-w-36 appearance-none rounded-md border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600">
-            <option v-for="revision in [...revisions].sort((a, b) => b.versionNumber - a.versionNumber)" :key="revision.id" :value="revision.id">
-              v{{ revision.versionNumber }}{{ revision.id === latestRevision?.id ? ` (${$t('latest')})` : '' }}
-            </option>
-          </select>
-          <ChevronUpDownIcon class="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-        </span>
-      </label>
-      <label class="text-xs font-medium text-gray-600 dark:text-gray-300">
-        {{ $t('annotationVersion') }}
-        <span class="relative mt-1 block">
-          <select v-model="selectedAnnotationVersionId" :disabled="isEditing || selectedAnnotationVersions.length === 0"
-                  class="min-w-36 appearance-none rounded-md border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 disabled:opacity-60 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600">
-            <option v-for="version in [...selectedAnnotationVersions].reverse()" :key="version.id" :value="version.id">
-              v{{ version.versionNumber }}{{ version.id === latestAnnotationVersion?.id ? ` (${$t('latest')})` : '' }}
-            </option>
-          </select>
-          <ChevronUpDownIcon class="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-        </span>
-      </label>
-    </div>
+  <div class="mb-3 flex flex-wrap items-center justify-end gap-3">
     <div v-if="canEditSelected" class="flex items-center gap-2">
       <template v-if="isEditing">
         <button type="button" :disabled="saving || !hasStagedChanges" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" :aria-label="$t('saveAnnotations')" :title="$t('saveAnnotations')" @click="saveChanges">
@@ -555,6 +518,7 @@ function barStyle(annotation: AnnotationView) {
   transform: translateY(-50%);
   border: 0;
   border-radius: 999px;
+  overflow: visible;
   padding: 0;
   appearance: none;
   cursor: pointer;
@@ -568,8 +532,7 @@ span.annotation-bar {
   position: absolute;
   top: 50%;
   left: 50%;
-  max-width: 100%;
-  overflow: hidden;
+  width: max-content;
   transform: translate(-50%, -50%);
   color: white;
   background-color: inherit;
@@ -578,7 +541,6 @@ span.annotation-bar {
   font-weight: 700;
   line-height: 0.75rem;
   padding-inline: 0.1rem;
-  text-overflow: clip;
   white-space: nowrap;
   pointer-events: none;
 }
