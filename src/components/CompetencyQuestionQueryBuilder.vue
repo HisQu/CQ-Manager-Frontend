@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import {computed, ref, toRefs, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {ArrowDownOnSquareIcon, ChevronDownIcon, TrashIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
 import SparqlEditor from "./SparqlEditor.vue";
 import TermAnnotationSpanEditor from "./TermAnnotationSpanEditor.vue";
 import CqTypeSelect from "./CqTypeSelect.vue";
-import {t} from "../i18n";
 
 
 const props = defineProps<{
@@ -17,15 +16,12 @@ const props = defineProps<{
   anchor?: string | null;
   exampleAnswer?: string | null;
   type?: CQType | null;
-  annotations?: AnnotationInCQT[];
   revisions?: QuestionRevisionT[];
   canEdit: boolean;
   groupId?: string;
   id?: string;
   projectId: string;
 }>()
-const {annotations} = toRefs(props)
-const annotationItems = computed(() => annotations.value ?? [])
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 const annotationSection = ref<HTMLElement | null>(null)
 const selectedRevisionId = ref("")
@@ -59,6 +55,12 @@ function selectAnnotationVersion(revision: QuestionRevisionT, annotationVersion:
   requestAnimationFrame(() => annotationSection.value?.scrollIntoView({behavior: "smooth", block: "start"}))
 }
 
+function wasRetainedFromPreviousRevision(revision: QuestionRevisionT, annotationVersion: AnnotationVersionT): boolean {
+  return annotationVersion.versionNumber === 1
+    && Boolean(annotationVersion.retainedFromAnnotationVersionId)
+    && revision.versionNumber > 1;
+}
+
 const localQuestion = ref<string>(props.question ?? '')
 const localSparqlQuery = ref<string>(props.sparqlQuery ?? '')
 const localComment = ref<string | null>(props.comment ?? null)
@@ -77,20 +79,6 @@ watch(() => props.exampleAnswer, (val) => { localExampleAnswer.value = val ?? nu
 watch(() => props.type, (val) => { localType.value = val ?? null })
 
 function saveQuestion() {
-  // on updating a question, check if existing annoations become invalid by checking if the annotationtext 
-  // is still the same as the text in the question at the stored annotation start/end positions. 
-  const invalidAnnotations = annotationItems.value.some((annotation) =>
-    localQuestion.value.slice(annotation.start, annotation.end) !== annotation.content,
-  );
-  let discardAnnotations = false;
-
-  if (invalidAnnotations) {
-    discardAnnotations = window.confirm(
-      t("questionAnnotationsNeedRecreationConfirm"),
-    );
-    if (!discardAnnotations) return;
-  }
-
   emits('saveCompetencyQuestion', {
     question: localQuestion.value,
     sparqlQuery: localSparqlQuery.value || null,
@@ -99,7 +87,6 @@ function saveQuestion() {
     anchor: localAnchor.value,
     exampleAnswer: localExampleAnswer.value,
     type: localType.value,
-    discardAnnotations,
   });
 }
 </script>
@@ -176,7 +163,6 @@ function saveQuestion() {
       </p>
       <TermAnnotationSpanEditor
         :text="localQuestion"
-        :annotations="annotationItems"
         :revisions="props.revisions ?? []"
         :selected-revision-id="selectedRevisionId"
         :selected-annotation-version-id="selectedAnnotationVersionId"
@@ -241,7 +227,7 @@ function saveQuestion() {
                 v{{ annotationVersion.versionNumber }}
               </span>
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ annotationVersion.editor.name }}</span>
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('historyAnnotationRevised') }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t(wasRetainedFromPreviousRevision(revision, annotationVersion) ? 'historyAnnotationRetained' : 'historyAnnotationRevised') }}</span>
             </button>
             <p v-if="!(revision.annotationVersions ?? []).length" class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">{{ $t('noAnnotationVersions') }}</p>
           </div>

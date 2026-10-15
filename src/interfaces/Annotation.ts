@@ -23,7 +23,7 @@ type AnnotationInCQT = {
 type AnnotationVersionT = {
     id: string,
     versionNumber: number,
-    copyStatus: string,
+    retainedFromAnnotationVersionId: string | null,
     editor: {id: string, email: string, name: string},
     annotations: AnnotationInCQT[],
 }
@@ -32,7 +32,7 @@ type AnnotationVersionSaveT = {
     id: string,
     questionVersionId: string,
     versionNumber: number,
-    copyStatus: string,
+    retainedFromAnnotationVersionId: string | null,
     editorId: string,
     annotations: Array<{
         id: string,

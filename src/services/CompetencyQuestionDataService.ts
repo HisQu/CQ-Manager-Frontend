@@ -158,12 +158,11 @@ class CompetencyQuestionDataService {
         anchor?: string | null,
         exampleAnswer?: string | null,
         type?: CQType | null,
-    }, discardAnnotations = false): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
+    }): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
         return http.put<CompetencyQuestionT>(`/questions/${question_uuid}`, {
             question: question,
             sparqlQuery: sparqlQuery ?? null,
             comment: comment ?? null,
-            discardAnnotations,
             ...(meta ?? {}),
         }, { headers: authHeader() }).then(response => {
             return response

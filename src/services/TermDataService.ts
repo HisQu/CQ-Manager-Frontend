@@ -52,7 +52,7 @@ class TermDataService {
         }));
     }
 
-    async saveAnnotationVersion(question_id: string, revision_id: string, base_annotation_version_id: string, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationVersionSaveT> | UXResponse> {
+    async saveAnnotationVersion(question_id: string, revision_id: string, base_annotation_version_id: string | null, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationVersionSaveT> | UXResponse> {
         return http.put<AnnotationVersionSaveT>(`/terms/question/${question_id}/revisions/${revision_id}/annotations`, {
             baseAnnotationVersionId: base_annotation_version_id,
             annotations,

@@ -29,7 +29,6 @@ type AnnotationView = AnnotationInCQT & AnnotationSpanLike;
 
 const props = defineProps<{
   text: string;
-  annotations: AnnotationInCQT[];
   revisions: QuestionRevisionT[];
   selectedRevisionId: string;
   selectedAnnotationVersionId: string;
@@ -69,13 +68,23 @@ const currentRevision = computed(() => Boolean(selectedRevision.value && selecte
 const selectedAnnotationVersions = computed(() => [...(selectedRevision.value?.annotationVersions ?? [])].sort((a, b) => a.versionNumber - b.versionNumber));
 const latestAnnotationVersion = computed(() => selectedAnnotationVersions.value[selectedAnnotationVersions.value.length - 1]);
 const selectedAnnotationVersion = computed(() => selectedAnnotationVersions.value.find(({id}) => id === props.selectedAnnotationVersionId) ?? latestAnnotationVersion.value);
-const currentAnnotationVersion = computed(() => Boolean(selectedAnnotationVersion.value && selectedAnnotationVersion.value.id === latestAnnotationVersion.value?.id));
+const currentAnnotationVersion = computed(() => !latestAnnotationVersion.value || selectedAnnotationVersion.value?.id === latestAnnotationVersion.value.id);
 const activeText = computed(() => currentRevision.value && !props.questionTextChanged
   ? props.text
   : (selectedRevision.value?.questionString ?? props.text));
-const activeAnnotations = computed(() => isEditing.value ? stagedAnnotations.value : (selectedAnnotationVersion.value?.annotations ?? props.annotations));
+const activeAnnotations = computed(() => isEditing.value ? stagedAnnotations.value : (selectedAnnotationVersion.value?.annotations ?? []));
 // only allow editing if the user has edit permissions, the selected revision and annotation version are the latest, and the question text has not changed
 const canEditSelected = computed(() => props.canEdit && currentRevision.value && currentAnnotationVersion.value && !props.questionTextChanged);
+// const needsAnnotationRecreation = computed(() => {
+//   const revision = selectedRevision.value;
+//   if (!revision || selectedAnnotationVersions.value.length > 0) return false;
+//   const previousRevision = [...props.revisions]
+//     .filter(({versionNumber}) => versionNumber < revision.versionNumber)
+//     .sort((a, b) => b.versionNumber - a.versionNumber)[0];
+//   const previousAnnotationVersion = [...(previousRevision?.annotationVersions ?? [])]
+//     .sort((a, b) => b.versionNumber - a.versionNumber)[0];
+//   return Boolean(previousAnnotationVersion?.annotations.length);
+// });
 const hasStagedChanges = computed(() => {
   const normalize = (annotations: AnnotationInCQT[]) => annotations.map(({content, start, end, term: annotationTerm}) => ({
     content, start, end,
@@ -299,7 +308,7 @@ function discardChanges() {
 async function saveChanges() {
   const base = latestAnnotationVersion.value;
   const revision = selectedRevision.value;
-  if (!isEditing.value || !hasStagedChanges.value || !base || !revision || saving.value) return;
+  if (!isEditing.value || !hasStagedChanges.value || !revision || saving.value) return;
   saving.value = true;
   const annotations: AnnotationT[] = stagedAnnotations.value.map((item) => ({
     term: item.term.content,
@@ -309,7 +318,7 @@ async function saveChanges() {
     definition: item.term.definition ?? null,
     conceptIri: item.term.conceptIri ?? null,
   }));
-  const response = await TermDataService.saveAnnotationVersion(props.questionId, revision.id, base.id, annotations);
+  const response = await TermDataService.saveAnnotationVersion(props.questionId, revision.id, base?.id ?? null, annotations);
   saving.value = false;
   if ("messageType" in response) {
     showMessage(response);
@@ -406,9 +415,6 @@ function barStyle(annotation: AnnotationView) {
   <p class="mb-2 text-sm text-gray-600 dark:text-gray-300">
     <template v-if="isEditing">Select text to annotate. Changes are staged until you save or discard.</template>
     <template v-else>{{ $t('termAnnotationsForQuestion') }}</template>
-  </p>
-  <p v-if="selectedAnnotationVersion?.copyStatus === 'needs_annotation'" class="mb-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-    {{ $t('annotationsMustBeRecreated') }}
   </p>
 
   <div ref="textContainer"
