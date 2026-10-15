@@ -553,7 +553,6 @@ function barStyle(annotation: AnnotationView) {
 .annotation-source {
   position: relative;
   z-index: 1;
-  border-radius: 0.15rem;
   padding-inline: 0.05rem;
 }
 
