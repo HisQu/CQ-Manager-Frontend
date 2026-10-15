@@ -397,6 +397,7 @@ function barStyle(annotation: AnnotationView) {
       <span v-if="segment.annotations.length === 0 || /[\r\n]/.test(segment.text)"
             data-annotation-source="true">{{ segment.text }}</span>
       <span v-else class="annotation-chunk"
+            :class="{ 'annotation-chunk--label-anchor': segment.annotations.some((annotation) => segmentHasLabelAnchor(segment, annotation)) }"
             :style="{paddingBottom: `${0.3 + (maxLane + 1) * 0.82}rem`}">
         <span data-annotation-source="true"
               class="annotation-source"
@@ -499,6 +500,10 @@ function barStyle(annotation: AnnotationView) {
   position: relative;
   display: inline-block;
   vertical-align: baseline;
+}
+
+.annotation-chunk--label-anchor {
+  z-index: 3;
 }
 
 .annotation-source {
