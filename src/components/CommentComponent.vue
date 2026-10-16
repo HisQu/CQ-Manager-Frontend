@@ -105,7 +105,7 @@ export default defineComponent({
     <div v-if="!readonly" :class="['border-t border-gray-200 dark:border-gray-700', pane ? 'shrink-0 bg-white px-5 py-4 dark:bg-gray-800' : 'mt-8 pt-6']">
       <label for="new-comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('addAComment') }}</label>
       <textarea
-        rows="3"
+        rows="6"
         name="new-comment"
         :placeholder="$t('writeYourComment')"
         id="new-comment"

@@ -21,6 +21,7 @@ const props = defineProps<{
   groupId?: string;
   id?: string;
   projectId: string;
+  sparqlTarget?: string;
 }>()
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 const annotationSection = ref<HTMLElement | null>(null)
@@ -96,7 +97,7 @@ function saveQuestion() {
     <label for="question"
            class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('question') }}</label>
     <div class="mt-2">
-      <textarea name="question" id="question" rows="4"
+      <textarea name="question" id="question" rows="2"
              class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
              v-model="localQuestion"
       ></textarea>
@@ -104,7 +105,7 @@ function saveQuestion() {
     <div class="mt-4">
       <label for="cq_comment" class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('comment') }}</label>
       <div class="mt-2">
-        <textarea id="cq_comment" rows="3"
+        <textarea id="cq_comment" rows="6"
                   :disabled="!canEdit"
                   v-model="localComment"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
@@ -173,6 +174,8 @@ function saveQuestion() {
         @updated="$emit('fetchCompetencyQuestion')" />
     </section>
 
+    <!-- Rendered at sparqlTarget (e.g. below the change log) when given, otherwise in place -->
+    <Teleport defer :to="props.sparqlTarget" :disabled="!props.sparqlTarget">
     <div class="mt-6">
       <label for="sparqlQuery"
              class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('sPARQLQuery') }}</label>
@@ -187,6 +190,7 @@ function saveQuestion() {
         <p v-else class="text-sm text-gray-400 dark:text-gray-500 italic">{{ $t('noSPARQLQueryDefined') }}</p>
       </div>
     </div>
+    </Teleport>
 
     <section v-if="props.id && orderedRevisions.length" class="mt-8">
       <h3 class="mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h3>

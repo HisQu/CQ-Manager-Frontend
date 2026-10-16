@@ -284,7 +284,8 @@ function goToProjectQuestions() {
                                     :id="cq.data.id"
                                     :project-id="cq.data.group.project.id"
                                     :revisions="cq.data.revisions"
-                                    :canEdit="canEdit"/>
+                                    :canEdit="canEdit"
+                                    sparql-target="#cq-sparql-section"/>
 
     <!-- Consolidations -->
     <template v-if="cq.data.consolidations.length > 0">
@@ -320,6 +321,9 @@ function goToProjectQuestions() {
     <!-- Provenance log -->
     <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('changeLog') }}</h2>
     <QuestionHistory ref="history" :question-id="cq.data.id" @error="showError"/>
+
+    <!-- SPARQL query (teleported from the question editor) -->
+    <div id="cq-sparql-section"></div>
 
 
   </div>
