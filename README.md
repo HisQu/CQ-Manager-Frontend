@@ -1,7 +1,7 @@
 # CQ-Frontend
 
 The repository containing the backend can be found here:
-https://github.com/HerrMotz/Competency-Question-Manager-Backend
+https://github.com/HisQu/CQ-Manager-Backend
 
 ## Git Practices in this repository
 We rely on backend compatibility. Therefore, we structure our branches in folders, where

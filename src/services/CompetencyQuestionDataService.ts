@@ -6,7 +6,7 @@ import {AxiosResponse} from "axios";
 // Sends the ETag of the list the caller already shows; the backend answers an unchanged list with an empty 304.
 function conditionalConfig(etag?: string) {
     return {
-        headers: etag ? {...authHeader(), 'If-None-Match': etag} : authHeader(),
+        headers: etag ? {...authHeader(), 'If-None-Match': etag, 'X-ETag-Cache': 'true'} : authHeader(),
         validateStatus: (status: number) => (status >= 200 && status < 300) || status === 304,
     };
 }
@@ -78,8 +78,8 @@ class CompetencyQuestionDataService {
         });
     }
 
-    async getOne(question_uuid: string): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
-        return http.get<CompetencyQuestionT[]>(`/questions/${question_uuid}`, { headers: authHeader() }).then(response => {
+    async getOne(question_uuid: string): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
+        return http.get<CompetencyQuestionT>(`/questions/${question_uuid}`, { headers: authHeader() }).then(response => {
             return response
         }).catch(reason => {
             return {
@@ -146,22 +146,21 @@ class CompetencyQuestionDataService {
         }).catch(reason => {
             return {
                 title: t('errorOccurred'),
-                text: t('errorDeletingTheCompetencyQuestion'),
+                text: t('errorUpdatingTheCompetencyQuestion'),
                 detail: reason,
                 messageType: "error"
             }
         });
     }
 
-    async change(question: string, annotations: AnnotationT[], question_uuid: string, sparqlQuery?: string | null, comment?: string | null, meta?: {
+    async change(question: string, question_uuid: string, sparqlQuery?: string | null, comment?: string | null, meta?: {
         reference?: string | null,
         anchor?: string | null,
         exampleAnswer?: string | null,
         type?: CQType | null,
-    }): Promise<AxiosResponse<any, DeleteResponse> | UXResponse> {
-        return http.put<DeleteResponse>(`/questions/${question_uuid}`, {
+    }): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
+        return http.put<CompetencyQuestionT>(`/questions/${question_uuid}`, {
             question: question,
-            annotations: annotations,
             sparqlQuery: sparqlQuery ?? null,
             comment: comment ?? null,
             ...(meta ?? {}),
@@ -169,8 +168,8 @@ class CompetencyQuestionDataService {
             return response
         }).catch(reason => {
             return {
-                title: t('errorOccurred'),
-                text: t('errorDeletingTheCompetencyQuestion'),
+                title: "Oops! An error occurred...",
+                text: "... while updating the competency question. Debugging info can be found in the console.",
                 detail: reason,
                 messageType: "error"
             }

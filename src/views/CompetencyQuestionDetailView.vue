@@ -22,6 +22,7 @@ const {expanded: commentsPaneExpanded, docked: commentsPaneDocked} = inject(cqCo
 
 const props = defineProps(['id'])
 const { locale } = useI18n();
+const store = useStore();
 
 const messagePopupData = ref({
   uxresponse: { title: "", messageType: "" as UXResponse["messageType"], text: "", detail: "" },
@@ -109,9 +110,28 @@ const tags = computed<TagReducedT[]>({
 
 function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
   comment.value = newComment;
-  CompetencyQuestionDataService.change(question, [], props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(() => {
-    fetchCompetencyQuestion()
+  CompetencyQuestionDataService.change(question, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(response => {
+    if ("messageType" in response) {
+      messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
+      messagePopupData.value.open = true;
+    } else {
+      fetchCompetencyQuestion()
+    }
   })
+}
+
+function goToProjectQuestions() {
+  const project = cq.value.data.group.project;
+  store.project = {
+    id: project.id,
+    name: project.name,
+    description: project.description ?? "",
+    noManagers: project.noManagers,
+    noEngineers: project.noEngineers,
+    noGroups: project.noGroups,
+    noConsolidations: project.noConsolidations,
+    totalMembers: project.totalMembers,
+  };
 }
 </script>
 
@@ -128,7 +148,9 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
     <DetailPageHeader
       :title="cq.data.question"
       :project="cq.data.group.project.name"
+      :project-id="cq.data.group.project.id"
       :group="cq.data.group.name"
+      @project-click="goToProjectQuestions"
       :catalogue-identifier="cq.data.cqCatalogueIdentifier ?? undefined"
       :catalogue-name="cq.data.topic?.name">
       <template #meta>
@@ -261,7 +283,7 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
                                     :group-id="cq.data.groupId"
                                     :id="cq.data.id"
                                     :project-id="cq.data.group.project.id"
-                                    :annotations="cq.data.annotations"
+                                    :revisions="cq.data.revisions"
                                     :canEdit="canEdit"/>
 
     <!-- Consolidations -->
@@ -292,22 +314,6 @@ function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, re
             <span class="text-xs text-gray-400 dark:text-gray-500 mr-1">{{ $t('target2') }}</span>{{ cons.targetQuestion.question }}
           </p>
         </RouterLink>
-      </div>
-    </template>
-
-    <!-- Version history -->
-    <template v-if="cq.data.versionNumber > 1">
-      <h2 class="mt-10 mb-3 text-lg font-semibold dark:text-white">{{ $t('versionHistory2') }}</h2>
-      <div class="space-y-2">
-        <div v-for="v in cq.data.versions" class="text-sm dark:text-gray-300">
-          <span class="font-medium">{{ v.editor.name }}</span>
-          <span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">v{{ v.versionNumber }}</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ v.questionString }}</span>
-          <p v-if="v.exampleAnswer" class="ml-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-            <span class="font-medium">{{ $t('exampleAnswer') }}:</span> {{ v.exampleAnswer }}
-          </p>
-          <pre v-if="v.sparqlQuery" class="ml-2 mt-1 overflow-x-auto rounded bg-gray-50 p-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{ v.sparqlQuery }}</pre>
-        </div>
       </div>
     </template>
 

@@ -161,13 +161,13 @@ async function saveResultQuestion() {
 
   savingResultQuestion.value = true;
   const response = await CompetencyQuestionDataService.change(
-    resultQuestionText.value, [], rq.id, undefined, undefined,
+    resultQuestionText.value, rq.id, undefined, undefined,
     {
       reference: resultQuestionReference.value,
       anchor: resultQuestionAnchor.value,
       exampleAnswer: resultQuestionExampleAnswer.value,
       type: resultQuestionType.value,
-    }
+    },
   );
   savingResultQuestion.value = false;
 
