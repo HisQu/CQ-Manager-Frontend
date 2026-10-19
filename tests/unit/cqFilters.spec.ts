@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DEFAULT_CQ_FILTERS, countActiveFilters, normalizeCqFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
+import {DEFAULT_CQ_FILTERS, countActiveFilters, cqLabel, normalizeCqFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
 import {toRef} from 'vue'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
@@ -136,6 +136,12 @@ describe('cqFilters', () => {
     it('offers "none" before the tags', () => {
       expect(tagFilterOptions([archive]).map(o => o.value)).toEqual(['none', archive.id])
     })
+  })
+
+  it('labels a CQ with its catalogue identifier first', () => {
+    expect(cqLabel(makeCq({ question: 'Who?', cqCatalogueIdentifier: 'A.12' }))).toBe('A.12 Who?')
+    expect(cqLabel(makeCq({ question: 'Who?', cqCatalogueIdentifier: null }))).toBe('Who?')
+    expect(cqLabel(null)).toBe('')
   })
 
   it('lists "Me" plus the other authors, sorted by name', () => {

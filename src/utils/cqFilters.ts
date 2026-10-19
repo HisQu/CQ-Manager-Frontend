@@ -104,6 +104,11 @@ export function matchesCqSearch(cq: CompetencyQuestionReducedT, query: string): 
   return words.every(word => text.includes(word));
 }
 
+/** A CQ as one line of text, its catalogue identifier first, e.g. for the selected value of a CQ picker. */
+export function cqLabel(cq: CompetencyQuestionReducedT | null | undefined): string {
+  return cq ? [cq.cqCatalogueIdentifier, cq.question].filter(Boolean).join(' ') : '';
+}
+
 /** The distinct catalogues of a list of CQs as filter options, in identifier order with the uncatalogued catch-all last. */
 export function catalogueFilterOptions(cqs: CompetencyQuestionReducedT[]) {
   const byId = new Map<string, TopicReducedT>();

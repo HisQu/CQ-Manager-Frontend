@@ -10,6 +10,7 @@ import GroupDataService from "../services/GroupDataService.ts";
 import {Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 import {useStore} from "../store.ts";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
+import {cqLabel, matchesCqSearch} from "../utils/cqFilters.ts";
 
 export default defineComponent({
   name: "ConsolidationCreateView",
@@ -60,12 +61,11 @@ export default defineComponent({
       return this.cqs.filter(cq => cq.id !== excludedId);
     },
     filteredCqsForResult(): CompetencyQuestionReducedT[] {
-      const needle = this.resultCqQuery.trim().toLowerCase();
-      if (!needle) return this.cqs;
-      return this.cqs.filter(cq => cq.question?.toLowerCase().includes(needle));
+      return this.cqs.filter(cq => matchesCqSearch(cq, this.resultCqQuery));
     },
   },
   methods: {
+    cqLabel,
     async fetchGroups() {
       const response = await GroupDataService.getAllForOneProject(this.store.project.id);
       if (!("messageType" in response)) {
@@ -284,7 +284,7 @@ export default defineComponent({
           <Combobox v-else v-model="selectedResultCq">
             <div class="relative">
               <ComboboxInput
-                :displayValue="(cq: any) => cq?.question ?? ''"
+                :displayValue="(cq: any) => cqLabel(cq)"
                 @change="resultCqQuery = $event.target.value"
                 :placeholder="$t('searchForAnExistingCQ')"
                 class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset"
@@ -299,7 +299,12 @@ export default defineComponent({
                 <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
                   <ComboboxOption as="template" v-for="cq in filteredCqsForResult" :key="cq.id" :value="cq" v-slot="{ active, selected }">
                     <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ cq.question }}</span>
+                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                        <span v-if="cq.cqCatalogueIdentifier"
+                              :class="[active ? 'bg-white text-indigo-600' : 'bg-indigo-600 dark:bg-indigo-500 text-white', 'mr-1.5 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide']">
+                          {{ cq.cqCatalogueIdentifier }}
+                        </span>{{ cq.question }}
+                      </span>
                       <span :class="[active ? 'text-indigo-200' : 'text-gray-400', 'block text-xs truncate']">{{ cq.group?.name }}</span>
                       <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-3']">
                         <CheckIcon class="h-4 w-4" aria-hidden="true"/>
