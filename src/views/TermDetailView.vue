@@ -184,7 +184,7 @@ fetchPermissions();
           {{ $t('termName') }}
         </label>
         <input type="text" v-model="content" id="term-content"
-               class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+               class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
       </div>
 
       <div class="mb-6">
@@ -193,7 +193,7 @@ fetchPermissions();
         </label>
         <textarea v-model="definition" id="term-definition" rows="3"
                   :placeholder="$t('humanReadableDefinitionOfThisTerm')"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
       </div>
 
       <div class="mb-6">
@@ -202,7 +202,7 @@ fetchPermissions();
         </label>
         <input type="text" v-model="conceptIri" id="term-concept-iri"
                placeholder="https://example.org/ontology/Term"
-               class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+               class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
       </div>
 
       <div class="flex items-center justify-between">
@@ -229,11 +229,11 @@ fetchPermissions();
 
   <!-- Loading skeleton -->
   <div v-else class="w-full animate-pulse space-y-4">
-    <div class="h-7 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
-    <div class="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mt-1"></div>
+    <div class="h-7 w-48 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+    <div class="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm mt-1"></div>
     <div class="h-px w-full bg-gray-200 dark:bg-gray-700 mt-6"></div>
-    <div class="h-5 w-36 bg-gray-200 dark:bg-gray-700 rounded"></div>
-    <div class="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded mt-1"></div>
+    <div class="h-5 w-36 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+    <div class="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm mt-1"></div>
     <div class="h-16 w-full bg-gray-200 dark:bg-gray-700 rounded-md mt-2"></div>
     <div class="h-16 w-full bg-gray-200 dark:bg-gray-700 rounded-md"></div>
   </div>

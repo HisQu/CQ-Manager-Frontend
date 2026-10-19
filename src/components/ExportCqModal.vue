@@ -148,7 +148,7 @@ function download() {
                   <label v-for="d in fieldDescriptors" :key="d.key"
                          class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                     <input type="checkbox" :value="d.key" v-model="selectedFields"
-                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                           class="h-4 w-4 rounded-sm border-gray-300 text-indigo-600 focus:ring-indigo-600" />
                     {{ d.label }}
                   </label>
                 </div>
@@ -156,13 +156,13 @@ function download() {
 
               <div class="mt-5 sm:mt-6 flex gap-3">
                 <button type="button"
-                        class="inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        class="inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
                         @click="emit('close')">
                   {{ $t('cancel') }}
                 </button>
                 <button type="button"
                         :disabled="selectedFields.length === 0"
-                        class="inline-flex w-full items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="inline-flex w-full items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         @click="download">
                   {{ $t('download') }}
                   <ArrowDownTrayIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />

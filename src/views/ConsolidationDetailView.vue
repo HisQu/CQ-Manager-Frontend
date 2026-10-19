@@ -224,9 +224,9 @@ async function setResultQuestion() {
         <h2 class="text-lg font-semibold dark:text-white">{{ $t('targetQuestion') }}</h2>
         <RouterLink v-if="consolidation.targetQuestion"
                     :to="`/questions/${consolidation.targetQuestion.id}`"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
           {{ $t('openTargetCQ') }}
-          <span v-if="consolidation.targetQuestion.cqCatalogueIdentifier" class="rounded bg-white/20 px-1.5 text-xs font-bold">
+          <span v-if="consolidation.targetQuestion.cqCatalogueIdentifier" class="rounded-sm bg-white/20 px-1.5 text-xs font-bold">
             {{ consolidation.targetQuestion.cqCatalogueIdentifier }}
           </span>
           <ArrowTopRightOnSquareIcon class="-mr-0.5 h-5 w-5" aria-hidden="true"/>
@@ -234,12 +234,12 @@ async function setResultQuestion() {
       </div>
 
       <div v-if="consolidation.targetQuestion" class="space-y-3">
-        <div class="relative rounded-md shadow-sm">
+        <div class="relative rounded-md shadow-xs">
           <input type="text"
                  :disabled="!canEdit"
                  v-model="resultQuestionText"
                  :placeholder="$t('noQuestionText')"
-                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:opacity-60 disabled:cursor-not-allowed"/>
+                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -248,7 +248,7 @@ async function setResultQuestion() {
               {{ $t('type') }} <span class="font-normal text-gray-400">{{ $t('optional') }}</span>
             </label>
             <select :disabled="!canEdit" v-model="resultQuestionType"
-                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
               <option :value="null">—</option>
               <option v-for="t in CQ_TYPES" :key="t" :value="t">{{ t }}</option>
             </select>
@@ -259,7 +259,7 @@ async function setResultQuestion() {
             </label>
             <input type="text" :disabled="!canEdit" v-model="resultQuestionReference"
                    :placeholder="$t('eGS138')"
-                   class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+                   class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
           </div>
         </div>
 
@@ -269,7 +269,7 @@ async function setResultQuestion() {
           </label>
           <textarea :disabled="!canEdit" v-model="resultQuestionAnchor" rows="2"
                     :placeholder="$t('sourceTextOrEvidence')"
-                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
         <div>
@@ -278,14 +278,14 @@ async function setResultQuestion() {
           </label>
           <textarea :disabled="!canEdit" v-model="resultQuestionExampleAnswer" rows="2"
                     :placeholder="$t('sampleOrExampleAnswer')"
-                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
+                    class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed"/>
         </div>
 
         <div v-if="canEdit" class="flex justify-end">
           <button type="button"
                   @click="saveResultQuestion"
                   :disabled="savingResultQuestion"
-                  class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+                  class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
             <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
             {{ savingResultQuestion ? 'Saving...' : $t('save') }}
           </button>
@@ -300,13 +300,13 @@ async function setResultQuestion() {
               :displayValue="(cq: any) => cq?.question ?? ''"
               @change="targetQuery = $event.target.value"
               :placeholder="$t('searchForACQ')"
-              class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+              class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             />
             <ComboboxButton class="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true"/>
             </ComboboxButton>
             <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-              <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+              <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-hidden">
                 <ComboboxOption as="template" v-for="cq in filteredCqsForTarget" :key="cq.id" :value="cq" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ cq.question }}</span>
@@ -324,7 +324,7 @@ async function setResultQuestion() {
           <button type="button"
                   :disabled="!newResultCq"
                   @click="setResultQuestion"
-                  class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                  class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             <CheckIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
             {{ $t('setTargetQuestion') }}
           </button>
@@ -344,7 +344,7 @@ async function setResultQuestion() {
                 type="button"
                 @click="saveSourceQuestions(currentSourceSelection)"
                 :disabled="savingSourceQuestions"
-                class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
+                class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
           <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
           {{ savingSourceQuestions ? 'Saving…' : $t('saveSourceQuestions') }}
         </button>
@@ -371,9 +371,9 @@ async function setResultQuestion() {
 
   <!-- Loading skeleton -->
   <div v-else class="w-full animate-pulse space-y-4">
-    <div class="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
-    <div class="h-7 w-64 bg-gray-200 dark:bg-gray-700 rounded mt-1"></div>
-    <div class="h-4 w-56 bg-gray-200 dark:bg-gray-700 rounded mt-2"></div>
+    <div class="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+    <div class="h-7 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm mt-1"></div>
+    <div class="h-4 w-56 bg-gray-200 dark:bg-gray-700 rounded-sm mt-2"></div>
     <div class="h-px w-full bg-gray-200 dark:bg-gray-700 mt-6"></div>
     <div class="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded-md mt-4"></div>
   </div>

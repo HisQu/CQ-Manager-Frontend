@@ -170,7 +170,7 @@ function goToProjectQuestions() {
                        :version="cq.data.versions?.versionNumber"
                        @afterRating="fetchCompetencyQuestion()"/>
         <Popover class="relative">
-          <PopoverButton class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 focus:outline-none">
+          <PopoverButton class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 focus:outline-hidden">
             {{ $t('showRatings') }}
           </PopoverButton>
           <transition enter-active-class="transition ease-out duration-200"
@@ -218,7 +218,7 @@ function goToProjectQuestions() {
       <div v-if="canEdit" class="flex items-center gap-3 flex-wrap">
         <Listbox v-model="selectedTopic" by="id" class="min-w-56 flex-1 max-w-sm">
           <div class="relative">
-            <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+            <ListboxButton class="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
               <span class="flex items-center gap-1.5 truncate">
                 <span v-if="selectedTopic?.identifier" class="font-semibold text-indigo-600 dark:text-indigo-400">{{ selectedTopic.identifier }}</span>
                 <span>{{ selectedTopic?.name ?? $t('selectACatalogue') }}</span>
@@ -228,7 +228,7 @@ function goToProjectQuestions() {
               </span>
             </ListboxButton>
             <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-              <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none sm:text-sm">
+              <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-hidden sm:text-sm">
                 <ListboxOption as="template" v-for="t in topics" :key="t.id" :value="t" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate flex items-center gap-1.5', isUncatalogued(t) ? 'italic' : '']">
@@ -248,7 +248,7 @@ function goToProjectQuestions() {
           type="button"
           :disabled="selectedTopic?.id === cq.data.topic?.id"
           :class="[
-            'inline-flex items-center rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+            'inline-flex items-center rounded-md px-3 py-1.5 text-sm font-semibold shadow-xs focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2',
             selectedTopic?.id === cq.data.topic?.id
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
               : 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
@@ -330,9 +330,9 @@ function goToProjectQuestions() {
 
   <!-- Loading skeleton -->
   <div v-else class="w-full animate-pulse space-y-4">
-    <div class="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
-    <div class="h-7 w-64 bg-gray-200 dark:bg-gray-700 rounded mt-1"></div>
-    <div class="h-4 w-56 bg-gray-200 dark:bg-gray-700 rounded mt-2"></div>
+    <div class="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+    <div class="h-7 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm mt-1"></div>
+    <div class="h-4 w-56 bg-gray-200 dark:bg-gray-700 rounded-sm mt-2"></div>
     <div class="h-px w-full bg-gray-200 dark:bg-gray-700 mt-6"></div>
     <div class="h-28 w-full bg-gray-200 dark:bg-gray-700 rounded-md mt-4"></div>
   </div>

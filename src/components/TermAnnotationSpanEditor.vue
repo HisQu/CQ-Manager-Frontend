@@ -452,7 +452,7 @@ function barStyle(annotation: AnnotationView) {
   <div v-if="viewingAnnotation && !isEditing" class="mt-3 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
     <div class="mb-2 flex items-center justify-between gap-3">
       <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $t('viewAnnotation') }}</h3>
-      <button type="button" class="rounded p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700" :aria-label="$t('closeAnnotationDetails')" :title="$t('closeAnnotationDetails')" @click="viewingAnnotation = null">
+      <button type="button" class="rounded-sm p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700" :aria-label="$t('closeAnnotationDetails')" :title="$t('closeAnnotationDetails')" @click="viewingAnnotation = null">
         <XMarkIcon class="h-4 w-4" />
       </button>
     </div>
@@ -479,7 +479,7 @@ function barStyle(annotation: AnnotationView) {
         <template v-else>{{ $t('selected') }}:</template>
         <span class="font-medium" :title="pendingSelection.content"> “{{ pendingSelection.content }}”</span>
       </p>
-      <button type="button" class="rounded p-1 text-gray-500 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cancel annotation" @click="closeSelection">
+      <button type="button" class="rounded-sm p-1 text-gray-500 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cancel annotation" @click="closeSelection">
         <XMarkIcon class="h-4 w-4" />
       </button>
     </div>
@@ -489,7 +489,7 @@ function barStyle(annotation: AnnotationView) {
         <Combobox :model-value="term" @update:model-value="selectTerm">
           <div class="relative">
             <ComboboxInput
-              class="block w-full rounded-md border-0 py-1.5 pr-10 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600"
+              class="block w-full rounded-md border-0 py-1.5 pr-10 text-sm text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600"
               :display-value="displayTerm"
               placeholder="Choose or create a term"
               @input="updateQuery"
@@ -498,7 +498,7 @@ function barStyle(annotation: AnnotationView) {
               <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
             </ComboboxButton>
             <TransitionRoot leave="transition ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0">
-              <ComboboxOptions class="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800">
+              <ComboboxOptions class="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800">
                 <ComboboxOption v-for="item in filteredTerms" :key="item.id" :value="item" as="template" v-slot="{active, selected}">
                   <li class="relative cursor-default select-none py-2 pl-9 pr-3"
                       :class="active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100'">
@@ -518,14 +518,14 @@ function barStyle(annotation: AnnotationView) {
         </Combobox>
         <div v-if="(term?.content || query).trim().length > 0" class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <input v-model="newTermDefinition" type="text" placeholder="Definition (optional)"
-                 class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
+                 class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
           <input v-model="newTermConceptIri" type="text" placeholder="Concept IRI (optional)"
-                 class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
+                 class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600" />
         </div>
       </div>
       <div class="flex shrink-0 items-center gap-2">
       <button type="button" :disabled="!term || saving"
-                class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                 @click="saveAnnotation">{{ editingAnnotationId ? $t('applyChanges') : $t('addAnnotation') }}</button>
       </div>
     </div>

@@ -188,7 +188,7 @@ export default defineComponent({
             </p>
           </slot>
         </div>
-        <div class="flex items-center gap-3 flex-shrink-0 ml-4">
+        <div class="flex items-center gap-3 shrink-0 ml-4">
           <span v-if="selectable && selectedIds.length > 0"
                 class="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-400/10 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:text-indigo-400 ring-1 ring-inset ring-indigo-700/10 dark:ring-indigo-400/30">
             {{ selectedIds.length }} {{ $t('selected') }}
@@ -196,7 +196,7 @@ export default defineComponent({
           <button v-if="selectable && $slots.default && selectedIds.length > 0"
                   type="button"
                   @click="handleAction"
-                  class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                  class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             <slot></slot>
           </button>
         </div>
@@ -208,7 +208,7 @@ export default defineComponent({
           v-model="filterText"
           type="text"
           :placeholder="$t('searchQuestions')"
-          class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+          class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
         />
       </div>
 
@@ -216,14 +216,14 @@ export default defineComponent({
         <!-- Group filter -->
         <Listbox v-if="groups.length > 1" v-model="selectedFilterGroup" by="id">
           <div class="relative">
-            <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <ListboxButton class="relative w-56 cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left text-xs text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:outline-hidden focus:ring-2 focus:ring-indigo-500">
               <span class="block truncate">{{ selectedFilterGroup.name }}</span>
               <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
               </span>
             </ListboxButton>
             <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-              <ListboxOptions class="absolute z-10 mt-1 max-h-48 w-56 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+              <ListboxOptions class="absolute z-10 mt-1 max-h-48 w-56 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-hidden">
                 <ListboxOption as="template" v-for="g in groups" :key="g.id" :value="g" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-1.5 pl-3 pr-9 text-xs']">
                     <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ g.name }}</span>
@@ -253,7 +253,7 @@ export default defineComponent({
           <tr class="bg-gray-50 dark:bg-gray-800/50">
             <th v-if="selectable" scope="col" class="relative w-12 px-5">
               <input type="checkbox"
-                     class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                     class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded-sm border-gray-300 text-indigo-600 focus:ring-indigo-600"
                      :checked="allSelected"
                      :indeterminate="indeterminate"
                      @change="toggleAll(($event.target as HTMLInputElement).checked)"/>
@@ -266,7 +266,7 @@ export default defineComponent({
                                sort.field === column.field ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400']"
                       @click="sortBy(column.field)">
                 {{ column.label }}
-                <span :class="['rounded', sort.field === column.field ? 'bg-gray-200 dark:bg-gray-700' : 'invisible group-hover:visible']">
+                <span :class="['rounded-sm', sort.field === column.field ? 'bg-gray-200 dark:bg-gray-700' : 'invisible group-hover:visible']">
                   <ChevronUpIcon v-if="sort.field === column.field && sort.direction === 'asc'" class="h-4 w-4" aria-hidden="true" />
                   <ChevronDownIcon v-else class="h-4 w-4" aria-hidden="true" />
                 </span>
@@ -298,7 +298,7 @@ export default defineComponent({
                 <div v-if="selectedIds.includes(row.cq!.id)"
                      class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"></div>
                 <input type="checkbox"
-                       class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                       class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded-sm border-gray-300 text-indigo-600 focus:ring-indigo-600"
                        :value="row.cq!.id"
                        v-model="selectedIds"/>
               </td>
@@ -324,7 +324,7 @@ export default defineComponent({
               <td class="py-3.5 pl-3 pr-5 text-right text-sm">
                 <RouterLink :to="`/questions/${row.cq!.id}`"
                             :title="$t('openQuestion', { question: row.cq!.cqCatalogueIdentifier ?? $t('thisCQ') })"
-                            class="inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-md bg-white dark:bg-gray-800 px-2.5 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700">
+                            class="inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-md bg-white dark:bg-gray-800 px-2.5 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 shadow-xs ring-1 ring-inset ring-indigo-300 dark:ring-indigo-700 hover:bg-indigo-50 dark:hover:bg-gray-700">
                   {{ $t('openCQ') }}
                   <ArrowTopRightOnSquareIcon class="h-4 w-4" aria-hidden="true" />
                 </RouterLink>

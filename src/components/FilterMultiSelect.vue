@@ -25,12 +25,12 @@ const summary = computed(() => {
     <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">{{ label }}</ListboxLabel>
     <div class="relative mt-2">
       <ListboxButton :class="[model.length ? 'ring-indigo-500 dark:ring-indigo-400' : 'ring-gray-300 dark:ring-gray-600',
-                              'relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 text-left text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6',
+                              'relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 text-left text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-inset focus:outline-hidden focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6',
                               model.length ? 'pr-16' : 'pr-10']"
                      :title="summary">
         <span class="flex items-center gap-1.5">
           <span v-if="model.length > 1"
-                class="flex-shrink-0 inline-flex items-center rounded-full bg-indigo-600 px-1.5 text-xs font-bold text-white">
+                class="shrink-0 inline-flex items-center rounded-full bg-indigo-600 px-1.5 text-xs font-bold text-white">
             {{ model.length }}
           </span>
           <span :class="['block truncate', model.length ? '' : 'text-gray-500 dark:text-gray-400']">{{ summary }}</span>
@@ -48,7 +48,7 @@ const summary = computed(() => {
       </button>
 
       <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none sm:text-sm">
+        <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-hidden sm:text-sm">
           <ListboxOption as="template" v-for="o in options" :key="o.value" :value="o.value" v-slot="{ active, selected }">
             <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
               <span :class="[selected ? 'font-semibold' : 'font-normal', 'flex items-center gap-1.5 truncate']">

@@ -24,14 +24,14 @@ defineProps<{
         <RouterLink v-if="project && projectId"
               to="/questions"
               @click="emit('projectClick')"
-              class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30 dark:hover:bg-indigo-400/20">
+              class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30 dark:hover:bg-indigo-400/20">
           {{ project }}
         </RouterLink>
         <span v-else-if="project"
               class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30">
           {{ project }}
         </span>
-        <ChevronRightIcon v-if="project && group" class="h-3.5 w-3.5 text-gray-400 flex-shrink-0"/>
+        <ChevronRightIcon v-if="project && group" class="h-3.5 w-3.5 text-gray-400 shrink-0"/>
         <span v-if="group"
               class="inline-flex items-center rounded-md bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-700/10 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/30">
           {{ group }}
@@ -56,7 +56,7 @@ defineProps<{
     </div>
 
     <!-- Actions slot (right side) -->
-    <div v-if="$slots.actions" class="flex flex-col items-end gap-1 flex-shrink-0">
+    <div v-if="$slots.actions" class="flex flex-col items-end gap-1 shrink-0">
       <slot name="actions"/>
     </div>
   </div>

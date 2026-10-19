@@ -29,9 +29,9 @@ export default defineComponent({
 </script>
 
 <template>
-  <a href="#" class="group block flex-shrink-0">
+  <a href="#" class="group block shrink-0">
     <div class="flex items-center gap-x-2">
-      <img v-if="avatarUrl" :src="avatarUrl" referrerpolicy="no-referrer" class="h-8 w-8 rounded-full flex-shrink-0" :alt="email" />
+      <img v-if="avatarUrl" :src="avatarUrl" referrerpolicy="no-referrer" class="h-8 w-8 rounded-full shrink-0" :alt="email" />
       <slot></slot>
       <div>
         <p class="font-medium text-gray-700 dark:text-gray-300">{{ email }}</p>

@@ -125,10 +125,10 @@ watch(getProject, () => fetchTags());
              type="text"
              :maxlength="TAG_NAME_MAX_LENGTH"
              :placeholder="$t('newTagName')"
-             class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+             class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
       <button type="submit"
               :disabled="!canCreate"
-              class="inline-flex flex-shrink-0 items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              class="inline-flex shrink-0 items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed">
         {{ $t('add') }}
         <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
       </button>
@@ -145,7 +145,7 @@ watch(getProject, () => fetchTags());
                    type="text"
                    :maxlength="TAG_NAME_MAX_LENGTH"
                    :aria-label="`New name for tag ${tag.name}`"
-                   class="block w-full max-w-xs rounded-md border-0 py-1 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                   class="block w-full max-w-xs rounded-md border-0 py-1 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
                    @keydown.esc="editingTagId = null" />
             <button type="submit" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">{{ $t('save') }}</button>
             <button type="button" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700" @click="editingTagId = null">{{ $t('cancel') }}</button>

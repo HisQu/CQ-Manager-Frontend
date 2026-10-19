@@ -36,7 +36,7 @@ const lastCommentDate = computed(() => {
   <RouterLink :to="linkTo" class="block">
     <div class="text-left transition-colors rounded-lg px-3 py-2 ring-1 ring-inset hover:bg-gray-50 dark:hover:bg-gray-600/50"
          :class="[
-           cardStyle ? 'bg-gray-100 dark:bg-gray-700 dark:text-gray-200 shadow-sm' : '',
+           cardStyle ? 'bg-gray-100 dark:bg-gray-700 dark:text-gray-200 shadow-xs' : '',
            isConsolidationResult || cq.consolidations?.length ? 'ring-blue-400/30' : 'ring-gray-200 dark:ring-gray-700',
          ]">
 
@@ -45,12 +45,12 @@ const lastCommentDate = computed(() => {
           <div class="flex items-start justify-between gap-4">
             <div class="flex items-baseline gap-2 flex-1 min-w-0">
               <span v-if="cq.cqCatalogueIdentifier"
-                    class="flex-shrink-0 inline-flex items-center rounded-md bg-indigo-600 dark:bg-indigo-500 px-2.5 py-0.5 text-sm font-bold text-white tracking-wide">
+                    class="shrink-0 inline-flex items-center rounded-md bg-indigo-600 dark:bg-indigo-500 px-2.5 py-0.5 text-sm font-bold text-white tracking-wide">
                 {{ cq.cqCatalogueIdentifier }}
               </span>
               <h3 class="font-semibold text-gray-900 dark:text-white leading-snug min-w-0">{{ cq.question }}</h3>
             </div>
-            <div v-if="cq.rating" class="flex-shrink-0 pt-0.5">
+            <div v-if="cq.rating" class="shrink-0 pt-0.5">
               <StarComponent :rating="cq.rating" />
             </div>
           </div>
@@ -93,7 +93,7 @@ const lastCommentDate = computed(() => {
           <!-- Last comment, only while it is unread -->
           <div v-if="showLastComment && cq.lastComment"
                class="mt-2 flex items-start gap-2 rounded-md bg-gray-50 dark:bg-gray-900/40 px-2.5 py-1.5 text-sm text-gray-600 dark:text-gray-300">
-            <ChatBubbleLeftIcon class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" aria-hidden="true" />
+            <ChatBubbleLeftIcon class="mt-0.5 h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
             <p class="min-w-0 line-clamp-2">
               <span class="font-medium text-gray-800 dark:text-gray-100">{{ cq.lastComment.author ?? $t('unknown') }}</span>
               <span class="mx-1 text-xs text-gray-400 dark:text-gray-500">{{ lastCommentDate }}</span>
@@ -105,12 +105,12 @@ const lastCommentDate = computed(() => {
         <!-- Comment count: red for unread comments, grey once everything is read -->
         <span v-if="unreadComments"
               :title="$t('unreadCommentsCount', { unread: unreadComments, count: totalComments }, totalComments)"
-              class="flex-shrink-0 inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
+              class="shrink-0 inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
           {{ unreadComments }}
         </span>
         <span v-else-if="totalComments"
               :title="$t('readCommentsCount', totalComments)"
-              class="flex-shrink-0 inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-600 px-2 py-0.5 text-xs font-bold text-gray-700 dark:text-gray-200">
+              class="shrink-0 inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-600 px-2 py-0.5 text-xs font-bold text-gray-700 dark:text-gray-200">
           {{ totalComments }}
         </span>
       </div>

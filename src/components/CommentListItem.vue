@@ -39,7 +39,7 @@ export default defineComponent({
 
 <template>
   <div class="flex gap-3">
-    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-400/20 flex items-center justify-center overflow-hidden">
+    <div class="shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-400/20 flex items-center justify-center overflow-hidden">
       <img v-if="avatarUrl" :src="avatarUrl" referrerpolicy="no-referrer" class="w-full h-full object-cover" :alt="comment.author.name" />
       <span v-else class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">{{ initials }}</span>
     </div>

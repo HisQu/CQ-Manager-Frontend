@@ -35,7 +35,7 @@ function toggleDirection() {
 </script>
 
 <template>
-  <div class="flex flex-shrink-0 items-center rounded-md shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800">
+  <div class="flex shrink-0 items-center rounded-md shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 bg-white dark:bg-gray-800">
     <Listbox v-model="field">
       <div class="relative">
         <ListboxButton :class="['inline-flex items-center gap-x-2 rounded-l-md px-3 font-semibold text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700',
@@ -45,7 +45,7 @@ function toggleDirection() {
           <span><span class="font-normal text-gray-500 dark:text-gray-400">{{ $t('sort') }}</span> {{ fieldLabel }}</span>
         </ListboxButton>
         <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-          <ListboxOptions class="absolute right-0 z-20 mt-1 max-h-72 w-60 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
+          <ListboxOptions class="absolute right-0 z-20 mt-1 max-h-72 w-60 overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-hidden">
             <ListboxOption as="template" v-for="f in CQ_SORT_FIELDS" :key="f.value" :value="f.value" v-slot="{ active, selected }">
               <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                 <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ f.label }}</span>

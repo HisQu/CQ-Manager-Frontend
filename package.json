@@ -15,7 +15,7 @@
     "@heroicons/vue": "^2.2.0",
     "axios": "^1.6.2",
     "moment": "^2.29.1",
-    "monaco-editor": "^0.55.1",
+    "monaco-editor": "^0.57.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
     "qlue-ls": "^2.6.5",
@@ -27,15 +27,18 @@
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.3",
-    "@vitejs/plugin-vue": "^4.5.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/test-utils": "^2.5.1",
-    "autoprefixer": "^10.4.16",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.2.2",
-    "vite": "^5.0.5",
-    "vitest": "^3.2.7",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5",
     "vue-tsc": "^2.1.6"
+  },
+  "overrides": {
+    "dompurify": "^3.4.17"
   }
 }

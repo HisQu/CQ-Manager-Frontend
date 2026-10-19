@@ -27,7 +27,7 @@ defineEmits<{ refresh: [] }>()
               :aria-expanded="expanded" aria-controls="cq-comments-content"
               :aria-label="$t(expanded ? 'collapseComments' : 'expandComments')"
               :title="$t(expanded ? 'collapseComments' : 'expandComments')"
-              class="shrink-0 rounded p-1.5 text-indigo-100 hover:bg-indigo-700 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              class="shrink-0 rounded-sm p-1.5 text-indigo-100 hover:bg-indigo-700 hover:text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
         <ChevronUpIcon v-if="!docked && expanded" class="h-5 w-5" aria-hidden="true" />
         <ChevronDownIcon v-else-if="!docked" class="h-5 w-5" aria-hidden="true" />
         <ChevronRightIcon v-else-if="expanded" class="h-5 w-5" aria-hidden="true" />
@@ -39,7 +39,7 @@ defineEmits<{ refresh: [] }>()
     </div>
     <button v-if="docked && !expanded" type="button" @click="expanded = true"
             :aria-label="$t('expandComments')" aria-expanded="false" aria-controls="cq-comments-content"
-            class="flex flex-1 flex-col items-center gap-4 bg-indigo-600 py-5 text-indigo-100 hover:bg-indigo-700 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white">
+            class="flex flex-1 flex-col items-center gap-4 bg-indigo-600 py-5 text-indigo-100 hover:bg-indigo-700 hover:text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white">
       <ChatBubbleLeftRightIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
       <span class="text-sm font-semibold [writing-mode:vertical-rl]">{{ $t('comments') }}</span>
       <span class="rounded-full bg-indigo-500 px-1.5 py-0.5 text-xs">{{ comments.length }}</span>

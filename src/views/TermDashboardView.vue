@@ -80,16 +80,16 @@ watch(getProject, (_, __) => {
     </div>
     <div v-else>
       <div v-for="_ in 4" :key="_"
-           class="border-1 shadow rounded-lg p-4 max-w-xl w-full dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4">
+           class="border shadow-sm rounded-lg p-4 max-w-xl w-full dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4">
         <div class="animate-pulse flex space-x-4">
           <div class="flex-1 space-y-6 py-1">
-            <div class="h-2 bg-slate-500 rounded"></div>
+            <div class="h-2 bg-slate-500 rounded-sm"></div>
             <div class="space-y-3">
               <div class="grid grid-cols-3 gap-4">
-                <div class="h-2 bg-slate-500 rounded col-span-2"></div>
-                <div class="h-2 bg-slate-500 rounded col-span-1"></div>
+                <div class="h-2 bg-slate-500 rounded-sm col-span-2"></div>
+                <div class="h-2 bg-slate-500 rounded-sm col-span-1"></div>
               </div>
-              <div class="h-2 bg-slate-500 rounded"></div>
+              <div class="h-2 bg-slate-500 rounded-sm"></div>
             </div>
           </div>
         </div>

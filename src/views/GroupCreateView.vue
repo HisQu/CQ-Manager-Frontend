@@ -95,14 +95,14 @@ export default defineComponent({
     <Listbox as="div" v-model="selectedProject">
       <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">{{ $t('assignedToProject') }}</ListboxLabel>
       <div class="relative mt-2">
-        <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+        <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
           <span class="block truncate">{{ selectedProject.name }}</span>
           <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </span>
         </ListboxButton>
         <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-          <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden sm:text-sm">
             <ListboxOption as="template" v-for="p in projects" :key="p.id" :value="p" v-slot="{ active, selected }">
               <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                 <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ p.name }}</span>
@@ -120,7 +120,7 @@ export default defineComponent({
     <div class="my-5">
       <label for="group" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('typeInGroupName') }}</label>
       <div class="mt-2">
-        <textarea v-model="add.group" rows="1" name="group" id="group" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+        <textarea v-model="add.group" rows="1" name="group" id="group" class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
       </div>
     </div>
    

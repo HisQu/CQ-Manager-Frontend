@@ -36,7 +36,7 @@ if ("messageType" in response) {
   <div class="w-full">
     <DetailPageHeader :title="$t('users')">
       <template #actions>
-        <RouterLink to="/users/create" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+        <RouterLink to="/users/create" class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
           {{ $t('create') }}
           <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
         </RouterLink>
@@ -45,7 +45,7 @@ if ("messageType" in response) {
 
     <div v-if="users" class="mt-6">
       <div v-for="user in users" :key="user.email"
-           class="border-1 shadow rounded-md p-4 dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4 flex items-center justify-between">
+           class="border shadow-sm rounded-md p-4 dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-4 flex items-center justify-between">
         <div>
           <div class="font-semibold text-gray-900 dark:text-gray-100">{{ user.name }}</div>
           <div class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</div>
@@ -64,24 +64,24 @@ if ("messageType" in response) {
           </div>
         </div>
         <RouterLink :to="`/users/${encodeURIComponent(user.email)}`"
-                    class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                    class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
           {{ $t('edit') }}
         </RouterLink>
       </div>
     </div>
 
     <div v-else>
-      <div v-for="_ in 4" :key="_" class="border-1 shadow rounded-md p-4 max-w-xl w-full mx-auto dark:bg-gray-700
+      <div v-for="_ in 4" :key="_" class="border shadow rounded-md p-4 max-w-xl w-full mx-auto dark:bg-gray-700
           dark:text-gray-200 bg-gray-100 mt-10">
         <div class="animate-pulse flex space-x-4">
           <div class="flex-1 space-y-6 py-1">
-            <div class="h-2 bg-slate-500 rounded"></div>
+            <div class="h-2 bg-slate-500 rounded-sm"></div>
             <div class="space-y-3">
               <div class="grid grid-cols-3 gap-4">
-                <div class="h-2 bg-slate-500 rounded col-span-2"></div>
-                <div class="h-2 bg-slate-500 rounded col-span-1"></div>
+                <div class="h-2 bg-slate-500 rounded-sm col-span-2"></div>
+                <div class="h-2 bg-slate-500 rounded-sm col-span-1"></div>
               </div>
-              <div class="h-2 bg-slate-500 rounded"></div>
+              <div class="h-2 bg-slate-500 rounded-sm"></div>
             </div>
           </div>
         </div>

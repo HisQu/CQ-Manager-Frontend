@@ -28,7 +28,7 @@ export default defineComponent({
 
 <template>
   <RouterLink :to="'/projects/' + project_id">
-    <div key="project-list-item" class="dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-10 rounded p-4 text-left">
+    <div key="project-list-item" class="dark:bg-gray-700 dark:text-gray-200 bg-gray-100 mt-10 rounded-sm p-4 text-left">
       <div class="grid grid-cols-2">
         <h3 class="font-bold dark:text-white">{{ name }}</h3>
         <div class="inline-block text-right">

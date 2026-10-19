@@ -200,10 +200,10 @@ export default defineComponent({
                   <li class="-mx-6 mt-auto">
                     <div class="flex items-center justify-between px-6 py-3">
                       <RouterLink to="/account/profile" @click="sidebarOpen = false" class="flex items-center gap-x-4 text-sm font-semibold leading-6 text-white hover:text-indigo-200 min-w-0">
-                        <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
+                        <img class="h-8 w-8 rounded-full bg-indigo-700 shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                         <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
                       </RouterLink>
-                      <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0" :title="$t('logOut')">
+                      <button @click="store.logout(); $router.push('/login');" class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded-sm shrink-0" :title="$t('logOut')">
                         <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
                       </button>
                     </div>
@@ -224,7 +224,7 @@ export default defineComponent({
         <span v-if="!collapsed" class="text-2xl font-bold text-white mt-5">
           <Logo/>
         </span>
-        <button @click="toggleSidebar()" class="text-indigo-200 hover:text-white p-1 rounded hover:bg-indigo-700 mt-5 flex-shrink-0" :title="collapsed ? $t('expandSidebar') : $t('collapseSidebar')" :aria-label="collapsed ? $t('expandSidebar') : $t('collapseSidebar')" :aria-expanded="!collapsed">
+        <button @click="toggleSidebar()" class="text-indigo-200 hover:text-white p-1 rounded-sm hover:bg-indigo-700 mt-5 shrink-0" :title="collapsed ? $t('expandSidebar') : $t('collapseSidebar')" :aria-label="collapsed ? $t('expandSidebar') : $t('collapseSidebar')" :aria-expanded="!collapsed">
           <ChevronLeftIcon v-if="!collapsed" class="h-5 w-5"/>
           <ChevronRightIcon v-else class="h-5 w-5"/>
         </button>
@@ -262,12 +262,12 @@ export default defineComponent({
               <RouterLink v-if="!collapsed" to="/account/profile"
                 class="flex items-center gap-x-3 min-w-0 flex-1 text-sm font-semibold leading-6 text-white hover:text-indigo-200"
                 :title="$t('changePassword')">
-                <img class="h-8 w-8 rounded-full bg-indigo-700 flex-shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
+                <img class="h-8 w-8 rounded-full bg-indigo-700 shrink-0" :src="avatarUrl" referrerpolicy="no-referrer" alt="" />
                 <span class="truncate" aria-hidden="true">{{ store.getUser.name }}</span>
               </RouterLink>
               <button
                 @click="store.logout(); $router.push('/login');"
-                class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded flex-shrink-0"
+                class="text-indigo-200 hover:text-white hover:bg-indigo-700 p-1.5 rounded-sm shrink-0"
                 :title="$t('logOut')">
                 <ArrowRightStartOnRectangleIcon class="h-5 w-5" aria-hidden="true" />
               </button>
@@ -278,7 +278,7 @@ export default defineComponent({
     </div>
   </div>
 
-  <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-indigo-600 px-4 py-4 shadow-sm sm:hidden">
+  <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-indigo-600 px-4 py-4 shadow-xs sm:hidden">
     <button type="button" class="-m-2.5 p-2.5 text-indigo-200" @click="openMobileSidebar()">
       <span class="sr-only">{{ $t('openSidebar') }}</span>
       <Bars3Icon class="h-6 w-6" aria-hidden="true" />

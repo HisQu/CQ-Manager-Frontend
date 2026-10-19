@@ -110,14 +110,14 @@ export default defineComponent({
         :placeholder="$t('writeYourComment')"
         id="new-comment"
         v-model="commentText"
-        class="block w-full rounded-md border-0 py-1.5 dark:bg-gray-800 dark:text-gray-100 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        class="block w-full rounded-md border-0 py-1.5 dark:bg-gray-800 dark:text-gray-100 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
       />
       <div class="mt-3 flex justify-end">
         <button
           type="button"
           @click="comment(commentText, questionId)"
           :disabled="sending || !commentText.trim()"
-          class="inline-flex items-center gap-x-1.5 rounded-md px-3.5 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-x-1.5 rounded-md px-3.5 py-2 text-sm font-semibold text-white shadow-xs focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           :class="displaySuccess ? 'bg-green-600 hover:bg-green-500' : 'bg-indigo-600 hover:bg-indigo-500'"
         >
           <PaperAirplaneIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>

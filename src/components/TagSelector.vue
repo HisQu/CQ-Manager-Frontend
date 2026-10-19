@@ -99,7 +99,7 @@ function handleBackspace() {
 <template>
   <div class="relative">
     <label v-if="label" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900 mb-2">{{ label }}</label>
-    <div :class="['flex flex-wrap items-center gap-1.5 min-h-[2.375rem] px-2 py-1.5 rounded-md bg-white dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus-within:ring-2 focus-within:ring-indigo-600',
+    <div :class="['flex flex-wrap items-center gap-1.5 min-h-9.5 px-2 py-1.5 rounded-md bg-white dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus-within:ring-2 focus-within:ring-indigo-600',
                   disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-text']"
          @click="inputRef?.focus()">
       <TagBadge v-for="tag in selected" :key="tag.id" :name="tag.name" :removable="!disabled" @remove="removeTag(tag)" />
@@ -108,7 +108,7 @@ function handleBackspace() {
              v-model="inputValue"
              :maxlength="TAG_NAME_MAX_LENGTH"
              :placeholder="selected.length === 0 ? $t('addTags') : ''"
-             class="flex-1 min-w-32 border-0 bg-transparent py-0 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-0"
+             class="flex-1 min-w-32 border-0 bg-transparent py-0 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-hidden focus:ring-0"
              @focus="focused = true"
              @input="focused = true"
              @blur="focused = false"
@@ -128,7 +128,7 @@ function handleBackspace() {
           @mousedown.prevent="choose(option)">
         <template v-if="option.kind === 'existing'">
           <span class="truncate">#{{ option.tag.name }}</span>
-          <span :class="['text-xs flex-shrink-0', i === highlightedIndex ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500']">
+          <span :class="['text-xs shrink-0', i === highlightedIndex ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500']">
             {{ $t('cqCount', option.tag.noQuestions) }}
           </span>
         </template>

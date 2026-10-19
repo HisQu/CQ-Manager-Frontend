@@ -98,7 +98,7 @@ function saveQuestion() {
            class="block text-sm font-medium leading-6 dark:text-gray-200 text-gray-900">{{ $t('question') }}</label>
     <div class="mt-2">
       <textarea name="question" id="question" rows="2"
-             class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+             class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
              v-model="localQuestion"
       ></textarea>
     </div>
@@ -108,7 +108,7 @@ function saveQuestion() {
         <textarea id="cq_comment" rows="6"
                   :disabled="!canEdit"
                   v-model="localComment"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
         ></textarea>
       </div>
     </div>
@@ -124,7 +124,7 @@ function saveQuestion() {
                  :disabled="!canEdit"
                  v-model="localReference"
                  :placeholder="$t('eGS138')"
-                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"/>
+                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"/>
         </div>
       </div>
     </div>
@@ -138,7 +138,7 @@ function saveQuestion() {
                   :disabled="!canEdit"
                   v-model="localAnchor"
                   :placeholder="$t('sourceTextOrEvidenceFromWhichTheCQWasExtracted')"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
         ></textarea>
       </div>
     </div>
@@ -152,7 +152,7 @@ function saveQuestion() {
                   :disabled="!canEdit"
                   v-model="localExampleAnswer"
                   :placeholder="$t('sampleOrExampleAnswer')"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-xs ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
         ></textarea>
       </div>
     </div>
@@ -198,7 +198,7 @@ function saveQuestion() {
         <div v-for="revision in orderedRevisions" :key="revision.id">
           <div class="flex items-start gap-2 px-3 py-2.5">
             <button type="button"
-                    class="mt-0.5 rounded p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    class="mt-0.5 rounded-sm p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                     :aria-label="`${isRevisionExpanded(revision.id) ? $t('collapse') : $t('expand')} ${$t('questionVersion')} ${revision.versionNumber}`"
                     :aria-expanded="isRevisionExpanded(revision.id)"
                     @click="toggleRevision(revision.id)">
@@ -216,14 +216,14 @@ function saveQuestion() {
               <p v-if="revision.exampleAnswer" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span class="font-medium">{{ $t('exampleAnswer') }}:</span> {{ revision.exampleAnswer }}
               </p>
-              <pre v-if="revision.sparqlQuery" class="mt-1 overflow-x-auto rounded bg-white/70 p-2 text-xs text-gray-600 dark:bg-gray-900/40 dark:text-gray-400">{{ revision.sparqlQuery }}</pre>
+              <pre v-if="revision.sparqlQuery" class="mt-1 overflow-x-auto rounded-sm bg-white/70 p-2 text-xs text-gray-600 dark:bg-gray-900/40 dark:text-gray-400">{{ revision.sparqlQuery }}</pre>
             </div>
           </div>
           <div v-if="isRevisionExpanded(revision.id)" class="py-1 pl-11 pr-3">
             <button v-for="annotationVersion in [...(revision.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)"
                     :key="annotationVersion.id"
                     type="button"
-                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                    class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
                     :class="selectedAnnotationVersionId === annotationVersion.id ? 'font-semibold text-indigo-700 dark:text-indigo-300' : 'text-gray-600 dark:text-gray-300'"
                     :aria-pressed="selectedAnnotationVersionId === annotationVersion.id"
                     @click="selectAnnotationVersion(revision, annotationVersion)">
@@ -243,7 +243,7 @@ function saveQuestion() {
     <button
         @click="saveQuestion"
         type="button"
-        class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+        class="float-right inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
       {{ $t('save') }}
     </button>
