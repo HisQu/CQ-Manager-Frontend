@@ -11,6 +11,7 @@ import {useStore} from "../store.ts";
 import {useRouter} from "vue-router";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
+import {cqLabel, matchesCqSearch} from "../utils/cqFilters.ts";
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
@@ -68,11 +69,7 @@ const sourceGroups = computed(() => {
 });
 
 const targetQuery = ref('');
-const filteredCqsForTarget = computed(() => {
-  const needle = targetQuery.value.trim().toLowerCase();
-  if (!needle) return cqs.value;
-  return cqs.value.filter(cq => cq.question?.toLowerCase().includes(needle));
-});
+const filteredCqsForTarget = computed(() => cqs.value.filter(cq => matchesCqSearch(cq, targetQuery.value)));
 
 const savingSourceQuestions = ref(false);
 
@@ -297,7 +294,7 @@ async function setResultQuestion() {
         <Combobox v-model="newResultCq">
           <div class="relative">
             <ComboboxInput
-              :displayValue="(cq: any) => cq?.question ?? ''"
+              :displayValue="(cq: any) => cqLabel(cq)"
               @change="targetQuery = $event.target.value"
               :placeholder="$t('searchForACQ')"
               class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-sm text-gray-900 dark:text-gray-100 dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600"
@@ -309,7 +306,12 @@ async function setResultQuestion() {
               <ComboboxOptions class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black/10 dark:ring-white/10 focus:outline-none">
                 <ComboboxOption as="template" v-for="cq in filteredCqsForTarget" :key="cq.id" :value="cq" v-slot="{ active, selected }">
                   <li :class="[active ? 'bg-indigo-600 text-white' : 'text-gray-900 dark:text-gray-100', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ cq.question }}</span>
+                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                      <span v-if="cq.cqCatalogueIdentifier"
+                            :class="[active ? 'bg-white text-indigo-600' : 'bg-indigo-600 dark:bg-indigo-500 text-white', 'mr-1.5 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide']">
+                        {{ cq.cqCatalogueIdentifier }}
+                      </span>{{ cq.question }}
+                    </span>
                     <span :class="[active ? 'text-indigo-200' : 'text-gray-400', 'block text-xs truncate']">{{ cq.group?.name }}</span>
                     <span v-if="selected" :class="[active ? 'text-white' : 'text-indigo-600', 'absolute inset-y-0 right-0 flex items-center pr-3']">
                       <CheckIcon class="h-4 w-4" aria-hidden="true"/>

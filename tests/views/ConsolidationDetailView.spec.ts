@@ -211,3 +211,27 @@ describe('ConsolidationDetailView – deleting', () => {
     expect(document.body.textContent).toContain('Could not delete')
   })
 })
+
+describe('ConsolidationDetailView – target question picker', () => {
+  const catalogued = makeCq({ id: 'cq-d', group: group1, question: 'Catalogued D?', cqCatalogueIdentifier: 'A.12' })
+
+  beforeEach(() => {
+    mockConsolidation({ permissionsProjectEngineer: true }, cqA)
+    vi.mocked(CompetencyQuestionDataService.getAllForOneProject).mockResolvedValue(ok([cqA, cqB, catalogued]) as any)
+  })
+
+  async function searchTarget(query: string) {
+    const wrapper = await mountDetailView()
+    const input = wrapper.find('input[role="combobox"]')
+    await input.setValue(query)
+    await flushPromises()
+    return wrapper.findAll('[role="option"]')
+  }
+
+  it('finds a CQ by its catalogue identifier and shows the identifier', async () => {
+    const options = await searchTarget('a.12')
+
+    expect(options.map(o => o.text())).toEqual([expect.stringContaining('A.12')])
+    expect(options[0].text()).toContain('Catalogued D?')
+  })
+})
