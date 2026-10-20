@@ -96,13 +96,29 @@ export function tagFilterOptions(tags: TagReducedT[]) {
   ];
 }
 
-/** Every word of the query has to appear in the question, comment, catalogue ID, author or a tag name. */
-export function matchesCqSearch(cq: CompetencyQuestionReducedT, query: string): boolean {
+/** "All groups" plus the distinct groups of a list of CQs, for a group picker; empty when the CQs have no group. */
+export function groupFilterOptions(cqs: CompetencyQuestionReducedT[]): { id: string; name: string }[] {
+  const seen = new Set<string>();
+  const result: { id: string; name: string }[] = [{ id: '', get name() { return t('allGroups') } }];
+  for (const cq of cqs) {
+    const id = cq.group?.id ?? cq.groupId;
+    const name = cq.group?.name;
+    if (id && name && !seen.has(id)) { seen.add(id); result.push({ id, name }); }
+  }
+  return result.length > 1 ? result : [];
+}
+
+/** Every word of the query has to appear in one of the fields. */
+export function matchesSearch(fields: (string | null | undefined)[], query: string): boolean {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return true;
-  const text = [cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name, ...(cq.tags ?? []).map(t => t.name)]
-    .filter(Boolean).join(' ').toLowerCase();
+  const text = fields.filter(Boolean).join(' ').toLowerCase();
   return words.every(word => text.includes(word));
+}
+
+/** Every word of the query has to appear in the question, comment, catalogue ID, author or a tag name. */
+export function matchesCqSearch(cq: CompetencyQuestionReducedT, query: string): boolean {
+  return matchesSearch([cq.question, cq.comment, cq.cqCatalogueIdentifier, cq.author?.name, ...(cq.tags ?? []).map(t => t.name)], query);
 }
 
 /** A CQ as one line of text, its catalogue identifier first, e.g. for the selected value of a CQ picker. */

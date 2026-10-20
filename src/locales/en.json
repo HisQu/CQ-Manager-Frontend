@@ -285,6 +285,8 @@
   "teamView": "TeamView",
   "newTermsCanBeAddedViaACompetencyQuestionDetailView": "New terms can be added via a Competency Question detail view.",
   "thereAreNoTermsYet": "There are no terms yet!",
+  "searchTerms": "Search terms...",
+  "noTermsMatchYourSearch": "No terms match your search.",
   "in": "in",
   "occurrences": "Occurrences",
   "competencyQuestionsInThisProjectThatReferenceThisTerm": "Competency questions in this project that reference this term.",

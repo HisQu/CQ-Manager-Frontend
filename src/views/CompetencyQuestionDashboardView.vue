@@ -12,9 +12,10 @@ import CqFilterPanel from "../components/CqFilterPanel.vue";
 import CqFilterButton from "../components/CqFilterButton.vue";
 import CqSortControl from "../components/CqSortControl.vue";
 import FilterMultiSelect from "../components/FilterMultiSelect.vue";
+import SearchInput from "../components/SearchInput.vue";
 import {sortCqs} from "../utils/cqSort.ts";
 import {matchesCqSearch, tagFilterOptions, useCqFilters} from "../utils/cqFilters.ts";
-import {PlusIcon, ChevronUpDownIcon, CheckIcon, MagnifyingGlassIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
+import {PlusIcon, ChevronUpDownIcon, CheckIcon, ArrowDownOnSquareIcon, ArrowDownTrayIcon, ChatBubbleBottomCenterTextIcon} from "@heroicons/vue/20/solid"
 import {ref, computed, watch, onActivated, onDeactivated} from "vue";
 import {onBeforeRouteLeave} from "vue-router";
 import GroupDataService from "../services/GroupDataService.ts";
@@ -324,18 +325,7 @@ onDeactivated(() => {
 
     <!-- Search, sort and filters -->
     <div class="mt-4 flex items-end gap-4 flex-wrap" v-if="selectedGroup">
-      <div class="flex-1 min-w-52">
-        <label class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">{{ $t('search') }}</label>
-        <div class="relative mt-2">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
-          </div>
-          <input v-model="searchQuery"
-                 type="text"
-                 :placeholder="$t('searchQuestions2')"
-                 class="block w-full rounded-md border-0 py-1.5 pl-9 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:ring-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6" />
-        </div>
-      </div>
+      <SearchInput class="flex-1 min-w-52" v-model="searchQuery" :placeholder="$t('searchQuestions2')" />
 
       <CqSortControl v-model="sort" />
       <button type="button"

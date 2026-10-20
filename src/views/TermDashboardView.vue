@@ -3,11 +3,13 @@ import { t } from '../i18n'
 
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useStore} from "../store.ts";
 import {storeToRefs} from "pinia";
 import TermDataService from "../services/TermDataService.ts";
 import TermListItem from "../components/TermListItem.vue";
+import SearchInput from "../components/SearchInput.vue";
+import {matchesSearch} from "../utils/cqFilters.ts";
 
 const useStore1 = useStore()
 const {getProject} = storeToRefs(useStore1)
@@ -23,6 +25,11 @@ const messagePopupData = ref({
 })
 
 const terms = ref();
+const searchQuery = ref("");
+
+const displayedTerms = computed<TermT[]>(() => [...(terms.value?.data ?? [])]
+  .filter((term: TermT) => matchesSearch([term.content, term.definition, term.conceptIri], searchQuery.value))
+  .sort((a: TermT, b: TermT) => a.content.localeCompare(b.content)));
 
 async function fetchTerms() {
 
@@ -45,8 +52,6 @@ async function fetchTerms() {
 
       } else {
         terms.value = response;
-        console.log()
-        console.log(terms.value.data)
       }
     });
   }
@@ -71,11 +76,13 @@ watch(getProject, (_, __) => {
     </DetailPageHeader>
 
     <div v-if="terms">
-      <div v-if="terms.data.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
-        {{ $t('thereAreNoTermsYet') }}
+      <SearchInput class="mt-5 max-w-xl" v-model="searchQuery" :placeholder="$t('searchTerms')" />
+
+      <div v-if="displayedTerms.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">
+        {{ terms.data.length ? $t('noTermsMatchYourSearch') : $t('thereAreNoTermsYet') }}
       </div>
 
-      <TermListItem v-for="term in terms.data" :key="term.id" :term="term"/>
+      <TermListItem v-for="term in displayedTerms" :key="term.id" :term="term"/>
 
     </div>
     <div v-else>
