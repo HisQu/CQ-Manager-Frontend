@@ -4,13 +4,14 @@ import { t } from '../i18n'
 import MessagePopup from "../components/MessagePopup.vue";
 import DetailPageHeader from "../components/DetailPageHeader.vue";
 import CQListItem from "../components/CQListItem.vue";
-import { ArrowDownOnSquareIcon } from "@heroicons/vue/24/solid";
+import { ArrowDownOnSquareIcon, PlusIcon } from "@heroicons/vue/24/solid";
+import { useStore } from "../store.ts";
 import TopicDataService from "../services/TopicDataService.ts";
 import { isUncatalogued } from "../utils/catalogues.ts";
 
 export default {
   name: 'TopicDetailView',
-  components: { MessagePopup, DetailPageHeader, CQListItem, ArrowDownOnSquareIcon },
+  components: { MessagePopup, DetailPageHeader, CQListItem, ArrowDownOnSquareIcon, PlusIcon },
 
   props: {
     projectid: { type: String, required: true },
@@ -30,6 +31,7 @@ export default {
       },
       topic: null as TopicT | null,
       name: '',
+      canAddQuestions: false,
     };
   },
 
@@ -48,6 +50,7 @@ export default {
       } else {
         this.topic = response.data;
         this.name = response.data.name;
+        this.canAddQuestions = response.data.permissionsProjectEngineer || useStore().getUser.isSystemAdmin;
       }
     },
 
@@ -93,6 +96,13 @@ export default {
         <span v-if="topic.questions" class="ml-1.5 inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-400/10 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-400/30">
           {{ $t('cqCount', topic.questions.length) }}
         </span>
+      </template>
+      <template v-if="canAddQuestions" #actions>
+        <RouterLink :to="{ path: '/questions/add', query: { topic: topic.id } }"
+                    class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          {{ $t('addCQ') }}
+          <PlusIcon class="-mr-0.5 h-5 w-5" aria-hidden="true" />
+        </RouterLink>
       </template>
     </DetailPageHeader>
 

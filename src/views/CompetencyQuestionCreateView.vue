@@ -13,11 +13,14 @@ import GroupDataService from "../services/GroupDataService.ts";
 import TagSelector from "../components/TagSelector.vue";
 import {useStore} from "../store.ts"
 import CqTypeSelect from "../components/CqTypeSelect.vue";
+import FilterSelect from "../components/FilterSelect.vue";
+import TopicDataService from "../services/TopicDataService.ts";
+import {catalogueName, isUncatalogued} from "../utils/catalogues.ts";
 
 export default defineComponent({
   name: "CompetencyQuestionCreateView",
   components: {
-    TagSelector, CqTypeSelect, CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
+    TagSelector, CqTypeSelect, FilterSelect, CompetencyQuestionQueryBuilder, ArrowDownOnSquareIcon, SaveButtonWithCallback, ListboxOption, ListboxOptions, ListboxButton, ListboxLabel, Listbox, MessagePopup, CheckIcon, ChevronDownIcon, ChevronUpDownIcon},
 
   data() {
     return {
@@ -41,25 +44,43 @@ export default defineComponent({
         type: null as CQType | null,
         tags: [] as TagReducedT[],
       },
+      // Only ontology engineers (and system admins) may choose a catalogue; otherwise new CQs are uncatalogued.
+      topics: [] as TopicT[],
+      selectedTopicId: "",
+      canChooseCatalogue: false,
+      cataloguesLoading: true,
       store: useStore(),
     }
   },
 
+  computed: {
+    // The uncatalogued catch-all first, as the default.
+    catalogueOptions(): { value: string; label: string }[] {
+      return [...this.topics]
+        .sort((a, b) => Number(!isUncatalogued(a)) - Number(!isUncatalogued(b)))
+        .map(topic => ({ value: topic.id, label: `${topic.identifier} · ${catalogueName(topic)}` }));
+    },
+  },
+
   watch: {
-    "this.store.getProject"() {
+    "store.getProject.id"() {
       this.fetchGroups();
+      this.fetchTopics();
     }
   },
 
   mounted() {
     this.fetchGroups()
+    this.fetchTopics()
   },
   methods: {
     fetchGroups() {
-      GroupDataService.getAllForOneProjectThatIBelongTo(this.store.getProject.id).then(response => {
+      const projectId = this.store.getProject.id;
+      this.groups = [];
+      this.selectedGroup = { ...this.selectedGroup, id: "", name: t('noGroupSelected') };
+      GroupDataService.getAllForOneProjectThatIBelongTo(projectId).then(response => {
+        if (projectId !== this.store.getProject.id) return;
         if ("messageType" in response) {
-          console.log("halloo5")
-
           this.messagePopupData.uxresponse = {
             ...this.messagePopupData.uxresponse,
             ...response
@@ -84,7 +105,30 @@ export default defineComponent({
       })
     },
 
+    async fetchTopics() {
+      const projectId = this.store.getProject.id;
+      this.cataloguesLoading = true;
+      this.topics = [];
+      this.selectedTopicId = "";
+      this.canChooseCatalogue = false;
+      const response = await TopicDataService.getAllForProject(projectId);
+      if (projectId !== this.store.getProject.id) return;
+      this.cataloguesLoading = false;
+      if ("messageType" in response) {
+        this.messagePopupData.uxresponse = { ...this.messagePopupData.uxresponse, ...response };
+        this.messagePopupData.open = true;
+        return;
+      }
+      this.topics = response.data;
+      this.canChooseCatalogue = response.data.permissionsProjectEngineer || this.store.getUser.isSystemAdmin;
+      // `?topic=<id>` preselects a catalogue, e.g. when coming from a catalogue's page.
+      const requested = this.topics.find(topic => topic.id === this.$route.query.topic);
+      this.selectedTopicId = (requested ?? this.topics.find(isUncatalogued))?.id ?? "";
+    },
+
     async save() {
+      if (this.cataloguesLoading || !this.selectedGroup.id) return;
+      const topic = this.topics.find(t => t.id === this.selectedTopicId);
       const response = await CompetencyQuestionDataService.add(
         this.cq.question,
         this.selectedGroup.id,
@@ -95,6 +139,7 @@ export default defineComponent({
           exampleAnswer: this.cq.exampleAnswer || null,
           type: this.cq.type || null,
           tagIds: this.cq.tags.map(t => t.id),
+          ...(this.canChooseCatalogue && topic && !isUncatalogued(topic) ? { topicId: topic.id } : {}),
         },
       );
 
@@ -117,7 +162,7 @@ export default defineComponent({
   <div class="w-full">
     <MessagePopup :uxresponse="messagePopupData.uxresponse"
                   :open="messagePopupData.open"
-                  @close="$router.push('/questions/')"/>
+                  @close="messagePopupData.open = false"/>
     <h1 class="text-2xl">
       {{ $t('addANewCompetencyQuestion') }}
     </h1>
@@ -147,6 +192,9 @@ export default defineComponent({
         </transition>
       </div>
     </Listbox>
+
+    <FilterSelect v-if="canChooseCatalogue && catalogueOptions.length" class="mt-5"
+                  :label="$t('catalogue')" v-model="selectedTopicId" :options="catalogueOptions" />
 
     <div class="my-5">
       <label for="question" class="block text-sm font-medium leading-6 dark:text-gray-100 text-gray-900">{{ $t('questionText') }}</label>
@@ -193,7 +241,8 @@ export default defineComponent({
       </div>
     </div>
 
-    <button class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    <button :disabled="cataloguesLoading || !selectedGroup.id"
+            class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
             @click="save()">
       <ArrowDownOnSquareIcon class="-ml-0.5 h-5 w-5" aria-hidden="true"/>
       {{ $t('add') }}

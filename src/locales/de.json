@@ -84,6 +84,8 @@
   "tags": "Schlagwörter",
   "group": "Gruppe",
   "catalogue": "Katalog",
+  "addCQ": "CQ hinzufügen",
+  "addACQToThisCatalogue": "Eine CQ zu diesem Katalog hinzufügen",
   "catalogueIdentifier": "Katalogkennung",
   "reference": "Referenz",
   "anchor": "Beleganker",

@@ -84,6 +84,8 @@
   "tags": "Tags",
   "group": "Group",
   "catalogue": "Catalogue",
+  "addCQ": "Add CQ",
+  "addACQToThisCatalogue": "Add a CQ to this catalogue",
   "catalogueIdentifier": "Catalogue identifier",
   "reference": "Reference",
   "anchor": "Anchor",

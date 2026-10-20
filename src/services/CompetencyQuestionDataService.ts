@@ -97,6 +97,7 @@ class CompetencyQuestionDataService {
         exampleAnswer?: string | null,
         type?: CQType | null,
         tagIds?: string[],
+        topicId?: string,
     }): Promise<AxiosResponse<any, CompetencyQuestionT> | UXResponse> {
         return http.post<CompetencyQuestionT[]>(`/questions/by_group/${group_uuid}`, {
             question: question,

@@ -51,6 +51,8 @@ const messagePopupData = ref({
 const cqs = ref();
 const groups = ref();
 const topics = ref<TopicT[]>([]);
+// Ontology engineers (and system admins) can add CQs straight into a catalogue.
+const canAddToCatalogue = ref(false);
 const tags = ref<TagT[]>([]);
 const tagOptions = computed(() => tagFilterOptions(tags.value));
 const exportModalOpen = ref(false);
@@ -113,6 +115,7 @@ async function fetchTopics() {
   const response = await TopicDataService.getAllForProject(getProject.value.id);
   if (!('messageType' in response)) {
     topics.value = response.data;
+    canAddToCatalogue.value = response.data.permissionsProjectEngineer || useStore1.getUser.isSystemAdmin;
     // Drop persisted catalogue filters that do not exist in this project (anymore).
     const existing = selectedTopicIds.value.filter(id => topics.value.some(t => t.id === id));
     if (existing.length !== selectedTopicIds.value.length) selectedTopicIds.value = existing;
@@ -367,6 +370,13 @@ onDeactivated(() => {
             <span class="text-xs text-gray-400 dark:text-gray-500">
               ({{ group.cqs.length }})
             </span>
+            <RouterLink v-if="canAddToCatalogue && group.topicId"
+                        :to="{ path: '/questions/add', query: { topic: group.topicId } }"
+                        :title="$t('addACQToThisCatalogue')"
+                        :aria-label="$t('addACQToThisCatalogue')"
+                        class="rounded p-0.5 text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-400/10 dark:hover:text-indigo-400">
+              <PlusIcon class="h-4 w-4" aria-hidden="true" />
+            </RouterLink>
           </div>
 
           <!-- CQ cards in this catalogue -->
