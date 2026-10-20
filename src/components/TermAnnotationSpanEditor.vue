@@ -44,6 +44,7 @@ const textContainer = ref<HTMLElement | null>(null);
 const terms = ref<TermT[]>([]);
 const isEditing = ref(false);
 const stagedAnnotations = ref<AnnotationInCQT[]>([]);
+let nextStagedAnnotationId = 0;
 const term = ref<TermT | {content: string} | null>(null);
 const query = ref("");
 const newTermDefinition = ref("");
@@ -229,7 +230,7 @@ async function saveAnnotation() {
     terms.value = [selectedTerm, ...terms.value.filter(({id}) => id !== selectedTerm.id)];
   }
   const annotation: AnnotationInCQT = {
-    id: editingAnnotationId.value ?? crypto.randomUUID(),
+    id: editingAnnotationId.value ?? `staged-${++nextStagedAnnotationId}`,
     content: pendingSelection.value.content,
     start: pendingSelection.value.start,
     end: pendingSelection.value.end,
