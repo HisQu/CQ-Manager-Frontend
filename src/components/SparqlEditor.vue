@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as monaco from 'monaco-editor'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker'
 
 // ── Global one-time setup ─────────────────────────────────────────────────────
 
