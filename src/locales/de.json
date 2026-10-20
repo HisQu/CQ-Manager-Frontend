@@ -71,6 +71,8 @@
   "created": "Erstellt",
   "lastChanged": "Zuletzt geändert",
   "lastComment": "Letzter Kommentar",
+  "lastCommentBy": "Letzter Kommentar von",
+  "anyone": "Alle",
   "clearFilters": "Filter zurücksetzen",
   "sort": "Sortierung:",
   "enterEmailAndPressEnter": "E-Mail eingeben und Eingabetaste drücken",

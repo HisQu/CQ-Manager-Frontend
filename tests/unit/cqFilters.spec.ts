@@ -36,6 +36,19 @@ describe('cqFilters', () => {
     expect(filterWith(cqs, { author })).toEqual(expected)
   })
 
+  it.each([
+    [['me'], ['mine']],
+    [['alice'], ['hers']],
+    [['me', 'alice'], ['mine', 'hers']],
+  ])('filters by last commenters %j, skipping CQs without comments', (lastCommentBy, expected) => {
+    const cqs = [
+      makeCq({ id: 'mine', author: alice, lastCommentAuthor: me }),
+      makeCq({ id: 'hers', author: me, lastCommentAuthor: alice }),
+      makeCq({ id: 'uncommented', author: me, lastCommentAuthor: null }),
+    ]
+    expect(filterWith(cqs, { lastCommentBy })).toEqual(expected)
+  })
+
   it('filters by several types, including "no type"', () => {
     const cqs = [makeCq({ id: 'scq', type: 'SCQ' }), makeCq({ id: 'vcq', type: 'VCQ' }), makeCq({ id: 'untyped', type: null })]
     expect(filterWith(cqs, { type: ['SCQ', 'none'] })).toEqual(['scq', 'untyped'])
@@ -147,6 +160,12 @@ describe('cqFilters', () => {
   it('lists "Me" plus the other authors, sorted by name', () => {
     const cqs = [makeCq({ author: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ author: alice }), makeCq({ author: me })]
     const labels = useCqFilters(() => cqs).authorOptions.value.map(o => o.label)
+    expect(labels).toEqual(['Me', 'Alice', 'Zoe'])
+  })
+
+  it('lists "Me" plus the other last commenters, sorted by name', () => {
+    const cqs = [makeCq({ lastCommentAuthor: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ lastCommentAuthor: alice }), makeCq({ lastCommentAuthor: null })]
+    const labels = useCqFilters(() => cqs).lastCommentByOptions.value.map(o => o.label)
     expect(labels).toEqual(['Me', 'Alice', 'Zoe'])
   })
 

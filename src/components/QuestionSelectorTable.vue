@@ -243,7 +243,7 @@ export default defineComponent({
       <div v-if="filtersOpen" class="mt-3 space-y-3">
         <FilterMultiSelect v-if="catalogueOptions.length" class="max-w-sm" :label="$t('catalogue')" :placeholder="$t('allCatalogues')"
                            v-model="selectedTopicIds" :options="catalogueOptions" />
-        <CqFilterPanel v-model="filters" :author-options="authorOptions" :tag-options="tagOptions" />
+        <CqFilterPanel v-model="filters" :author-options="authorOptions" :last-comment-by-options="lastCommentByOptions" :tag-options="tagOptions" />
       </div>
     </div>
 
