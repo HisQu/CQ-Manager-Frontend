@@ -23,6 +23,7 @@ import {
   assignAnnotationSpanLanes,
   buildAnnotationTextSegments,
   splitAnnotationTextSegments,
+  trimSpanWhitespace,
 } from "../utils/annotationSpans.ts";
 
 type AnnotationView = AnnotationInCQT & AnnotationSpanLike;
@@ -162,6 +163,22 @@ function getSourceTextOffset(container: HTMLElement, targetNode: Node, targetOff
   return null;
 }
 
+// inverse of getSourceTextOffset: find the text node and offset for a source text offset
+function getSourceTextPosition(container: HTMLElement, sourceOffset: number): {node: Node; offset: number} | null {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let offset = 0;
+  let current = walker.nextNode();
+  while (current) {
+    if (current.parentElement?.closest("[data-annotation-source='true']")) {
+      const length = current.textContent?.length ?? 0;
+      if (sourceOffset <= offset + length) return {node: current, offset: sourceOffset - offset};
+      offset += length;
+    }
+    current = walker.nextNode();
+  }
+  return null;
+}
+
 // on mouseup, capture the selected text by its start and end and store it in pendingSelection
 function captureTextSelection() {
   if (!isEditing.value || !canEditSelected.value || !textContainer.value) return;
@@ -175,10 +192,16 @@ function captureTextSelection() {
   const end = getSourceTextOffset(container, range.endContainer, range.endOffset);
   if (start === null || end === null || start === end) return;
 
-  const normalizedStart = Math.min(start, end);
-  const normalizedEnd = Math.max(start, end);
+  // double-click selects a word plus its trailing space on some platforms; keep only the word
+  const {start: normalizedStart, end: normalizedEnd} =
+    trimSpanWhitespace(activeText.value, Math.min(start, end), Math.max(start, end));
+  if (normalizedStart === normalizedEnd) return;
   const content = activeText.value.slice(normalizedStart, normalizedEnd);
-  if (!content.trim()) return;
+  const startPosition = getSourceTextPosition(container, normalizedStart);
+  const endPosition = getSourceTextPosition(container, normalizedEnd);
+  if (startPosition && endPosition) {
+    selection.setBaseAndExtent(startPosition.node, startPosition.offset, endPosition.node, endPosition.offset);
+  }
   viewingAnnotation.value = null;
   pendingSelection.value = {start: normalizedStart, end: normalizedEnd, content};
   term.value = null;
