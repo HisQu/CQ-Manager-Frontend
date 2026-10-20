@@ -98,3 +98,10 @@ export function splitAnnotationTextSegments<T extends AnnotationSpanLike>(
     return chunks.length ? chunks : [segment];
   });
 }
+
+/** Shrink a [start, end) span so it excludes leading and trailing whitespace (e.g. the space a double-click selects). */
+export function trimSpanWhitespace(text: string, start: number, end: number): { start: number; end: number } {
+  while (start < end && /\s/.test(text[start])) start += 1;
+  while (end > start && /\s/.test(text[end - 1])) end -= 1;
+  return { start, end };
+}
