@@ -221,7 +221,7 @@ fetchProjectName();
       {{ $t('thisTermIsNotUsedInAnyQuestionYet') }}
     </div>
 
-    <QuestionSelectorTable v-else :cqs="termOccurrences" :groups="occurrenceGroups" :selectable="false">
+    <QuestionSelectorTable v-else :cqs="termOccurrences" :groups="occurrenceGroups" :selectable="false" :inherit-dashboard-filters="false">
       <template #header>
         <p class="text-xs text-gray-500 dark:text-gray-400">
           {{ $t('competencyQuestionsInThisProjectThatReferenceThisTerm') }}

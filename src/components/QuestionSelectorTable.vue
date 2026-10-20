@@ -43,10 +43,15 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    // When true, the table starts with a copy of the CQ dashboard's search, catalogues and filters; otherwise unfiltered.
+    inheritDashboardFilters: {
+      type: Boolean,
+      default: true,
+    },
   },
   setup(props) {
-    // Starts from a copy of the CQ dashboard's filters; changes here stay local and do not affect the dashboard.
-    return useCqFilters(() => props.cqs, ref(normalizeCqFilters(useStore().cqFilters)));
+    // Changes to the filters stay local and never affect the dashboard.
+    return useCqFilters(() => props.cqs, ref(normalizeCqFilters(props.inheritDashboardFilters ? useStore().cqFilters : null)));
   },
   data() {
     const store = useStore();
@@ -55,8 +60,8 @@ export default defineComponent({
       selectedFilterGroup: (this.initialGroup?.id
         ? this.initialGroup
         : { id: '', get name() { return t('allGroups') } }) as GroupOption,
-      filterText: store.cqSearchQuery,
-      selectedTopicIds: [...store.cqSelectedTopicIds] as string[],
+      filterText: this.inheritDashboardFilters ? store.cqSearchQuery : '',
+      selectedTopicIds: (this.inheritDashboardFilters ? [...store.cqSelectedTopicIds] : []) as string[],
       // The CQs that were sources when the table opened stay pinned, even after they are unchecked.
       pinnedIds: [...this.initialSelectedIds] as string[],
       filtersOpen: false,

@@ -114,6 +114,18 @@ describe('QuestionSelectorTable', () => {
       expect(visibleQuestions(wrapper)).toEqual(['Which bishop?'])
     })
 
+    it('starts unfiltered when it should not inherit the CQ dashboard filters', () => {
+      const store = useStore()
+      store.cqFilters.discussion = 'with'
+      store.cqSearchQuery = 'bishop'
+      store.cqSelectedTopicIds = ['t-a']
+      const cqs = [makeCq({ question: 'Which pope?', topic: { id: 't-b', identifier: 'B', name: 'Places' } })]
+      const { wrapper } = mountWithApp(QuestionSelectorTable, { props: { cqs, inheritDashboardFilters: false } })
+
+      expect(visibleQuestions(wrapper)).toEqual(['Which pope?'])
+      expect((wrapper.vm as any).activeFilterCount).toBe(0)
+    })
+
     it('does not change the CQ dashboard filters', async () => {
       const store = useStore()
       store.cqSearchQuery = 'bishop'
