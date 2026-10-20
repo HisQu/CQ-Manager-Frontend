@@ -36,9 +36,9 @@ const messagePopupData = ref({
       <h2 class="text-3xl font-extrabold mb-4">{{ $t('reportBugs') }}</h2>
       <p>
         {{ $t('youCanReportBugsInTheFrontendTo') }} <a
-          href="https://github.com/HerrMotz/Competency-Question-Manager-Frontend/issues"
+          href="https://github.com/HisQu/CQ-Manager-Frontend/issues"
           class="underline decoration-1 font-bold decoration-blue-600 hover:decoration-2">{{ $t('theFrontendRepository') }}</a>
-        {{ $t('andBugsInTheBackendTo') }} <a href="https://github.com/HerrMotz/Competency-Question-Manager-Backend/issues"
+        {{ $t('andBugsInTheBackendTo') }} <a href="https://github.com/HisQu/CQ-Manager-Backend/issues"
                                       class="underline decoration-1 font-bold decoration-blue-600 hover:decoration-2">{{ $t('theBackendRepository') }}</a>.
       </p>
     </section>
