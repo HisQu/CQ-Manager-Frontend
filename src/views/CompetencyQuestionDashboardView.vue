@@ -54,7 +54,7 @@ const tags = ref<TagT[]>([]);
 const tagOptions = computed(() => tagFilterOptions(tags.value));
 const exportModalOpen = ref(false);
 
-const {filters, activeFilterCount, authorOptions, matchesFilters} = useCqFilters(() => cqs.value?.data, cqFilters);
+const {filters, activeFilterCount, authorOptions, lastCommentByOptions, matchesFilters} = useCqFilters(() => cqs.value?.data, cqFilters);
 
 const selectedGroup = computed({
   get: () => useStore1.cqSelectedGroup,
@@ -352,7 +352,7 @@ onDeactivated(() => {
       <CqFilterButton v-model="filtersOpen" :active-count="activeFilterCount" />
     </div>
 
-    <CqFilterPanel v-if="filtersOpen" class="mt-4" v-model="filters" :author-options="authorOptions" :tag-options="tagOptions" />
+    <CqFilterPanel v-if="filtersOpen" class="mt-4" v-model="filters" :author-options="authorOptions" :last-comment-by-options="lastCommentByOptions" :tag-options="tagOptions" />
 
     <div v-if="cqs">
       <div v-if="displayedCqs && displayedCqs.length === 0" class="mt-10 text-sm text-gray-500 dark:text-gray-400">

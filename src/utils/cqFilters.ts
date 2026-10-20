@@ -18,11 +18,12 @@ export const DEFAULT_CQ_FILTERS = {
   created: 'any',       // 'any' | DateRange
   updated: 'any',       // 'any' | DateRange
   lastComment: 'any',   // 'any' | 'none' | DateRange
+  lastCommentBy: [] as string[], // 'me' | <user id>
 };
 
 export type CqFilters = typeof DEFAULT_CQ_FILTERS;
 
-const MULTI_SELECT_FILTERS = ['author', 'type', 'tag'] as const;
+const MULTI_SELECT_FILTERS = ['author', 'type', 'tag', 'lastCommentBy'] as const;
 
 /** Fills in missing filters and converts single values persisted by older versions ('any' or one value) to lists. */
 export function normalizeCqFilters(filters: Partial<Record<keyof CqFilters, unknown>> | null | undefined): CqFilters {
@@ -157,10 +158,12 @@ export function useCqFilters(
   filters.value = normalizeCqFilters(filters.value);
   const activeFilterCount = computed(() => countActiveFilters(filters.value));
 
-  const authorOptions = computed(() => {
+  /** "Me" plus every other user `userOf` returns for the CQs, sorted by name. */
+  function userOptions(userOf: (cq: CompetencyQuestionReducedT) => UserReducedT | null | undefined) {
     const byId = new Map<string, string>();
     for (const cq of getCqs() ?? []) {
-      if (cq.author?.id) byId.set(cq.author.id, cq.author.name || cq.author.email);
+      const user = userOf(cq);
+      if (user?.id) byId.set(user.id, user.name || user.email);
     }
     const others = [...byId.entries()]
       .filter(([id]) => id !== store.getUser.id)
@@ -170,15 +173,23 @@ export function useCqFilters(
       { value: 'me', get label() { return t('me') } },
       ...others,
     ];
-  });
+  }
+
+  const authorOptions = computed(() => userOptions(cq => cq.author));
+  const lastCommentByOptions = computed(() => userOptions(cq => cq.lastCommentAuthor));
+
+  /** Whether `user` is one of the selected users ('me' stands for the logged-in user). */
+  function matchesUsers(selected: string[], user: UserReducedT | null | undefined): boolean {
+    if (!selected.length) return true;
+    const ids = selected.map(id => id === 'me' ? store.getUser.id : id);
+    return !!user?.id && ids.includes(user.id);
+  }
 
   function matchesFilters(cq: CompetencyQuestionReducedT): boolean {
     const f = filters.value;
 
-    if (f.author.length) {
-      const authorIds = f.author.map(a => a === 'me' ? store.getUser.id : a);
-      if (!cq.author?.id || !authorIds.includes(cq.author.id)) return false;
-    }
+    if (!matchesUsers(f.author, cq.author)) return false;
+    if (!matchesUsers(f.lastCommentBy, cq.lastCommentAuthor)) return false;
 
     if (!matchesWithWithout(f.discussion, (cq.noComments ?? 0) > 0)) return false;
 
@@ -208,5 +219,5 @@ export function useCqFilters(
     return true;
   }
 
-  return { filters, activeFilterCount, authorOptions, matchesFilters };
+  return { filters, activeFilterCount, authorOptions, lastCommentByOptions, matchesFilters };
 }
