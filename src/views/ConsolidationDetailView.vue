@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { t } from '../i18n'
-
 import ConsolidationDataService from "../services/ConsolidationDataService.ts";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import MessagePopup from "../components/MessagePopup.vue";
@@ -11,7 +9,7 @@ import {useStore} from "../store.ts";
 import {useRouter} from "vue-router";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
 import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
-import {cqLabel, matchesCqSearch} from "../utils/cqFilters.ts";
+import {cqLabel, groupFilterOptions, matchesCqSearch} from "../utils/cqFilters.ts";
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
@@ -57,16 +55,7 @@ const includedCqs = computed(() => {
   return cqs.value.filter(q => ids.has(q.id));
 });
 
-const sourceGroups = computed(() => {
-  const seen = new Set<string>();
-  const result: { id: string; name: string }[] = [{ id: '', get name() { return t('allGroups') } }];
-  for (const q of cqs.value) {
-    const id = q.group?.id ?? q.groupId;
-    const name = q.group?.name;
-    if (id && name && !seen.has(id)) { seen.add(id); result.push({ id, name }); }
-  }
-  return result.length > 1 ? result : [];
-});
+const sourceGroups = computed(() => groupFilterOptions(cqs.value));
 
 const targetQuery = ref('');
 const filteredCqsForTarget = computed(() => cqs.value.filter(cq => matchesCqSearch(cq, targetQuery.value)));

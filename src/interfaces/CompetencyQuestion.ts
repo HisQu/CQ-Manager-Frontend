@@ -79,6 +79,8 @@ type CompetencyQuestionReducedT = {
         author: string | null,
         createdAt: string,
     } | null,
+    /** Who wrote the latest comment, regardless of whether it was read. */
+    lastCommentAuthor?: UserReducedT | null,
     unifiedEntryKind?: 'question' | 'consolidation_result',
     consolidation?: CQConsolidationEntryT | null,
     deletedAt?: string | null,

@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {DEFAULT_CQ_FILTERS, countActiveFilters, cqLabel, normalizeCqFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
+import {DEFAULT_CQ_FILTERS, countActiveFilters, cqLabel, groupFilterOptions, matchesSearch, normalizeCqFilters, tagFilterOptions, tagsOf, useCqFilters, type CqFilters} from '../../src/utils/cqFilters'
 import {toRef} from 'vue'
 import {useStore} from '../../src/store'
 import {makeCq, makeUser} from '../fixtures/factories'
@@ -34,6 +34,19 @@ describe('cqFilters', () => {
   ])('filters by authors %j', (author, expected) => {
     const cqs = [makeCq({ id: 'mine', author: me }), makeCq({ id: 'hers', author: alice }), makeCq({ id: 'zoe', author: makeUser({ id: 'zoe' }) })]
     expect(filterWith(cqs, { author })).toEqual(expected)
+  })
+
+  it.each([
+    [['me'], ['mine']],
+    [['alice'], ['hers']],
+    [['me', 'alice'], ['mine', 'hers']],
+  ])('filters by last commenters %j, skipping CQs without comments', (lastCommentBy, expected) => {
+    const cqs = [
+      makeCq({ id: 'mine', author: alice, lastCommentAuthor: me }),
+      makeCq({ id: 'hers', author: me, lastCommentAuthor: alice }),
+      makeCq({ id: 'uncommented', author: me, lastCommentAuthor: null }),
+    ]
+    expect(filterWith(cqs, { lastCommentBy })).toEqual(expected)
   })
 
   it('filters by several types, including "no type"', () => {
@@ -148,6 +161,26 @@ describe('cqFilters', () => {
     const cqs = [makeCq({ author: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ author: alice }), makeCq({ author: me })]
     const labels = useCqFilters(() => cqs).authorOptions.value.map(o => o.label)
     expect(labels).toEqual(['Me', 'Alice', 'Zoe'])
+  })
+
+  it('lists "Me" plus the other last commenters, sorted by name', () => {
+    const cqs = [makeCq({ lastCommentAuthor: makeUser({ id: 'z', name: 'Zoe' }) }), makeCq({ lastCommentAuthor: alice }), makeCq({ lastCommentAuthor: null })]
+    const labels = useCqFilters(() => cqs).lastCommentByOptions.value.map(o => o.label)
+    expect(labels).toEqual(['Me', 'Alice', 'Zoe'])
+  })
+
+  it('matches a search when every word appears in some field, ignoring case and empty fields', () => {
+    expect(matchesSearch(['Pfründe', null, 'https://example.org/Benefice'], 'pfründe benefice')).toBe(true)
+    expect(matchesSearch(['Pfründe', undefined], 'pfründe ablass')).toBe(false)
+    expect(matchesSearch([null], '  ')).toBe(true)
+  })
+
+  it('offers "All groups" plus each group of the CQs once, or nothing without groups', () => {
+    const g1 = { id: 'g1', name: 'Gramsch 2014' }
+    const g2 = { id: 'g2', name: 'Factoid' }
+    const cqs = [makeCq({ group: g1 }), makeCq({ group: g2 }), makeCq({ group: g1 })] as CompetencyQuestionReducedT[]
+    expect(groupFilterOptions(cqs).map(o => o.id)).toEqual(['', 'g1', 'g2'])
+    expect(groupFilterOptions([])).toEqual([])
   })
 
   it('reads and writes the filter state through a provided ref', () => {

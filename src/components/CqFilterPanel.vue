@@ -5,6 +5,7 @@ import {CQ_FILTER_OPTIONS, countActiveFilters, CqFilters, normalizeCqFilters} fr
 
 defineProps<{
   authorOptions: { value: string; label: string }[];
+  lastCommentByOptions: { value: string; label: string }[];
   tagOptions: { value: string; label: string }[];
 }>();
 
@@ -25,6 +26,7 @@ const filters = defineModel<CqFilters>({ required: true });
       <FilterSelect :label="$t('created')" v-model="filters.created" :options="CQ_FILTER_OPTIONS.created" />
       <FilterSelect :label="$t('lastChanged')" v-model="filters.updated" :options="CQ_FILTER_OPTIONS.updated" />
       <FilterSelect :label="$t('lastComment')" v-model="filters.lastComment" :options="CQ_FILTER_OPTIONS.lastComment" />
+      <FilterMultiSelect :label="$t('lastCommentBy')" :placeholder="$t('anyone')" v-model="filters.lastCommentBy" :options="lastCommentByOptions" />
       <div class="flex items-end">
         <button type="button"
                 :disabled="!countActiveFilters(filters)"
