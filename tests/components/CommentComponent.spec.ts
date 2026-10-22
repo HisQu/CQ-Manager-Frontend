@@ -5,6 +5,7 @@ import MessagePopup from '../../src/components/MessagePopup.vue'
 import CommentDataService from '../../src/services/CommentDataService'
 import {mountWithApp} from '../helpers/mount'
 import {apiError, ok} from '../helpers/api'
+import {libravatarUrl} from '../../src/utils/libravatar'
 
 vi.mock('../../src/services/CommentDataService', () => ({default: {comment: vi.fn()}}))
 
@@ -60,6 +61,21 @@ describe('CommentComponent', () => {
     const wrapper = mountComments(true)
     expect(wrapper.text()).toContain('No comments yet.')
     expect(wrapper.find('textarea').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('shows the avatar of each comment author after a new comment arrives', async () => {
+    const byAuthor = (email: string, createdAt: string) =>
+      ({questionId: 'q-1', createdAt, comment: email, author: {id: email, email, name: email}}) as CommentT
+    const first = byAuthor('first@example.org', '2026-10-01T10:00:00Z')
+    const wrapper = mountWithApp(CommentComponent, {
+      props: {questionId: 'q-1', comments: [first], pane: true},
+      global: {stubs: {MessagePopup: true}},
+    }).wrapper
+    // The newest comment is listed first, so the existing list item now shows the new author.
+    await wrapper.setProps({comments: [first, byAuthor('me@example.org', '2026-10-02T10:00:00Z')]})
+    const avatars = wrapper.findAll('img').map((img) => img.attributes('src'))
+    expect(avatars).toEqual([libravatarUrl('me@example.org', 64), libravatarUrl('first@example.org', 64)])
     wrapper.unmount()
   })
 })

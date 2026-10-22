@@ -10,12 +10,10 @@ export default defineComponent({
       required: true
     },
   },
-  data() {
-    return {
-      avatarUrl: '' as string,
-    }
-  },
   computed: {
+    avatarUrl() {
+      return libravatarUrl(this.comment.author.email, 64);
+    },
     formattedDate() {
       return new Intl.DateTimeFormat(undefined, {
         year: 'numeric', month: 'short', day: 'numeric',
@@ -30,9 +28,6 @@ export default defineComponent({
         .join('')
         .toUpperCase();
     }
-  },
-  mounted() {
-    this.avatarUrl = libravatarUrl(this.comment.author.email, 64);
   },
 })
 </script>
