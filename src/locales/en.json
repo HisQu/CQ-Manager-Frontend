@@ -41,6 +41,8 @@
   "saveAnnotations": "Save annotations",
   "termAnnotationsForQuestion": "Term annotations for this question.",
   "annotationsMustBeRecreated": "This question version has no copied annotations. Create new annotations for this text.",
+  "annotationsFollowUnsavedText": "Unsaved text: annotations are shown at their new positions. Save the question before adding or changing annotations.",
+  "annotationsDroppedByEdit": "{n} annotation will be removed because its text was edited. | {n} annotations will be removed because their text was edited.",
   "editAnnotation": "Edit annotation",
   "removeAnnotation": "Remove annotation",
   "viewAnnotation": "Annotation details",

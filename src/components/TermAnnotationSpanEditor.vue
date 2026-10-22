@@ -38,6 +38,8 @@ const props = defineProps<{
   questionTextChanged: boolean;
   questionId: string;
   projectId: string;
+  // The saved annotations moved along with the unsaved question text.
+  previewAnnotations?: AnnotationInCQT[];
 }>();
 
 const emit = defineEmits<{updated: []}>();
@@ -72,10 +74,13 @@ const selectedAnnotationVersions = computed(() => [...(selectedRevision.value?.a
 const latestAnnotationVersion = computed(() => selectedAnnotationVersions.value[selectedAnnotationVersions.value.length - 1]);
 const selectedAnnotationVersion = computed(() => selectedAnnotationVersions.value.find(({id}) => id === props.selectedAnnotationVersionId) ?? latestAnnotationVersion.value);
 const currentAnnotationVersion = computed(() => !latestAnnotationVersion.value || selectedAnnotationVersion.value?.id === latestAnnotationVersion.value.id);
-const activeText = computed(() => currentRevision.value && !props.questionTextChanged
+const previewing = computed(() => props.questionTextChanged && props.previewAnnotations !== undefined);
+const activeText = computed(() => previewing.value || (currentRevision.value && !props.questionTextChanged)
   ? props.text
   : (selectedRevision.value?.questionString ?? props.text));
-const activeAnnotations = computed(() => isEditing.value ? stagedAnnotations.value : (selectedAnnotationVersion.value?.annotations ?? []));
+const activeAnnotations = computed(() => previewing.value ? props.previewAnnotations!
+  : isEditing.value ? stagedAnnotations.value
+  : (selectedAnnotationVersion.value?.annotations ?? []));
 // only allow editing if the user has edit permissions, the selected revision and annotation version are the latest, and the question text has not changed
 const canEditSelected = computed(() => props.canEdit && currentRevision.value && currentAnnotationVersion.value && !props.questionTextChanged);
 // const needsAnnotationRecreation = computed(() => {

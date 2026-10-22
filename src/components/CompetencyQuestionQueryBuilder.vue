@@ -6,6 +6,7 @@ import CompetencyQuestionDataService from "../services/CompetencyQuestionDataSer
 import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
 import SparqlEditor from "./SparqlEditor.vue";
 import TermAnnotationSpanEditor from "./TermAnnotationSpanEditor.vue";
+import {moveSpansThroughEdit} from "../utils/annotationSpans.ts";
 import CqTypeSelect from "./CqTypeSelect.vue";
 
 
@@ -88,6 +89,22 @@ const localType = ref<CQType | null>(props.type ?? null)
 const questionTextChanged = computed(() => localQuestion.value !== (props.question ?? ''))
 
 watch(() => props.question, (val) => { localQuestion.value = val ?? '' })
+
+// The annotations of the latest revision, moved along with every edit of the question text.
+const savedAnnotations = computed<AnnotationInCQT[]>(() => {
+  const latestRevision = [...(props.revisions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0]
+  const latestVersion = [...(latestRevision?.annotationVersions ?? [])].sort((a, b) => b.versionNumber - a.versionNumber)[0]
+  return latestVersion?.annotations ?? []
+})
+const previewAnnotations = ref<AnnotationInCQT[]>([])
+watch(savedAnnotations, (annotations) => { previewAnnotations.value = annotations }, {immediate: true})
+watch(localQuestion, (text, previousText) => {
+  // Returning to the saved text, e.g. by undoing, brings back annotations an edit had dropped.
+  previewAnnotations.value = text === (props.question ?? '')
+    ? savedAnnotations.value
+    : moveSpansThroughEdit(previousText, text, previewAnnotations.value)
+})
+const droppedAnnotations = computed(() => savedAnnotations.value.length - previewAnnotations.value.length)
 watch(() => props.sparqlQuery, (val) => { localSparqlQuery.value = val ?? '' })
 watch(() => props.comment, (val) => { localComment.value = val ?? null })
 watch(() => props.reference, (val) => { localReference.value = val ?? null })
@@ -104,6 +121,10 @@ function saveQuestion() {
     anchor: localAnchor.value,
     exampleAnswer: localExampleAnswer.value,
     type: localType.value,
+    // Only a text edit moves annotations; otherwise the saved ones stay as they are.
+    ...(questionTextChanged.value ? {annotations: previewAnnotations.value.map(({content, start, end, term}) => ({
+      passage: content, start, end, term: term.content, definition: term.definition ?? null, conceptIri: term.conceptIri ?? null,
+    }))} : {}),
   });
 }
 </script>
@@ -176,7 +197,8 @@ function saveQuestion() {
     <section v-if="props.id" ref="annotationSection" class="mt-10 scroll-mt-6">
       <h3 class="mb-3 text-xl">Term Annotations</h3>
       <p v-if="questionTextChanged && props.canEdit" class="mb-2 text-sm text-amber-700 dark:text-amber-300">
-        Save the question text before adding or changing annotations.
+        {{ $t('annotationsFollowUnsavedText') }}
+        <template v-if="droppedAnnotations > 0">{{ $t('annotationsDroppedByEdit', droppedAnnotations) }}</template>
       </p>
       <TermAnnotationSpanEditor
         :text="localQuestion"
@@ -184,6 +206,7 @@ function saveQuestion() {
         :selected-revision-id="selectedRevisionId"
         :selected-annotation-version-id="selectedAnnotationVersionId"
         :question-text-changed="questionTextChanged"
+        :preview-annotations="previewAnnotations"
         :can-edit="props.canEdit && !questionTextChanged"
         :question-id="props.id"
         :project-id="props.projectId"

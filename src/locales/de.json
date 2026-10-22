@@ -41,6 +41,8 @@
   "saveAnnotations": "Annotationen speichern",
   "termAnnotationsForQuestion": "Begriff-Annotationen für diese Frage.",
   "annotationsMustBeRecreated": "Für diese Frageversion wurden keine Annotationen übernommen. Erstellen Sie neue Annotationen für diesen Text.",
+  "annotationsFollowUnsavedText": "Ungespeicherter Text: Annotationen werden an ihren neuen Positionen angezeigt. Speichern Sie die Frage, bevor Sie Annotationen hinzufügen oder ändern.",
+  "annotationsDroppedByEdit": "{n} Annotation wird entfernt, weil ihr Text bearbeitet wurde. | {n} Annotationen werden entfernt, weil ihr Text bearbeitet wurde.",
   "editAnnotation": "Annotation bearbeiten",
   "removeAnnotation": "Annotation entfernen",
   "viewAnnotation": "Annotationsdetails",

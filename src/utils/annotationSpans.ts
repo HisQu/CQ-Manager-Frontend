@@ -105,3 +105,48 @@ export function trimSpanWhitespace(text: string, start: number, end: number): { 
   while (end > start && /\s/.test(text[end - 1])) end -= 1;
   return { start, end };
 }
+
+function commonPrefix(left: string, right: string, limit: number): number {
+  let length = 0;
+  while (length < limit && left[length] === right[length]) length += 1;
+  return length;
+}
+
+function commonSuffix(left: string, right: string, limit: number): number {
+  let length = 0;
+  while (length < limit && left[left.length - 1 - length] === right[right.length - 1 - length]) length += 1;
+  return length;
+}
+
+/**
+ * Move spans along with one text edit, as made by typing, pasting or deleting in a text field.
+ * The edit lies between the common prefix and suffix of both texts: spans before it stay,
+ * spans after it shift by the change in length, and spans it touches are dropped.
+ * Repeated characters make the edit's position ambiguous ("Petent" -> "PPetent"), so a span is kept
+ * if it survives either the longest-prefix or the longest-suffix reading of the edit.
+ * Offsets are UTF-16 code units, like JavaScript string indices and the stored spans.
+ */
+export function moveSpansThroughEdit<T extends { content: string; start: number; end: number }>(
+  before: string,
+  after: string,
+  spans: readonly T[],
+): T[] {
+  const shorter = Math.min(before.length, after.length);
+  const shift = after.length - before.length;
+  const prefixFirst = commonPrefix(before, after, shorter);
+  const suffixFirst = commonSuffix(before, after, shorter);
+  const readings = [
+    {prefix: prefixFirst, editEnd: before.length - commonSuffix(before, after, shorter - prefixFirst)},
+    {prefix: commonPrefix(before, after, shorter - suffixFirst), editEnd: before.length - suffixFirst},
+  ];
+
+  return spans.flatMap((span) => {
+    for (const {prefix, editEnd} of readings) {
+      const moved = span.end <= prefix ? span
+        : span.start >= editEnd ? {...span, start: span.start + shift, end: span.end + shift}
+        : null;
+      if (moved && after.slice(moved.start, moved.end) === moved.content) return [moved];
+    }
+    return [];
+  });
+}

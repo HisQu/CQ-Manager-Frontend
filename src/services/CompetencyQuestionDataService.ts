@@ -159,6 +159,7 @@ class CompetencyQuestionDataService {
         anchor?: string | null,
         exampleAnswer?: string | null,
         type?: CQType | null,
+        annotations?: AnnotationT[],
     }): Promise<AxiosResponse<CompetencyQuestionT> | UXResponse> {
         return http.put<CompetencyQuestionT>(`/questions/${question_uuid}`, {
             question: question,

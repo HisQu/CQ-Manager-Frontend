@@ -108,9 +108,9 @@ const tags = computed<TagReducedT[]>({
   },
 });
 
-function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null }) {
+function saveCompetencyQuestion({ question, sparqlQuery, comment: newComment, reference, anchor, exampleAnswer, type, annotations }: { question: string, sparqlQuery: string | null, comment: string | null, reference?: string | null, anchor?: string | null, exampleAnswer?: string | null, type?: CQType | null, annotations?: AnnotationT[] }) {
   comment.value = newComment;
-  CompetencyQuestionDataService.change(question, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type }).then(response => {
+  CompetencyQuestionDataService.change(question, props.id, sparqlQuery, newComment, { reference, anchor, exampleAnswer, type, annotations }).then(response => {
     if ("messageType" in response) {
       messagePopupData.value.uxresponse = { ...messagePopupData.value.uxresponse, ...response };
       messagePopupData.value.open = true;
