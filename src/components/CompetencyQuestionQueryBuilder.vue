@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {ArrowDownOnSquareIcon, ChevronDownIcon, TrashIcon} from "@heroicons/vue/24/solid";
 import CompetencyQuestionDataService from "../services/CompetencyQuestionDataService.ts";
 import SubmitButtonWithCallback from "./SubmitButtonWithCallback.vue";
@@ -23,6 +24,8 @@ const props = defineProps<{
   projectId: string;
   sparqlTarget?: string;
 }>()
+
+const {t} = useI18n()
 const emits = defineEmits(['saveCompetencyQuestion', 'fetchCompetencyQuestion'])
 const annotationSection = ref<HTMLElement | null>(null)
 const selectedRevisionId = ref("")
@@ -60,6 +63,19 @@ function wasRetainedFromPreviousRevision(revision: QuestionRevisionT, annotation
   return annotationVersion.versionNumber === 1
     && Boolean(annotationVersion.retainedFromAnnotationVersionId)
     && revision.versionNumber > 1;
+}
+
+// Annotations whose text changed are not carried forward, so a retained version can hold fewer than its source.
+function annotationVersionLabel(revision: QuestionRevisionT, annotationVersion: AnnotationVersionT): string {
+  if (!wasRetainedFromPreviousRevision(revision, annotationVersion)) return t('historyAnnotationRevised')
+  const source = (props.revisions ?? [])
+    .flatMap(({annotationVersions}) => annotationVersions ?? [])
+    .find(({id}) => id === annotationVersion.retainedFromAnnotationVersionId)
+  const retained = annotationVersion.annotations.length
+  const total = source?.annotations.length ?? retained
+  return retained < total
+    ? t('historyAnnotationPartiallyRetained', {retained, total})
+    : t('historyAnnotationRetained')
 }
 
 const localQuestion = ref<string>(props.question ?? '')
@@ -231,7 +247,7 @@ function saveQuestion() {
                 v{{ annotationVersion.versionNumber }}
               </span>
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ annotationVersion.editor.name }}</span>
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t(wasRetainedFromPreviousRevision(revision, annotationVersion) ? 'historyAnnotationRetained' : 'historyAnnotationRevised') }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ annotationVersionLabel(revision, annotationVersion) }}</span>
             </button>
             <p v-if="!(revision.annotationVersions ?? []).length" class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">{{ $t('noAnnotationVersions') }}</p>
           </div>

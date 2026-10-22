@@ -527,6 +527,7 @@
   "historyRevised": "hat die CQ überarbeitet",
   "historyAnnotationRevised": "hat die Annotation überarbeitet",
   "historyAnnotationRetained": "hat Annotationen aus der vorherigen Version beibehalten",
+  "historyAnnotationPartiallyRetained": "hat {retained} von {total} Annotationen aus der vorherigen Version beibehalten",
   "historyTagAdded": "hat das Tag „{tag}“ hinzugefügt",
   "historyTagRemoved": "hat das Tag „{tag}“ entfernt",
   "historyCatalogueAssigned": "hat die Katalogkennung {identifier} vergeben",

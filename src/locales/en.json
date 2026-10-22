@@ -527,6 +527,7 @@
   "historyRevised": "revised the CQ",
   "historyAnnotationRevised": "revised the annotation",
   "historyAnnotationRetained": "retained annotations from the previous version",
+  "historyAnnotationPartiallyRetained": "retained {retained} of {total} annotations from the previous version",
   "historyTagAdded": "added the tag “{tag}”",
   "historyTagRemoved": "removed the tag “{tag}”",
   "historyCatalogueAssigned": "assigned the catalogue identifier {identifier}",
