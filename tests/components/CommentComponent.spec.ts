@@ -3,15 +3,23 @@ import {flushPromises} from '@vue/test-utils'
 import CommentComponent from '../../src/components/CommentComponent.vue'
 import MessagePopup from '../../src/components/MessagePopup.vue'
 import CommentDataService from '../../src/services/CommentDataService'
+import {useStore} from '../../src/store'
 import {mountWithApp} from '../helpers/mount'
 import {apiError, ok} from '../helpers/api'
 import {libravatarUrl} from '../../src/utils/libravatar'
 
-vi.mock('../../src/services/CommentDataService', () => ({default: {comment: vi.fn()}}))
+vi.mock('../../src/services/CommentDataService', () => ({default: {comment: vi.fn(), markLastUnread: vi.fn()}}))
 
-function mountComments(readonly = false) {
+function comment(id: string, authorId: string, createdAt: string): CommentT {
+  return {
+    id, questionId: 'q-1', authorId, createdAt, comment: `Comment ${id}`,
+    author: {id: authorId, email: `${authorId}@example.org`, name: authorId},
+  } as CommentT
+}
+
+function mountComments(readonly = false, comments: CommentT[] = []) {
   return mountWithApp(CommentComponent, {
-    props: {questionId: 'q-1', comments: [], pane: true, readonly},
+    props: {questionId: 'q-1', comments, pane: true, readonly},
     global: {stubs: {MessagePopup: true}},
   }).wrapper
 }
@@ -77,5 +85,34 @@ describe('CommentComponent', () => {
     const avatars = wrapper.findAll('img').map((img) => img.attributes('src'))
     expect(avatars).toEqual([libravatarUrl('me@example.org', 64), libravatarUrl('first@example.org', 64)])
     wrapper.unmount()
+  })
+
+  it('marks the latest comment of someone else as unread', async () => {
+    useStore().user.id = 'me'
+    vi.mocked(CommentDataService.markLastUnread).mockResolvedValue(ok(undefined) as any)
+    const wrapper = mountComments(false, [
+      comment('older', 'other', '2026-10-01T10:00:00Z'),
+      comment('latest-foreign', 'other', '2026-10-02T10:00:00Z'),
+      comment('own', 'me', '2026-10-03T10:00:00Z'),
+    ])
+    const buttons = wrapper.findAll('button[aria-label="Mark as unread"]')
+    // Own comments never count as unread, so only the newest comment of another user offers the action.
+    expect(buttons).toHaveLength(1)
+    await buttons[0].trigger('click')
+    await flushPromises()
+    expect(CommentDataService.markLastUnread).toHaveBeenCalledWith('q-1')
+    expect(wrapper.find('button[aria-label="Mark as unread"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Unread')
+    wrapper.unmount()
+  })
+
+  it('offers no unread action on own comments or deleted questions', () => {
+    useStore().user.id = 'me'
+    const own = mountComments(false, [comment('own', 'me', '2026-10-03T10:00:00Z')])
+    expect(own.find('button[aria-label="Mark as unread"]').exists()).toBe(false)
+    own.unmount()
+    const readonly = mountComments(true, [comment('foreign', 'other', '2026-10-03T10:00:00Z')])
+    expect(readonly.find('button[aria-label="Mark as unread"]').exists()).toBe(false)
+    readonly.unmount()
   })
 })

@@ -47,6 +47,20 @@ class CommentDataService {
             }
         });
     }
+
+    /** Marks the latest comment of another user on a competency question as unread by the logged-in user. */
+    async markLastUnread(questionId: string): Promise<AxiosResponse<void> | UXResponse> {
+        return http.post<void>(`/comments/${questionId}/unread`, null, { headers: authHeader() }).then(response => {
+            return response
+        }).catch(reason => {
+            return {
+                title: t('errorOccurred'),
+                text: t('errorMarkingTheLastCommentAsUnread'),
+                detail: reason,
+                messageType: "error"
+            }
+        });
+    }
 }
 
 export default new CommentDataService();

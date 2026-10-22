@@ -9,11 +9,21 @@ import {PaperAirplaneIcon} from "@heroicons/vue/24/solid";
 import CommentListItem from "./CommentListItem.vue";
 import MessagePopup from "./MessagePopup.vue";
 import CommentDataService from "../services/CommentDataService.ts";
+import {useStore} from "../store.ts";
 
 export default defineComponent({
   name: "CommentComponent",
   emits: ['refresh'],
   methods: {
+    async markLastUnread() {
+      const response = await CommentDataService.markLastUnread(this.questionId);
+      if ("messageType" in response) {
+        this.messagePopupData.uxresponse = {...this.messagePopupData.uxresponse, ...response};
+        this.messagePopupData.open = true;
+      } else {
+        this.markedUnreadComment = this.lastForeignComment;
+      }
+    },
     async comment(commentText: string, questionId: string) {
       if (this.sending || this.readonly || !commentText.trim()) return;
       this.sending = true;
@@ -67,10 +77,17 @@ export default defineComponent({
       return this.comments
         ? [...this.comments].sort((a: CommentT, b: CommentT) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         : []
+    },
+    // Own comments never count as unread, so only the latest comment of someone else can be marked.
+    lastForeignComment(): CommentT | null {
+      return this.commentsSorted.find((comment: CommentT) => comment.author.id !== this.store.user.id) ?? null
     }
   },
   data() {
     return {
+      store: useStore(),
+      // Reloading the question marks all comments as read again, so this state only lives until then.
+      markedUnreadComment: null as CommentT | null,
       commentText: "",
       displaySuccess: false,
       sending: false,
@@ -95,7 +112,10 @@ export default defineComponent({
     <div :class="pane ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5' : ''" data-test="comments-list" :tabindex="pane ? 0 : undefined" :aria-label="$t('comments')">
     <!-- Comment list -->
     <div v-if="comments && comments.length > 0" class="space-y-5">
-      <CommentListItem v-for="comment in commentsSorted" :key="comment.id" :comment="comment" />
+      <CommentListItem v-for="comment in commentsSorted" :key="comment.id" :comment="comment"
+                       :can-mark-unread="!readonly && comment === lastForeignComment"
+                       :marked-unread="comment === markedUnreadComment"
+                       @mark-unread="markLastUnread" />
     </div>
     <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('noCommentsYet') }}</p>
 
