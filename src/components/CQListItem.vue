@@ -17,9 +17,15 @@ const props = defineProps<{
 
 const isConsolidationResult = computed(() => props.cq.unifiedEntryKind === 'consolidation_result');
 
-const linkTo = computed(() => isConsolidationResult.value
-  ? `/consolidations/${props.projectId}/${props.cq.consolidation?.id}`
-  : `/questions/${props.cq.id}`);
+// A consolidated CQ opens the edit view of its target question; only a consolidation without one
+// needs the consolidation page to pick it.
+const linkTo = computed(() => {
+  const targetQuestionId = props.cq.consolidation?.targetQuestionId;
+  if (!isConsolidationResult.value) return `/questions/${props.cq.id}`;
+  return targetQuestionId
+    ? `/questions/${targetQuestionId}`
+    : `/consolidations/${props.projectId}/${props.cq.consolidation?.id}`;
+});
 
 const sourceCount = computed(() => props.cq.consolidation?.sourceQuestionIds?.length ?? 0);
 

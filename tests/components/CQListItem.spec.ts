@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest'
+import {RouterLinkStub} from '@vue/test-utils'
 import CQListItem from '../../src/components/CQListItem.vue'
 import {mountWithApp} from '../helpers/mount'
 import {makeCq} from '../fixtures/factories'
@@ -49,5 +50,23 @@ describe('CQListItem', () => {
     const { wrapper } = mountWithApp(CQListItem, { props: { cq: { ...cq, noComments: 0, noUnreadComments: 0, lastComment: null } } })
 
     expect(wrapper.find('.rounded-full').exists()).toBe(false)
+  })
+
+  it('opens the edit view of the target question for a consolidated CQ', () => {
+    const consolidated = {
+      ...cq, unifiedEntryKind: 'consolidation_result' as const,
+      consolidation: {id: 'c-1', role: 'target' as const, sourceQuestionIds: ['cq-a'], targetQuestionId: 'cq-target'},
+    }
+    const {wrapper} = mountWithApp(CQListItem, {props: {cq: consolidated, projectId: 'p-1'}})
+    expect(wrapper.findComponent(RouterLinkStub).props('to')).toBe('/questions/cq-target')
+  })
+
+  it('opens the consolidation page while a consolidation has no target question yet', () => {
+    const consolidated = {
+      ...cq, unifiedEntryKind: 'consolidation_result' as const,
+      consolidation: {id: 'c-1', role: 'target' as const, sourceQuestionIds: ['cq-a'], targetQuestionId: null as unknown as string},
+    }
+    const {wrapper} = mountWithApp(CQListItem, {props: {cq: consolidated, projectId: 'p-1'}})
+    expect(wrapper.findComponent(RouterLinkStub).props('to')).toBe('/consolidations/p-1/c-1')
   })
 })

@@ -17,6 +17,8 @@ import {useI18n} from "vue-i18n";
 import TagSelector from "../components/TagSelector.vue";
 import QuestionHistory from "../components/QuestionHistory.vue";
 import {isUncatalogued, catalogueName} from "../utils/catalogues.ts";
+import ConsolidationDataService from "../services/ConsolidationDataService.ts";
+import ConsolidationSourceQuestions from "../components/ConsolidationSourceQuestions.vue";
 
 const {expanded: commentsPaneExpanded, docked: commentsPaneDocked} = inject(cqCommentsPaneKey, {expanded: ref(false), docked: ref(false)});
 
@@ -52,6 +54,7 @@ async function fetchCompetencyQuestion() {
       comment.value = response.data.comment ?? null;
       // Deleted CQs are read-only, system admins can only look at them.
       canEdit.value = !response.data.deletedAt && (response.data.permissionsGroupMember || response.data.permissionsProjectManager);
+      void fetchTargetConsolidations(response.data);
       await fetchTopics(response.data.group.project.id);
       selectedTopic.value = response.data.topic ?? null;
     }
@@ -81,6 +84,26 @@ async function saveCatalogueAssignment() {
   } else {
     await fetchCompetencyQuestion();
   }
+}
+
+// Consolidations this CQ is the target of; the consolidation itself carries the permission to edit it.
+const targetConsolidations = ref<{consolidation: ConsolidationT, canEdit: boolean}[]>([]);
+
+async function fetchTargetConsolidations(question: CompetencyQuestionT) {
+  const projectId = question.group.project.id;
+  const responses = await Promise.all(question.consolidations
+    .filter((consolidation) => consolidation.targetQuestion?.id === question.id)
+    .map((consolidation) => ConsolidationDataService.getOne(consolidation.id, projectId)));
+  const loaded = [];
+  for (const response of responses) {
+    if ("messageType" in response) { showError(response); continue; }
+    const permissions = response.data as ConsolidationT & {permissionsProjectEngineer?: boolean, permissionsProjectManager?: boolean};
+    loaded.push({
+      consolidation: response.data,
+      canEdit: !question.deletedAt && Boolean(permissions.permissionsProjectEngineer || permissions.permissionsProjectManager || store.getUser.isSystemAdmin),
+    });
+  }
+  targetConsolidations.value = loaded;
 }
 
 function showError(response: UXResponse) {
@@ -324,6 +347,16 @@ function goToProjectQuestions() {
 
     <!-- SPARQL query (teleported from the question editor) -->
     <div id="cq-sparql-section"></div>
+
+    <!-- Source questions of the consolidations this CQ is the result of -->
+    <ConsolidationSourceQuestions v-for="{consolidation, canEdit: canEditConsolidation} in targetConsolidations"
+                                  :key="consolidation.id"
+                                  class="mt-12"
+                                  :consolidation="consolidation"
+                                  :project-id="cq.data.group.project.id"
+                                  :can-edit="canEditConsolidation"
+                                  @saved="fetchCompetencyQuestion()"
+                                  @error="showError"/>
 
 
   </div>

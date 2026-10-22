@@ -8,8 +8,8 @@ import {TrashIcon, ArrowDownOnSquareIcon, ArrowTopRightOnSquareIcon, CheckIcon, 
 import {useStore} from "../store.ts";
 import {useRouter} from "vue-router";
 import SubmitButtonWithCallback from "../components/SubmitButtonWithCallback.vue";
-import QuestionSelectorTable from "../components/QuestionSelectorTable.vue";
-import {cqLabel, groupFilterOptions, matchesCqSearch} from "../utils/cqFilters.ts";
+import ConsolidationSourceQuestions from "../components/ConsolidationSourceQuestions.vue";
+import {cqLabel, matchesCqSearch} from "../utils/cqFilters.ts";
 import {Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions} from "@headlessui/vue";
 
 const props = defineProps(['id', 'projectid'])
@@ -38,49 +38,8 @@ const resultQuestionExampleAnswer = ref<string | null>(null);
 const resultQuestionType = ref<CQType | null>(null);
 const savingResultQuestion = ref(false);
 const newResultCq = ref<CompetencyQuestionReducedT | null>(null);
-const currentSourceSelection = ref<string[]>([]);
-
-const sourceCqs = computed(() => {
-  const resultId = consolidation.value?.targetQuestion?.id;
-  return resultId ? cqs.value.filter(q => q.id !== resultId) : cqs.value;
-});
-
-const sourceSelectedIds = computed(() =>
-  (consolidation.value?.sourceQuestions ?? []).map(q => q.id)
-);
-
-// Read-only users only see the questions that are part of the consolidation.
-const includedCqs = computed(() => {
-  const ids = new Set(sourceSelectedIds.value);
-  return cqs.value.filter(q => ids.has(q.id));
-});
-
-const sourceGroups = computed(() => groupFilterOptions(cqs.value));
-
 const targetQuery = ref('');
 const filteredCqsForTarget = computed(() => cqs.value.filter(cq => matchesCqSearch(cq, targetQuery.value)));
-
-const savingSourceQuestions = ref(false);
-
-async function saveSourceQuestions(selectedIds: string[]) {
-  const current = new Set(sourceSelectedIds.value);
-  const next = new Set(selectedIds);
-  const toAdd = selectedIds.filter(id => !current.has(id));
-  const toRemove = sourceSelectedIds.value.filter(id => !next.has(id));
-  const projectId = consolidation.value!.project!.id;
-
-  savingSourceQuestions.value = true;
-  const calls: Promise<any>[] = [];
-  if (toAdd.length) calls.push(ConsolidationDataService.addQuestions(props.id, projectId, toAdd));
-  if (toRemove.length) calls.push(ConsolidationDataService.removeQuestions(props.id, projectId, toRemove));
-  const results = await Promise.all(calls);
-  savingSourceQuestions.value = false;
-
-  for (const r of results) {
-    if ("messageType" in r) { showError(r); return; }
-  }
-  await fetchConsolidation();
-}
 
 fetchAll();
 
@@ -115,11 +74,7 @@ async function fetchConsolidation() {
 }
 
 async function fetchAll() {
-  const [consoResp, cqsResp] = await Promise.all([
-    ConsolidationDataService.getOne(props.id, props.projectid),
-    CompetencyQuestionDataService.getAllForOneProject(props.projectid),
-  ]);
-
+  const consoResp = await ConsolidationDataService.getOne(props.id, props.projectid);
   if ("messageType" in consoResp) {
     showError(consoResp);
     return;
@@ -134,10 +89,11 @@ async function fetchAll() {
   resultQuestionExampleAnswer.value = rq0?.exampleAnswer ?? null;
   resultQuestionType.value = rq0?.type ?? null;
 
-  if ("messageType" in cqsResp) {
-    showError(cqsResp);
-  } else {
-    cqs.value = cqsResp.data;
+  // The CQs are only needed to pick a missing target question; the source list loads its own.
+  if (!rq0 && canEdit.value) {
+    const cqsResp = await CompetencyQuestionDataService.getAllForOneProject(props.projectid);
+    if ("messageType" in cqsResp) showError(cqsResp);
+    else cqs.value = cqsResp.data;
   }
 }
 
@@ -328,36 +284,12 @@ async function setResultQuestion() {
     </div>
 
     <!-- Source Questions -->
-    <div class="mt-10">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold dark:text-white">{{ $t('sourceQuestions') }}</h2>
-        <button v-if="canEdit"
-                type="button"
-                @click="saveSourceQuestions(currentSourceSelection)"
-                :disabled="savingSourceQuestions"
-                class="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed">
-          <ArrowDownOnSquareIcon class="-ml-0.5 h-4 w-4" aria-hidden="true"/>
-          {{ savingSourceQuestions ? 'Saving…' : $t('saveSourceQuestions') }}
-        </button>
-      </div>
-
-      <QuestionSelectorTable
-        :cqs="canEdit ? sourceCqs : includedCqs"
-        :groups="sourceGroups"
-        :initialSelectedIds="sourceSelectedIds"
-        :initialGroup="canEdit ? store.cqSelectedGroup : null"
-        :selectable="canEdit"
-        @selectionChanged="currentSourceSelection = $event">
-        <template #header>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            <template v-if="canEdit">
-              {{ $t('checkedQuestionsAreCurrentlyIncludedInThisConsolidationCheckOrUncheckToAddOrRemoveThe') }}
-            </template>
-            <template v-else>{{ $t('questionsIncludedInThisConsolidation') }}</template>
-          </p>
-        </template>
-      </QuestionSelectorTable>
-    </div>
+    <ConsolidationSourceQuestions class="mt-10"
+                                  :consolidation="consolidation"
+                                  :project-id="consolidation.project?.id ?? props.projectid"
+                                  :can-edit="canEdit"
+                                  @saved="fetchConsolidation"
+                                  @error="showError"/>
   </div>
 
   <!-- Loading skeleton -->
