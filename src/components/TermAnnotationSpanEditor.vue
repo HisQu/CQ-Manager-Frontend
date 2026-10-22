@@ -4,6 +4,7 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   PencilIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
 import {
@@ -316,6 +317,11 @@ function removeAnnotation(annotation: AnnotationInCQT) {
   if (editingAnnotationId.value === annotation.id) closeSelection();
 }
 
+function removeEditingAnnotation() {
+  const annotation = stagedAnnotations.value.find((item) => item.id === editingAnnotationId.value);
+  if (annotation) removeAnnotation(annotation);
+}
+
 function beginEditing() {
   if (!canEditSelected.value) return;
   viewingAnnotation.value = null;
@@ -551,6 +557,10 @@ function barStyle(annotation: AnnotationView) {
       <button type="button" :disabled="!term || saving"
                 class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
                 @click="saveAnnotation">{{ editingAnnotationId ? $t('applyChanges') : $t('addAnnotation') }}</button>
+      <button v-if="editingAnnotationId" type="button" :disabled="saving"
+                class="inline-flex items-center justify-center rounded-md p-2 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                :aria-label="$t('removeAnnotation')" :title="$t('removeAnnotation')"
+                @click="removeEditingAnnotation"><TrashIcon class="h-5 w-5" aria-hidden="true" /></button>
       </div>
     </div>
   </div>
