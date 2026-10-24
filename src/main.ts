@@ -6,6 +6,11 @@ import router from "./router.ts"
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
+// Use a different accent colour on the dev server, so it is easy to tell apart from production.
+if (import.meta.env.DEV) {
+    document.documentElement.classList.add('dev-environment')
+}
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
