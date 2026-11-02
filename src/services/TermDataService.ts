@@ -44,10 +44,10 @@ class TermDataService {
         });
     }
 
-    async proposeAnnotations(project_id: string, question_id: string, revision_id: string, text: string): Promise<AxiosResponse<AnnotationProposalResponseT> | UXResponse> {
+    async proposeAnnotations(project_id: string, question_id: string, revision_id: string, text: string, exclude_annotated = true): Promise<AxiosResponse<AnnotationProposalResponseT> | UXResponse> {
         return http.post<AnnotationProposalResponseT>(
             `/annotation-proposals/project/${project_id}/questions/${question_id}`,
-            {revisionId: revision_id, text},
+            {revisionId: revision_id, text, excludeAnnotated: exclude_annotated},
             {headers: authHeader()},
         ).then(response => response).catch(reason => ({
             title: t('errorOccurred'),

@@ -148,7 +148,7 @@ describe('TermAnnotationSpanEditor glossary term staging', () => {
     await wrapper.findAll('button').find((button) => button.text() === 'Propose')!.trigger('click')
     await flushPromises()
 
-    expect(TermDataService.proposeAnnotations).toHaveBeenCalledWith('p-1', 'q-1', 'r-1', question)
+    expect(TermDataService.proposeAnnotations).toHaveBeenCalledWith('p-1', 'q-1', 'r-1', question, true)
     expect(wrapper.text()).toContain('Pfründe')
     expect(TermDataService.saveAnnotationVersion).not.toHaveBeenCalled()
 

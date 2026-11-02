@@ -3,6 +3,7 @@ import {computed, ref, watch} from "vue";
 import {
   ArrowPathIcon,
   CheckIcon,
+  ChevronDownIcon,
   ChevronUpDownIcon,
   PencilIcon,
   QuestionMarkCircleIcon,
@@ -15,6 +16,10 @@ import {
   ComboboxInput,
   ComboboxOption,
   ComboboxOptions,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
   TransitionRoot,
 } from "@headlessui/vue";
 import TermDataService from "../services/TermDataService.ts";
@@ -344,12 +349,14 @@ function beginEditing() {
   isEditing.value = true;
 }
 
-async function proposeAnnotations() {
+async function proposeAnnotations(excludeAnnotated = true) {
   if (!canEditSelected.value || isEditing.value || proposing.value || saving.value) return;
   const revision = selectedRevision.value;
   if (!revision) return;
   proposing.value = true;
-  const response = await TermDataService.proposeAnnotations(props.projectId, props.questionId, revision.id, props.text);
+  const response = await TermDataService.proposeAnnotations(
+    props.projectId, props.questionId, revision.id, props.text, excludeAnnotated,
+  );
   proposing.value = false;
   if ("messageType" in response) {
     showMessage(response);
@@ -522,10 +529,29 @@ function barStyle(annotation: AnnotationView) {
         </button>
       </template>
       <template v-else>
-        <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" @click="proposeAnnotations">
-          <ArrowPathIcon v-if="proposing" class="h-4 w-4 animate-spin" aria-hidden="true" />
-          {{ proposing ? $t('proposingAnnotations') : $t('proposeAnnotations') }}
-        </button>
+        <div class="inline-flex">
+          <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-l-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" @click="proposeAnnotations()">
+            <ArrowPathIcon v-if="proposing" class="h-4 w-4 animate-spin" aria-hidden="true" />
+            {{ proposing ? $t('proposingAnnotations') : $t('proposeAnnotations') }}
+          </button>
+          <Menu as="div" class="relative">
+            <MenuButton type="button" :disabled="proposing" class="inline-flex h-full items-center rounded-r-md border-l border-indigo-500 bg-indigo-600 px-1.5 text-white hover:bg-indigo-500 disabled:opacity-50" :aria-label="$t('proposalModeOptions')">
+              <ChevronDownIcon class="h-4 w-4" aria-hidden="true" />
+            </MenuButton>
+            <MenuItems class="absolute right-0 z-20 mt-1 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/10 focus:outline-none dark:bg-gray-800 dark:ring-white/10">
+              <MenuItem v-slot="{active}">
+                <button type="button" class="block w-full px-3 py-2 text-left text-sm" :class="active ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white' : 'text-gray-700 dark:text-gray-200'" @click="proposeAnnotations(true)">
+                  {{ $t('proposeUnannotated') }}
+                </button>
+              </MenuItem>
+              <MenuItem v-slot="{active}">
+                <button type="button" class="block w-full px-3 py-2 text-left text-sm" :class="active ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white' : 'text-gray-700 dark:text-gray-200'" @click="proposeAnnotations(false)">
+                  {{ $t('reproposeAll') }}
+                </button>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        </div>
         <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" @click="beginEditing">
           <PencilIcon class="h-4 w-4" /> {{ $t('edit') }}
         </button>
