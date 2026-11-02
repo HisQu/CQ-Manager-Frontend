@@ -355,7 +355,7 @@ async function proposeAnnotations(excludeAnnotated = true) {
   if (!revision) return;
   proposing.value = true;
   const response = await TermDataService.proposeAnnotations(
-    props.projectId, props.questionId, revision.id, props.text, excludeAnnotated,
+    props.projectId, props.questionId, revision.id, excludeAnnotated,
   );
   proposing.value = false;
   if ("messageType" in response) {

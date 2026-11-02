@@ -521,7 +521,6 @@
   "permissionHeadersErrorText": "Could not read permission headers from the server response.",
   "errorRetrievingTerms": "... while retrieving terms. Debugging info can be found in the console.",
   "errorTheQuestionsATermBelongsTo": "... while the questions a term belongs to. Debugging info can be found in the console.",
-  "errorAddingTheTerm": "... while adding the term. Debugging info can be found in the console.",
   "errorUpdatingTheTerm": "... while updating the term. Debugging info can be found in the console.",
   "errorDeletingTheTerm": "... while deleting the term. Debugging info can be found in the console.",
   "errorRemovingTheTerm": "... while removing the term. Debugging info can be found in the console.",

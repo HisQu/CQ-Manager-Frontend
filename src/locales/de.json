@@ -521,7 +521,6 @@
   "permissionHeadersErrorText": "Die Berechtigungsheader der Serverantwort konnten nicht gelesen werden.",
   "errorRetrievingTerms": "Fehler beim Abrufen der Begriffe. Informationen zur Fehlersuche finden Sie in der Konsole.",
   "errorTheQuestionsATermBelongsTo": "Fehler beim Abrufen der Fragen zu einem Begriff. Informationen zur Fehlersuche finden Sie in der Konsole.",
-  "errorAddingTheTerm": "Fehler beim Hinzufügen des Begriffs. Informationen zur Fehlersuche finden Sie in der Konsole.",
   "errorUpdatingTheTerm": "Fehler beim Aktualisieren des Begriffs. Informationen zur Fehlersuche finden Sie in der Konsole.",
   "errorDeletingTheTerm": "Fehler beim Löschen des Begriffs. Informationen zur Fehlersuche finden Sie in der Konsole.",
   "errorRemovingTheTerm": "Fehler beim Entfernen des Begriffs. Informationen zur Fehlersuche finden Sie in der Konsole.",

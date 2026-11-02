@@ -7,7 +7,6 @@ import {mountWithApp} from '../helpers/mount'
 
 vi.mock('../../src/services/TermDataService', () => ({default: {
   getAllForOneProject: vi.fn(),
-  createTerm: vi.fn(),
   proposeAnnotations: vi.fn(),
   reviewAnnotationProposals: vi.fn(),
   saveAnnotationVersion: vi.fn(),
@@ -71,13 +70,11 @@ describe('TermAnnotationSpanEditor glossary term staging', () => {
     await flushPromises()
     await stageNewTerm(wrapper)
 
-    expect(TermDataService.createTerm).not.toHaveBeenCalled()
     expect(TermDataService.saveAnnotationVersion).not.toHaveBeenCalled()
 
     await wrapper.findAll('button').find((button) => button.text() === 'Save')!.trigger('click')
     await flushPromises()
 
-    expect(TermDataService.createTerm).not.toHaveBeenCalled()
     expect(TermDataService.saveAnnotationVersion).toHaveBeenCalledWith('q-1', 'r-1', 'av-1', [
       {
         term: 'New glossary term',
@@ -100,7 +97,6 @@ describe('TermAnnotationSpanEditor glossary term staging', () => {
 
     await wrapper.findAll('button').find((button) => button.text() === 'Discard')!.trigger('click')
 
-    expect(TermDataService.createTerm).not.toHaveBeenCalled()
     expect(TermDataService.saveAnnotationVersion).not.toHaveBeenCalled()
     expect(TermDataService.getAllForOneProject).toHaveBeenCalledTimes(1)
     wrapper.unmount()
@@ -114,7 +110,6 @@ describe('TermAnnotationSpanEditor glossary term staging', () => {
     await wrapper.findAll('button').find((button) => button.text() === 'Save')!.trigger('click')
     await flushPromises()
 
-    expect(TermDataService.createTerm).not.toHaveBeenCalled()
     expect(TermDataService.getAllForOneProject).toHaveBeenCalledTimes(1)
     expect(wrapper.text()).toContain('New glossary term')
     expect(wrapper.text()).toContain('Could not save')
@@ -148,7 +143,7 @@ describe('TermAnnotationSpanEditor glossary term staging', () => {
     await wrapper.findAll('button').find((button) => button.text() === 'Propose')!.trigger('click')
     await flushPromises()
 
-    expect(TermDataService.proposeAnnotations).toHaveBeenCalledWith('p-1', 'q-1', 'r-1', question, true)
+    expect(TermDataService.proposeAnnotations).toHaveBeenCalledWith('p-1', 'q-1', 'r-1', true)
     expect(wrapper.text()).toContain('Pfründe')
     expect(TermDataService.saveAnnotationVersion).not.toHaveBeenCalled()
 

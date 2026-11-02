@@ -44,10 +44,10 @@ class TermDataService {
         });
     }
 
-    async proposeAnnotations(project_id: string, question_id: string, revision_id: string, text: string, exclude_annotated = true): Promise<AxiosResponse<AnnotationProposalResponseT> | UXResponse> {
+    async proposeAnnotations(project_id: string, question_id: string, revision_id: string, exclude_annotated = true): Promise<AxiosResponse<AnnotationProposalResponseT> | UXResponse> {
         return http.post<AnnotationProposalResponseT>(
             `/annotation-proposals/project/${project_id}/questions/${question_id}`,
-            {revisionId: revision_id, text, excludeAnnotated: exclude_annotated},
+            {revisionId: revision_id, excludeAnnotated: exclude_annotated},
             {headers: authHeader()},
         ).then(response => response).catch(reason => ({
             title: t('errorOccurred'),
@@ -65,15 +65,6 @@ class TermDataService {
         ).then(response => response).catch(reason => ({
             title: t('errorOccurred'),
             text: t('errorSavingAnnotationReview'),
-            detail: reason,
-            messageType: "error" as const,
-        }));
-    }
-
-    async createTerm(project_id: string, content: string, definition?: string | null, conceptIri?: string | null): Promise<AxiosResponse<TermT> | UXResponse> {
-        return http.post<TermT>(`/terms/project/${project_id}`, {content, definition: definition ?? null, conceptIri: conceptIri ?? null}, { headers: authHeader() }).then(response => response).catch(reason => ({
-            title: t('errorOccurred'),
-            text: t('errorAddingTheTerm'),
             detail: reason,
             messageType: "error" as const,
         }));
