@@ -49,6 +49,7 @@ const terms = ref<TermT[]>([]);
 const isEditing = ref(false);
 const stagedAnnotations = ref<AnnotationInCQT[]>([]);
 let nextStagedAnnotationId = 0;
+let nextStagedTermId = 0;
 const term = ref<TermT | {content: string} | null>(null);
 const query = ref("");
 const newTermDefinition = ref("");
@@ -242,22 +243,15 @@ function updateQuery(event: Event) {
   }
 }
 
-async function saveAnnotation() {
+function saveAnnotation() {
   if (!isEditing.value || !pendingSelection.value || !term.value?.content || saving.value) return;
-  saving.value = true;
-  let selectedTerm: TermT;
-  if ("id" in term.value) {
-    selectedTerm = term.value;
-  } else {
-    const termResponse = await TermDataService.createTerm(props.projectId, term.value.content, newTermDefinition.value || null, newTermConceptIri.value || null);
-    if ("messageType" in termResponse) {
-      saving.value = false;
-      showMessage(termResponse);
-      return;
-    }
-    selectedTerm = termResponse.data;
-    terms.value = [selectedTerm, ...terms.value.filter(({id}) => id !== selectedTerm.id)];
-  }
+  const selectedTerm = "id" in term.value
+    ? term.value
+    : {
+      id: `staged-term-${++nextStagedTermId}`,
+      content: term.value.content,
+      projectId: props.projectId,
+    };
   const annotation: AnnotationInCQT = {
     id: editingAnnotationId.value ?? `staged-${++nextStagedAnnotationId}`,
     content: pendingSelection.value.content,
@@ -275,7 +269,6 @@ async function saveAnnotation() {
   } else {
     stagedAnnotations.value = [...stagedAnnotations.value, annotation];
   }
-  saving.value = false;
   closeSelection();
 }
 
@@ -354,11 +347,14 @@ async function saveChanges() {
     conceptIri: item.term.conceptIri ?? null,
   }));
   const response = await TermDataService.saveAnnotationVersion(props.questionId, revision.id, base?.id ?? null, annotations);
-  saving.value = false;
   if ("messageType" in response) {
+    saving.value = false;
     showMessage(response);
     return;
   }
+  // The backend creates any missing glossary terms in the same transaction as this confirmed snapshot.
+  await fetchTerms();
+  saving.value = false;
   isEditing.value = false;
   closeSelection();
   emit("updated");
