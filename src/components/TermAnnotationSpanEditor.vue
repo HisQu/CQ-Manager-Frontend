@@ -4,6 +4,7 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   PencilIcon,
+  QuestionMarkCircleIcon,
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/solid";
@@ -16,6 +17,7 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import TermDataService from "../services/TermDataService.ts";
+import {t} from "../i18n";
 import MessagePopup from "./MessagePopup.vue";
 import {getAnnotationLabelOption} from "../constants/annotationLabels.ts";
 import {
@@ -48,6 +50,8 @@ const textContainer = ref<HTMLElement | null>(null);
 const terms = ref<TermT[]>([]);
 const isEditing = ref(false);
 const stagedAnnotations = ref<AnnotationInCQT[]>([]);
+const proposalRunId = ref<string | null>(null);
+const proposing = ref(false);
 let nextStagedAnnotationId = 0;
 let nextStagedTermId = 0;
 const term = ref<TermT | {content: string} | null>(null);
@@ -103,6 +107,7 @@ const hasStagedChanges = computed(() => {
   })).sort((left, right) => left.start - right.start || left.end - right.end || left.term.localeCompare(right.term));
   return JSON.stringify(normalize(stagedAnnotations.value)) !== JSON.stringify(normalize(selectedAnnotationVersion.value?.annotations ?? []));
 });
+const canSaveStagedChanges = computed(() => hasStagedChanges.value || proposalRunId.value !== null);
 
 watch(() => [props.selectedRevisionId, props.selectedAnnotationVersionId], () => {
   isEditing.value = false;
@@ -153,6 +158,17 @@ async function fetchTerms() {
 function showMessage(response: UXResponse) {
   messagePopupData.value.uxresponse = {...messagePopupData.value.uxresponse, ...response};
   messagePopupData.value.open = true;
+}
+
+function annotationPayload(annotations: AnnotationInCQT[]): AnnotationT[] {
+  return annotations.map((item) => ({
+    term: item.term.content,
+    passage: item.content,
+    start: item.start,
+    end: item.end,
+    definition: item.term.definition ?? null,
+    conceptIri: item.term.conceptIri ?? null,
+  }));
 }
 
 function getSourceTextOffset(container: HTMLElement, targetNode: Node, targetOffset: number): number | null {
@@ -327,35 +343,101 @@ function beginEditing() {
   isEditing.value = true;
 }
 
-function discardChanges() {
+async function proposeAnnotations() {
+  if (!canEditSelected.value || isEditing.value || proposing.value || saving.value) return;
+  const revision = selectedRevision.value;
+  if (!revision) return;
+  proposing.value = true;
+  const response = await TermDataService.proposeAnnotations(props.projectId, props.questionId, revision.id, props.text);
+  proposing.value = false;
+  if ("messageType" in response) {
+    showMessage(response);
+    return;
+  }
+  if (!response.data.proposalRunId || response.data.candidates.length === 0) {
+    showMessage({title: t("proposeAnnotations"), text: t("noAnnotationProposals"), detail: "", messageType: "notice"});
+    return;
+  }
+
+  beginEditing();
+  proposalRunId.value = response.data.proposalRunId;
+  const additions: AnnotationInCQT[] = [];
+  for (const candidate of response.data.candidates) {
+    if (props.text.slice(candidate.start, candidate.end) !== candidate.text) continue;
+    const alreadyPresent = stagedAnnotations.value.some((annotation) =>
+      annotation.start === candidate.start
+      && annotation.end === candidate.end
+      && annotation.content === candidate.text
+      && annotation.term.content === candidate.suggestedTerm.content,
+    );
+    if (alreadyPresent) continue;
+    const existingTerm = candidate.suggestedTerm.id
+      ? terms.value.find(({id}) => id === candidate.suggestedTerm.id)
+      : undefined;
+    additions.push({
+      id: `proposal-${candidate.proposalId}`,
+      content: candidate.text,
+      start: candidate.start,
+      end: candidate.end,
+      term: {
+        id: candidate.suggestedTerm.id ?? `staged-proposal-term-${candidate.proposalId}`,
+        content: candidate.suggestedTerm.content,
+        definition: candidate.suggestedTerm.definition ?? existingTerm?.definition ?? null,
+        conceptIri: candidate.suggestedTerm.conceptIri ?? existingTerm?.conceptIri ?? null,
+      },
+    });
+  }
+  stagedAnnotations.value = [...stagedAnnotations.value, ...additions];
+}
+
+function clearProposalState() {
+  proposalRunId.value = null;
+}
+
+async function discardChanges() {
+  if (saving.value) return;
+  if (proposalRunId.value) {
+    saving.value = true;
+    const response = await TermDataService.reviewAnnotationProposals(
+      props.projectId, props.questionId, proposalRunId.value, true,
+    );
+    saving.value = false;
+    if ("messageType" in response) {
+      showMessage(response);
+      return;
+    }
+  }
   stagedAnnotations.value = [];
   isEditing.value = false;
+  clearProposalState();
   closeSelection();
 }
 
 async function saveChanges() {
   const base = latestAnnotationVersion.value;
   const revision = selectedRevision.value;
-  if (!isEditing.value || !hasStagedChanges.value || !revision || saving.value) return;
+  if (!isEditing.value || !canSaveStagedChanges.value || !revision || saving.value) return;
   saving.value = true;
-  const annotations: AnnotationT[] = stagedAnnotations.value.map((item) => ({
-    term: item.term.content,
-    passage: item.content,
-    start: item.start,
-    end: item.end,
-    definition: item.term.definition ?? null,
-    conceptIri: item.term.conceptIri ?? null,
-  }));
-  const response = await TermDataService.saveAnnotationVersion(props.questionId, revision.id, base?.id ?? null, annotations);
+  const annotations = annotationPayload(stagedAnnotations.value);
+  const response = proposalRunId.value && !hasStagedChanges.value
+    ? await TermDataService.reviewAnnotationProposals(
+      props.projectId, props.questionId, proposalRunId.value,
+    )
+    : await TermDataService.saveAnnotationVersion(
+      props.questionId, revision.id, base?.id ?? null, annotations, proposalRunId.value,
+    );
   if ("messageType" in response) {
     saving.value = false;
     showMessage(response);
     return;
   }
-  // The backend creates any missing glossary terms in the same transaction as this confirmed snapshot.
-  await fetchTerms();
+  if (hasStagedChanges.value) {
+    // The backend creates missing glossary terms and records proposal decisions with this confirmed snapshot.
+    await fetchTerms();
+  }
   saving.value = false;
   isEditing.value = false;
+  clearProposalState();
   closeSelection();
   emit("updated");
 }
@@ -431,17 +513,28 @@ function barStyle(annotation: AnnotationView) {
   <div class="mb-3 flex flex-wrap items-center justify-end gap-3">
     <div v-if="canEditSelected" class="flex items-center gap-2">
       <template v-if="isEditing">
-        <button type="button" :disabled="saving || !hasStagedChanges" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" :aria-label="$t('saveAnnotations')" :title="$t('saveAnnotations')" @click="saveChanges">
+        <button type="button" :disabled="saving || !canSaveStagedChanges" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" :aria-label="$t('saveAnnotations')" :title="$t('saveAnnotations')" @click="saveChanges">
           <CheckIcon class="h-4 w-4" /> {{ $t('save') }}
         </button>
         <button type="button" :disabled="saving" class="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700" :aria-label="$t('discardChanges')" :title="$t('discardChanges')" @click="discardChanges">
           <XMarkIcon class="h-4 w-4" /> {{ $t('discard') }}
         </button>
       </template>
-      <button v-else type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" @click="beginEditing">
-        <PencilIcon class="h-4 w-4" /> {{ $t('edit') }}
-      </button>
+      <template v-else>
+        <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" @click="proposeAnnotations">
+          {{ proposing ? $t('proposingAnnotations') : $t('proposeAnnotations') }}
+        </button>
+        <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" @click="beginEditing">
+          <PencilIcon class="h-4 w-4" /> {{ $t('edit') }}
+        </button>
+      </template>
     </div>
+    <a href="https://github.com/HisQu/CQ-Manager-Backend#annotation-proposals"
+       target="_blank" rel="noopener noreferrer"
+       class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-gray-700"
+       :aria-label="$t('annotationProposalsHelp')" :title="$t('annotationProposalsHelp')">
+      <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
+    </a>
   </div>
   <p class="mb-2 text-sm text-gray-600 dark:text-gray-300">
     <template v-if="isEditing">Select text to annotate. Changes are staged until you save or discard.</template>
