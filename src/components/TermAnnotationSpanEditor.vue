@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
 import {
+  ArrowPathIcon,
   CheckIcon,
   ChevronUpDownIcon,
   PencilIcon,
@@ -522,6 +523,7 @@ function barStyle(annotation: AnnotationView) {
       </template>
       <template v-else>
         <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50" @click="proposeAnnotations">
+          <ArrowPathIcon v-if="proposing" class="h-4 w-4 animate-spin" aria-hidden="true" />
           {{ proposing ? $t('proposingAnnotations') : $t('proposeAnnotations') }}
         </button>
         <button type="button" :disabled="proposing" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" @click="beginEditing">
