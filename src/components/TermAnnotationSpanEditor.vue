@@ -557,7 +557,7 @@ function barStyle(annotation: AnnotationView) {
         </button>
       </template>
     </div>
-    <a href="https://github.com/HisQu/CQ-Manager-Backend#annotation-proposals"
+    <a href="https://github.com/HisQu/CQ-Manager-Backend/blob/main/docs/annotation-proposition.md"
        target="_blank" rel="noopener noreferrer"
        class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-gray-700"
        :aria-label="$t('annotationProposalsHelp')" :title="$t('annotationProposalsHelp')">
