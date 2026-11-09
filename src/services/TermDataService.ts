@@ -43,18 +43,37 @@ class TermDataService {
             };
         });
     }
-    async createTerm(project_id: string, content: string, definition?: string | null, conceptIri?: string | null): Promise<AxiosResponse<TermT> | UXResponse> {
-        return http.post<TermT>(`/terms/project/${project_id}`, {content, definition: definition ?? null, conceptIri: conceptIri ?? null}, { headers: authHeader() }).then(response => response).catch(reason => ({
+
+    async proposeAnnotations(project_id: string, question_id: string, revision_id: string, exclude_annotated = true): Promise<AxiosResponse<AnnotationProposalResponseT> | UXResponse> {
+        return http.post<AnnotationProposalResponseT>(
+            `/annotation-proposals/project/${project_id}/questions/${question_id}`,
+            {revisionId: revision_id, excludeAnnotated: exclude_annotated},
+            {headers: authHeader()},
+        ).then(response => response).catch(reason => ({
             title: t('errorOccurred'),
-            text: t('errorAddingTheTerm'),
+            text: t('errorProposingAnnotations'),
             detail: reason,
             messageType: "error" as const,
         }));
     }
 
-    async saveAnnotationVersion(question_id: string, revision_id: string, base_annotation_version_id: string | null, annotations: AnnotationT[]): Promise<AxiosResponse<AnnotationVersionSaveT> | UXResponse> {
+    async reviewAnnotationProposals(project_id: string, question_id: string, run_id: string, reject = false): Promise<AxiosResponse<void> | UXResponse> {
+        return http.put<void>(
+            `/annotation-proposals/project/${project_id}/questions/${question_id}/runs/${run_id}/review`,
+            {reject},
+            {headers: authHeader()},
+        ).then(response => response).catch(reason => ({
+            title: t('errorOccurred'),
+            text: t('errorSavingAnnotationReview'),
+            detail: reason,
+            messageType: "error" as const,
+        }));
+    }
+
+    async saveAnnotationVersion(question_id: string, revision_id: string, base_annotation_version_id: string | null, annotations: AnnotationT[], proposal_run_id?: string | null): Promise<AxiosResponse<AnnotationVersionSaveT> | UXResponse> {
         return http.put<AnnotationVersionSaveT>(`/terms/question/${question_id}/revisions/${revision_id}/annotations`, {
             baseAnnotationVersionId: base_annotation_version_id,
+            ...(proposal_run_id ? {proposalRunId: proposal_run_id} : {}),
             annotations,
         }, { headers: authHeader() }).then(response => response).catch(reason => ({
             title: t('errorOccurred'),
