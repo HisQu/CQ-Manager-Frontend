@@ -23,7 +23,7 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import TermDataService from "../services/TermDataService.ts";
-import {t} from "../i18n";
+import {i18n, t} from "../i18n";
 import MessagePopup from "./MessagePopup.vue";
 import {getAnnotationLabelOption} from "../constants/annotationLabels.ts";
 import {
@@ -78,6 +78,12 @@ const messagePopupData = ref({
   open: false,
 });
 const newTermOption = computed(() => ({content: query.value.trim()}));
+const annotationProposalsHelpUrl = computed(() => {
+  const document = i18n.global.locale.value.toLowerCase().startsWith("de")
+    ? "annotation-proposition-de.md"
+    : "annotation-proposition-en.md";
+  return `https://github.com/HisQu/CQ-Manager-Backend/blob/feature/annotation-proposition/docs/${document}`;
+});
 const latestRevision = computed(() => [...props.revisions].sort((a, b) => b.versionNumber - a.versionNumber)[0]);
 const selectedRevision = computed(() => props.revisions.find(({id}) => id === props.selectedRevisionId) ?? latestRevision.value);
 const currentRevision = computed(() => Boolean(selectedRevision.value && selectedRevision.value.id === latestRevision.value?.id));
@@ -557,7 +563,7 @@ function barStyle(annotation: AnnotationView) {
         </button>
       </template>
     </div>
-    <a href="https://github.com/HisQu/CQ-Manager-Backend/blob/main/docs/annotation-proposition.md"
+    <a :href="annotationProposalsHelpUrl"
        target="_blank" rel="noopener noreferrer"
        class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-300 dark:hover:bg-gray-700"
        :aria-label="$t('annotationProposalsHelp')" :title="$t('annotationProposalsHelp')">
